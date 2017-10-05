@@ -79,8 +79,18 @@ class DetectLanguage(modelFilename: String, frequencyDictionaryFilename: String?
 
     val tokensClassifications: List<Pair<String, DenseNDArray>> = this.languageDetector.classifyTokens(text)
 
-    val jsonList = json { tokensClassifications.map { it.first to it.second.toDoubleArray() } }
+    val jsonList = json {
+      val languages = this@DetectLanguage.languageDetector.model.supportedLanguages
+      array(tokensClassifications.map {
+        obj(
+          "word" to it.first,
+          "classification" to obj(*it.second.toDoubleArray().mapIndexed { i, score ->
+            Pair(languages[i].isoCode, score)
+          }.toTypedArray())
+        )
+      })
+    }
 
-    return jsonList.joinToString()
+    return jsonList.toJsonString()
   }
 }
