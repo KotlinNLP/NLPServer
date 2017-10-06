@@ -32,21 +32,30 @@ class CommandLineArguments(args: Array<String>) {
   ) { toInt() }.default(3000)
 
   /**
-   * The filename of the model of the NeuralTokenizer.
+   * The filename of the NeuralTokenizer serialized model.
    */
   val tokenizerModel: String by parser.storing(
     "-t",
     "--tokenizer-model",
-    help="the filename of the model of the neural tokenizer"
+    help="the filename of the neural tokenizer serialized model"
   )
 
   /**
-   * The filename of the model of the LanguageDetector.
+   * The filename of the LanguageDetector serialized model.
    */
   val langDetectorModel: String by parser.storing(
     "-l",
     "--language-detector-model",
-    help="the filename of the model of the language detector"
+    help="the filename of the language detector serialized model"
+  )
+
+  /**
+   * The filename of the CJK NeuralTokenizer serialized model.
+   */
+  val cjkTokenizerModel: String by parser.storing(
+    "-c",
+    "--cjk-tokenizer-model",
+    help="the filename of the CJK neural tokenizer model used by the language detector"
   )
 
   /**
