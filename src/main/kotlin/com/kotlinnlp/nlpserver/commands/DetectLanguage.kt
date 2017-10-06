@@ -11,7 +11,8 @@ import com.beust.klaxon.json
 import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.languagedetector.LanguageDetectorModel
 import com.kotlinnlp.languagedetector.utils.FrequencyDictionary
-import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
+import com.kotlinnlp.languagedetector.utils.TextTokenizer
+import com.kotlinnlp.neuraltokenizer.NeuralTokenizerModel
 import java.io.File
 import java.io.FileInputStream
 import java.util.logging.Logger
@@ -19,10 +20,12 @@ import java.util.logging.Logger
 /**
  * The command executed on the route '/detect-language'.
  *
- * @param modelFilename the filename of the model of the [LanguageDetector]
+ * @param modelFilename the filename of the serialized [LanguageDetectorModel]
+ * @param cjkModelFilename the filename of the serialized [NeuralTokenizerModel] used to tokenize Chinese, Japanese and
+ *                         Korean texts
  * @param frequencyDictionaryFilename the filename of the [FrequencyDictionary] (can be null)
  */
-class DetectLanguage(modelFilename: String, frequencyDictionaryFilename: String?) {
+class DetectLanguage(modelFilename: String, cjkModelFilename: String, frequencyDictionaryFilename: String?) {
 
   /**
    * The logger of this command.
@@ -42,6 +45,9 @@ class DetectLanguage(modelFilename: String, frequencyDictionaryFilename: String?
     this.logger.info("Loading language detector model from '$modelFilename'\n")
     val model = LanguageDetectorModel.load(FileInputStream(File(modelFilename)))
 
+    this.logger.info("Loading CJK tokenizer model from '$cjkModelFilename'\n")
+    val tokenizer = TextTokenizer(cjkModel = NeuralTokenizerModel.load(FileInputStream(File(cjkModelFilename))))
+
     val freqDictionary = if (frequencyDictionaryFilename != null) {
       this.logger.info("Loading frequency dictionary from '$frequencyDictionaryFilename'\n")
       FrequencyDictionary.load(FileInputStream(File(frequencyDictionaryFilename)))
@@ -50,7 +56,7 @@ class DetectLanguage(modelFilename: String, frequencyDictionaryFilename: String?
       null
     }
 
-    this.languageDetector = LanguageDetector(model = model, frequencyDictionary = freqDictionary)
+    this.languageDetector = LanguageDetector(model = model, tokenizer = tokenizer, frequencyDictionary = freqDictionary)
   }
 
   /**
@@ -77,16 +83,20 @@ class DetectLanguage(modelFilename: String, frequencyDictionaryFilename: String?
    */
   fun perToken(text: String): String {
 
-    val tokensClassifications: List<Pair<String, DenseNDArray>> = this.languageDetector.classifyTokens(text)
+    val tokensClassifications: List<Pair<String, LanguageDetector.TokenClassification>>
+      = this.languageDetector.classifyTokens(text)
 
     val jsonList = json {
       val languages = this@DetectLanguage.languageDetector.model.supportedLanguages
       array(tokensClassifications.map {
         obj(
           "word" to it.first,
-          "classification" to obj(*it.second.toDoubleArray().mapIndexed { i, score ->
-            Pair(languages[i].isoCode, score)
-          }.toTypedArray())
+          "classification" to obj(
+            "languages" to obj(*it.second.languages.toDoubleArray().mapIndexed { i, score ->
+              Pair(languages[i].isoCode, score)
+            }.toTypedArray()),
+            "charsImportance" to array(it.second.charsImportance.toDoubleArray().toList())
+          )
         )
       })
     }
