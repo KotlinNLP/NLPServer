@@ -18,6 +18,7 @@ fun main(args: Array<String>) {
     port = parsedArgs.port,
     tokenizerModelFilename = parsedArgs.tokenizerModel,
     languageDetectorModelFilename = parsedArgs.langDetectorModel,
+    cjkModelFilename = parsedArgs.cjkTokenizerModel,
     frequencyDictionaryFilename = parsedArgs.freqDictionary
   ).start()
 }

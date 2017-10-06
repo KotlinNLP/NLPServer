@@ -20,14 +20,16 @@ import java.util.logging.Logger
  * The NLP Server class.
  *
  * @param port the port listened from the server (default = 3000)
- * @param tokenizerModelFilename the filename of the model of the tokenizer
- * @param languageDetectorModelFilename the filename of the model of the language detector
+ * @param tokenizerModelFilename the filename of the tokenizer model
+ * @param languageDetectorModelFilename the filename of the language detector model
+ * @param cjkModelFilename the filename of the CJK tokenizer used by the language detector
  * @param frequencyDictionaryFilename the filename of the frequency dictionary
  */
 class NLPServer(
   port: Int = 3000,
   tokenizerModelFilename: String,
   languageDetectorModelFilename: String,
+  cjkModelFilename: String,
   frequencyDictionaryFilename: String?
 ) {
 
@@ -51,6 +53,7 @@ class NLPServer(
    */
   private val detectLanguage = DetectLanguage(
     modelFilename = languageDetectorModelFilename,
+    cjkModelFilename = cjkModelFilename,
     frequencyDictionaryFilename = frequencyDictionaryFilename)
 
   /**
