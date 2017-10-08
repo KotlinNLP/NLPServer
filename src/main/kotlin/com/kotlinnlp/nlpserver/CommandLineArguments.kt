@@ -23,7 +23,7 @@ class CommandLineArguments(args: Array<String>) {
   private val parser = ArgParser(args)
 
   /**
-   * The port listened by the server.
+   * The port listened by the server (default = 3000).
    */
   val port: Int by parser.storing(
     "-p",
