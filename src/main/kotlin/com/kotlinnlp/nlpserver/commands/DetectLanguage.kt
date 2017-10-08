@@ -88,7 +88,7 @@ class DetectLanguage(modelFilename: String, cjkModelFilename: String, frequencyD
     return json {
       obj(
         "language" to language.isoCode,
-        "classification" to prediction.toLanguageScorePairs()
+        "classification" to obj(*prediction.toLanguageScorePairs())
       )
     }.toJsonString()
   }
