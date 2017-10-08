@@ -20,17 +20,17 @@ import java.util.logging.Logger
  * The NLP Server class.
  *
  * @param port the port listened from the server (default = 3000)
- * @param tokenizerModelsDir the directory containing the tokenizer models
- * @param languageDetectorModelFilename the filename of the language detector model
- * @param cjkModelFilename the filename of the CJK tokenizer used by the language detector
- * @param frequencyDictionaryFilename the filename of the frequency dictionary
+ * @param tokenizerModelsDir the directory containing the tokenizer models (default = null)
+ * @param languageDetectorModelFilename the filename of the language detector model (default = null)
+ * @param cjkModelFilename the filename of the CJK tokenizer used by the language detector (default = null)
+ * @param frequencyDictionaryFilename the filename of the frequency dictionary (default = null)
  */
 class NLPServer(
   port: Int = 3000,
-  tokenizerModelsDir: String,
-  languageDetectorModelFilename: String,
-  cjkModelFilename: String,
-  frequencyDictionaryFilename: String?
+  tokenizerModelsDir: String? = null,
+  languageDetectorModelFilename: String? = null,
+  cjkModelFilename: String? = null,
+  frequencyDictionaryFilename: String? = null
 ) {
 
   /**
@@ -46,15 +46,15 @@ class NLPServer(
   /**
    * The handler of the DetectLanguage command.
    */
-  private val detectLanguage = DetectLanguage(
-    modelFilename = languageDetectorModelFilename,
+  private val detectLanguage: DetectLanguage? = this.buildDetectLanguageCmd(
+    languageDetectorModelFilename = languageDetectorModelFilename,
     cjkModelFilename = cjkModelFilename,
     frequencyDictionaryFilename = frequencyDictionaryFilename)
 
   /**
    * The handler of the Tokenize command.
    */
-  private val tokenize = Tokenize(modelsDir = tokenizerModelsDir, detectLanguageCmd = this.detectLanguage)
+  private val tokenize: Tokenize? = this.buildTokenizeCmd(tokenizerModelsDir = tokenizerModelsDir)
 
   /**
    * Initialize Spark.
@@ -90,20 +90,60 @@ class NLPServer(
       this.parseRoute()
     }
 
-    Spark.path("/tokenize") {
-      this.tokenizeRoute()
+    if (this.tokenize != null) {
+      Spark.path("/tokenize") {
+        this.tokenizeRoute()
+      }
     }
 
-    Spark.path("/detect-language") {
-      this.detectLanguageRoute()
-    }
-
-    Spark.path("/classify-tokens-language") {
-      this.classifyTokensLanguageRoute()
+    if (this.detectLanguage != null) {
+      Spark.path("/detect-language") {
+        this.detectLanguageRoute()
+      }
+      Spark.path("/classify-tokens-language") {
+        this.classifyTokensLanguageRoute()
+      }
     }
 
     this.logger.info("NLP Server running on 'localhost:%d'\n".format(Spark.port()))
   }
+
+  /**
+   * Build the [DetectLanguage] command.
+   * The [languageDetectorModelFilename] and the [cjkModelFilename] arguments are required to be not null to build the command,
+   * otherwise null is returned.
+   *
+   * @param languageDetectorModelFilename the filename of the language detector model
+   * @param cjkModelFilename the filename of the CJK tokenizer used by the language detector
+   * @param frequencyDictionaryFilename the filename of the frequency dictionary
+   *
+   * @return the [DetectLanguage] command if the requirements are satisfied, null otherwise
+   */
+  private fun buildDetectLanguageCmd(languageDetectorModelFilename: String?,
+                                     cjkModelFilename: String?,
+                                     frequencyDictionaryFilename: String?): DetectLanguage? =
+    if (languageDetectorModelFilename == null || cjkModelFilename == null)
+      null
+    else
+      DetectLanguage(
+        modelFilename = languageDetectorModelFilename,
+        cjkModelFilename = cjkModelFilename,
+        frequencyDictionaryFilename = frequencyDictionaryFilename)
+
+  /**
+   * Build the [Tokenize] command.
+   * The [tokenizerModelsDir] argument and the [detectLanguage] command are required to be not null to build the command,
+   * otherwise null is returned.
+   *
+   * @param tokenizerModelsDir the directory containing the tokenizer models
+   *
+   * @return the [Tokenize] command if the requirements are satisfied, null otherwise
+   */
+  private fun buildTokenizeCmd(tokenizerModelsDir: String?): Tokenize? =
+    if (this.detectLanguage == null || tokenizerModelsDir == null)
+      null
+    else
+      Tokenize(modelsDir = tokenizerModelsDir, detectLanguageCmd = this.detectLanguage)
 
   /**
    * Define the '/parse' route.
@@ -142,22 +182,22 @@ class NLPServer(
 
       request.checkRequiredParams(requiredParams = listOf("text"))
 
-      this.tokenize(text = request.queryParams("text"))
+      this.tokenize!!(text = request.queryParams("text"))
     }
 
     Spark.get("/:lang") { request, _ ->
 
       request.checkRequiredParams(requiredParams = listOf("text"))
 
-      this.tokenize(text = request.queryParams("text"), language = request.params("lang"))
+      this.tokenize!!(text = request.queryParams("text"), language = request.params("lang"))
     }
 
     Spark.post("") { request, _ ->
-      this.tokenize(text = request.body())
+      this.tokenize!!(text = request.body())
     }
 
     Spark.post("/:lang") { request, _ ->
-      this.tokenize(text = request.body(), language = request.params("lang"))
+      this.tokenize!!(text = request.body(), language = request.params("lang"))
     }
   }
 
@@ -170,11 +210,11 @@ class NLPServer(
 
       request.checkRequiredParams(requiredParams = listOf("text"))
 
-      this.detectLanguage(text = request.queryParams("text"))
+      this.detectLanguage!!(text = request.queryParams("text"))
     }
 
     Spark.post("") { request, _ ->
-      this.detectLanguage(text = request.body())
+      this.detectLanguage!!(text = request.body())
     }
   }
 
@@ -187,11 +227,11 @@ class NLPServer(
 
       request.checkRequiredParams(requiredParams = listOf("text"))
 
-      this.detectLanguage.perToken(text = request.queryParams("text"))
+      this.detectLanguage!!.perToken(text = request.queryParams("text"))
     }
 
     Spark.post("") { request, _ ->
-      this.detectLanguage.perToken(text = request.body())
+      this.detectLanguage!!.perToken(text = request.body())
     }
   }
 
