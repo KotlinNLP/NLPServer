@@ -20,14 +20,14 @@ import java.util.logging.Logger
  * The NLP Server class.
  *
  * @param port the port listened from the server (default = 3000)
- * @param tokenizerModelFilename the filename of the tokenizer model
+ * @param tokenizerModelsDir the directory containing the tokenizer models
  * @param languageDetectorModelFilename the filename of the language detector model
  * @param cjkModelFilename the filename of the CJK tokenizer used by the language detector
  * @param frequencyDictionaryFilename the filename of the frequency dictionary
  */
 class NLPServer(
   port: Int = 3000,
-  tokenizerModelFilename: String,
+  tokenizerModelsDir: String,
   languageDetectorModelFilename: String,
   cjkModelFilename: String,
   frequencyDictionaryFilename: String?
@@ -44,17 +44,17 @@ class NLPServer(
   private val parse = Parse()
 
   /**
-   * The handler of the Tokenize command.
-   */
-  private val tokenize = Tokenize(tokenizerModelFilename)
-
-  /**
    * The handler of the DetectLanguage command.
    */
   private val detectLanguage = DetectLanguage(
     modelFilename = languageDetectorModelFilename,
     cjkModelFilename = cjkModelFilename,
     frequencyDictionaryFilename = frequencyDictionaryFilename)
+
+  /**
+   * The handler of the Tokenize command.
+   */
+  private val tokenize = Tokenize(modelsDir = tokenizerModelsDir, detectLanguageCmd = this.detectLanguage)
 
   /**
    * Initialize Spark.
@@ -145,8 +145,19 @@ class NLPServer(
       this.tokenize(text = request.queryParams("text"))
     }
 
+    Spark.get("/:lang") { request, _ ->
+
+      request.checkRequiredParams(requiredParams = listOf("text"))
+
+      this.tokenize(text = request.queryParams("text"), language = request.params("lang"))
+    }
+
     Spark.post("") { request, _ ->
       this.tokenize(text = request.body())
+    }
+
+    Spark.post("/:lang") { request, _ ->
+      this.tokenize(text = request.body(), language = request.params("lang"))
     }
   }
 
