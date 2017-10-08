@@ -34,38 +34,38 @@ class CommandLineArguments(args: Array<String>) {
   /**
    * The directory containing the serialized models of the NeuralTokenizer, one per language.
    */
-  val tokenizerModelsDir: String by parser.storing(
+  val tokenizerModelsDir: String? by parser.storing(
     "-t",
     "--tokenizer-models-directory",
     help="the directory containing the serialized models of the neural tokenizers (one per language)"
-  )
+  ).default(null)
 
   /**
    * The filename of the LanguageDetector serialized model.
    */
-  val langDetectorModel: String by parser.storing(
+  val langDetectorModel: String? by parser.storing(
     "-l",
     "--language-detector-model",
     help="the filename of the language detector serialized model"
-  )
+  ).default(null)
 
   /**
    * The filename of the CJK NeuralTokenizer serialized model.
    */
-  val cjkTokenizerModel: String by parser.storing(
+  val cjkTokenizerModel: String? by parser.storing(
     "-c",
     "--cjk-tokenizer-model",
     help="the filename of the CJK neural tokenizer model used by the language detector"
-  )
+  ).default(null)
 
   /**
    * The filename of the FrequencyDictionary.
    */
-  val freqDictionary: String by parser.storing(
+  val freqDictionary: String? by parser.storing(
     "-f",
     "--frequency-dictionary",
     help="the filename of the frequency dictionary used by the language detector"
-  )
+  ).default(null)
 
   /**
    * Force parsing all arguments (only read ones are parsed by default).
