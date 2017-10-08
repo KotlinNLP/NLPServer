@@ -32,12 +32,12 @@ class CommandLineArguments(args: Array<String>) {
   ) { toInt() }.default(3000)
 
   /**
-   * The filename of the NeuralTokenizer serialized model.
+   * The directory containing the serialized models of the NeuralTokenizer, one per language.
    */
-  val tokenizerModel: String by parser.storing(
+  val tokenizerModelsDir: String by parser.storing(
     "-t",
-    "--tokenizer-model",
-    help="the filename of the neural tokenizer serialized model"
+    "--tokenizer-models-directory",
+    help="the directory containing the serialized models of the neural tokenizers (one per language)"
   )
 
   /**

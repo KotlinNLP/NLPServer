@@ -16,7 +16,7 @@ fun main(args: Array<String>) {
 
   NLPServer(
     port = parsedArgs.port,
-    tokenizerModelFilename = parsedArgs.tokenizerModel,
+    tokenizerModelsDir = parsedArgs.tokenizerModelsDir,
     languageDetectorModelFilename = parsedArgs.langDetectorModel,
     cjkModelFilename = parsedArgs.cjkTokenizerModel,
     frequencyDictionaryFilename = parsedArgs.freqDictionary
