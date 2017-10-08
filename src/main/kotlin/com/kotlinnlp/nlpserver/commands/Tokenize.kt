@@ -20,9 +20,10 @@ import java.util.logging.Logger
 /**
  * The command executed on the route '/tokenize'.
  *
- * @param modelFilename the filename of the model of the tokenizer
+ * @param modelsDir the directory containing the tokenizer models
+ * @property detectLanguageCmd the [DetectLanguage] command to detect the language before tokenizing
  */
-class Tokenize(modelFilename: String) {
+class Tokenize(modelsDir: String, private val detectLanguageCmd: DetectLanguage) {
 
   /**
    * The logger of this command.
@@ -30,27 +31,50 @@ class Tokenize(modelFilename: String) {
   private val logger = Logger.getLogger("NLP Server - Tokenize")
 
   /**
-   * A [NeuralTokenizer].
+   * Maps each supported language iso-code to its [NeuralTokenizer].
    */
-  private val tokenizer: NeuralTokenizer
+  private val tokenizers: Map<String, NeuralTokenizer>
 
   /**
-   * Load the model and initialize the tokenizer.
+   * Load the models and initialize the tokenizers.
    */
   init {
-    this.logger.info("Loading tokenizer model from '$modelFilename'\n")
-    this.tokenizer = NeuralTokenizer(model = NeuralTokenizerModel.load(FileInputStream(File(modelFilename))))
+    this.logger.info("Loading tokenizer models from '$modelsDir'")
+
+    val modelsDirectory = File(modelsDir)
+
+    require(modelsDirectory.isDirectory) { "$modelsDir is not a directory" }
+
+    val tokenizersMap = mutableMapOf<String, NeuralTokenizer>()
+
+    modelsDirectory.listFiles().forEach { modelFile ->
+
+      this.logger.info("Loading '${modelFile.name}'...")
+      val model = NeuralTokenizerModel.load(FileInputStream(modelFile))
+
+      tokenizersMap[model.language] = NeuralTokenizer(model)
+    }
+
+    this.tokenizers = tokenizersMap.toMap()
   }
 
   /**
    * Tokenize the given [text].
+   * If a [language] is given the related tokenizer is forced to be used, otherwise the [detectLanguageCmd] is used to
+   * choose the right tokenizer.
    *
    * @param text the text to tokenize
+   * @param language the isoA2-code of the language with which to force the tokenization (default = null)
    *
    * @return the tokenized [text] in JSON format
    */
-  operator fun invoke(text: String): String {
-    return this.tokenizer.tokenize(text).toJsonSentences().toJsonString() + "\n"
+  operator fun invoke(text: String, language: String? = null): String {
+
+    val tokenizerLang: String = language?.toLowerCase() ?: this.detectLanguageCmd(text)
+
+    require(tokenizerLang in this.tokenizers) { "Language $tokenizerLang not supported." }
+
+    return this.tokenizers[tokenizerLang]!!.tokenize(text).toJsonSentences().toJsonString() + "\n"
   }
 
   /**
