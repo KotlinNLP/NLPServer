@@ -7,6 +7,7 @@
 
 package com.kotlinnlp.nlpserver
 
+import com.kotlinnlp.nlpserver.commands.exceptions.ArgumentDependenciesNotSatisfied
 import com.xenomachina.argparser.ArgParser
 import com.xenomachina.argparser.default
 
@@ -69,8 +70,36 @@ class CommandLineArguments(args: Array<String>) {
 
   /**
    * Force parsing all arguments (only read ones are parsed by default).
+   * Check dependencies.
    */
   init {
+
     parser.force()
+
+    this.checkDependencies()
+  }
+
+  /**
+   * Check dependencies of all arguments.
+   *
+   * @throws ArgumentDependenciesNotSatisfied if at least one dependency of an argument is not satisfied
+   */
+  private fun checkDependencies() {
+
+    if (this.langDetectorModel != null && this.cjkTokenizerModel == null)
+      throw ArgumentDependenciesNotSatisfied(
+        argName = "language detector model",
+        dependencies = listOf("cjk tokenizer model"))
+
+    if (this.cjkTokenizerModel != null && this.langDetectorModel == null)
+      throw ArgumentDependenciesNotSatisfied(
+        argName = "cjk tokenizer model",
+        dependencies = listOf("language detector model"))
+
+    if (this.tokenizerModelsDir != null && this.langDetectorModel == null)
+      throw ArgumentDependenciesNotSatisfied(
+        argName = "tokenizer models dir",
+        dependencies = listOf("language detector model", "cjk tokenizer model"))
+
   }
 }
