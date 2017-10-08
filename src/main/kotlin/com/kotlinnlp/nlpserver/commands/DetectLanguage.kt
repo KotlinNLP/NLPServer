@@ -86,8 +86,9 @@ class DetectLanguage(modelFilename: String, cjkModelFilename: String, frequencyD
     val tokensClassifications: List<Pair<String, LanguageDetector.TokenClassification>>
       = this.languageDetector.classifyTokens(text)
 
-    val jsonList = json {
-      val languages = this@DetectLanguage.languageDetector.model.supportedLanguages
+    val languages = this.languageDetector.model.supportedLanguages
+
+    return json {
       array(tokensClassifications.map {
         obj(
           "word" to it.first,
@@ -99,8 +100,6 @@ class DetectLanguage(modelFilename: String, cjkModelFilename: String, frequencyD
           )
         )
       })
-    }
-
-    return jsonList.toJsonString()
+    }.toJsonString()
   }
 }
