@@ -117,18 +117,18 @@ class NLPServer(
       this.parseRoute()
     }
 
-    if (this.tokenize != null) {
-      Spark.path("/tokenize") {
-        this.tokenizeRoute()
-      }
-    }
-
     if (this.detectLanguage != null) {
       Spark.path("/detect-language") {
         this.detectLanguageRoute()
       }
       Spark.path("/classify-tokens-language") {
         this.classifyTokensLanguageRoute()
+      }
+    }
+
+    if (this.tokenize != null) {
+      Spark.path("/tokenize") {
+        this.tokenizeRoute()
       }
     }
 
