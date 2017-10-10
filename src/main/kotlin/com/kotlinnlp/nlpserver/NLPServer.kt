@@ -187,7 +187,7 @@ class NLPServer(
    */
   private fun buildTokenizers(tokenizerModelsDir: String?): Map<String, NeuralTokenizer>? {
 
-    return if (this.detectLanguage == null || tokenizerModelsDir == null) {
+    return if (this.languageDetector == null || tokenizerModelsDir == null) {
 
       this.logger.info("No tokenizer loaded")
 
