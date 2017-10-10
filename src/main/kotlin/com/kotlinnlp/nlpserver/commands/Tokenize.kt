@@ -9,58 +9,25 @@ package com.kotlinnlp.nlpserver.commands
 
 import com.beust.klaxon.JsonArray
 import com.beust.klaxon.JsonObject
+import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
-import com.kotlinnlp.neuraltokenizer.NeuralTokenizerModel
 import com.kotlinnlp.neuraltokenizer.Sentence
 import com.kotlinnlp.neuraltokenizer.Token
-import java.io.File
-import java.io.FileInputStream
-import java.util.logging.Logger
 
 /**
  * The command executed on the route '/tokenize'.
  *
- * @param modelsDir the directory containing the tokenizer models
- * @property detectLanguageCmd the [DetectLanguage] command to detect the language before tokenizing
+ * @property tokenizers A [Map] of languages iso-a2 codes to the related [NeuralTokenizer]s
+ * @property languageDetector a [LanguageDetector]
  */
-class Tokenize(modelsDir: String, private val detectLanguageCmd: DetectLanguage) {
-
-  /**
-   * The logger of this command.
-   */
-  private val logger = Logger.getLogger("NLP Server - Tokenize")
-
-  /**
-   * Maps each supported language iso-code to its [NeuralTokenizer].
-   */
-  private val tokenizers: Map<String, NeuralTokenizer>
-
-  /**
-   * Load the models and initialize the tokenizers.
-   */
-  init {
-    this.logger.info("Loading tokenizer models from '$modelsDir'")
-
-    val modelsDirectory = File(modelsDir)
-
-    require(modelsDirectory.isDirectory) { "$modelsDir is not a directory" }
-
-    val tokenizersMap = mutableMapOf<String, NeuralTokenizer>()
-
-    modelsDirectory.listFiles().forEach { modelFile ->
-
-      this.logger.info("Loading '${modelFile.name}'...")
-      val model = NeuralTokenizerModel.load(FileInputStream(modelFile))
-
-      tokenizersMap[model.language] = NeuralTokenizer(model)
-    }
-
-    this.tokenizers = tokenizersMap.toMap()
-  }
+class Tokenize(
+  private val tokenizers: Map<String, NeuralTokenizer>,
+  private val languageDetector: LanguageDetector
+) {
 
   /**
    * Tokenize the given [text].
-   * If a [language] is given the related tokenizer is forced to be used, otherwise the [detectLanguageCmd] is used to
+   * If a [language] is given the related tokenizer is forced to be used, otherwise the [languageDetector] is used to
    * choose the right tokenizer.
    *
    * @param text the text to tokenize
@@ -70,7 +37,7 @@ class Tokenize(modelsDir: String, private val detectLanguageCmd: DetectLanguage)
    */
   operator fun invoke(text: String, language: String? = null): String {
 
-    val tokenizerLang: String = language?.toLowerCase() ?: this.detectLanguageCmd(text)
+    val tokenizerLang: String = language?.toLowerCase() ?: this.languageDetector.detectLanguage(text).isoCode
 
     require(tokenizerLang in this.tokenizers) { "Language $tokenizerLang not supported." }
 

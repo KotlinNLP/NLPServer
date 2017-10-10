@@ -10,57 +10,15 @@ package com.kotlinnlp.nlpserver.commands
 import com.beust.klaxon.JsonArray
 import com.beust.klaxon.json
 import com.kotlinnlp.languagedetector.LanguageDetector
-import com.kotlinnlp.languagedetector.LanguageDetectorModel
-import com.kotlinnlp.languagedetector.utils.FrequencyDictionary
 import com.kotlinnlp.languagedetector.utils.Language
-import com.kotlinnlp.languagedetector.utils.TextTokenizer
-import com.kotlinnlp.neuraltokenizer.NeuralTokenizerModel
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
-import java.io.File
-import java.io.FileInputStream
-import java.util.logging.Logger
 
 /**
  * The command executed on the route '/detect-language'.
  *
- * @param modelFilename the filename of the serialized [LanguageDetectorModel]
- * @param cjkModelFilename the filename of the serialized [NeuralTokenizerModel] used to tokenize Chinese, Japanese and
- *                         Korean texts
- * @param frequencyDictionaryFilename the filename of the [FrequencyDictionary] (can be null)
+ * @property languageDetector a [LanguageDetector]
  */
-class DetectLanguage(modelFilename: String, cjkModelFilename: String, frequencyDictionaryFilename: String?) {
-
-  /**
-   * The logger of this command.
-   */
-  private val logger = Logger.getLogger("NLP Server - Tokenize")
-
-  /**
-   * A [LanguageDetector].
-   */
-  private val languageDetector: LanguageDetector
-
-  /**
-   * Load the models and initialize the language detector.
-   */
-  init {
-
-    this.logger.info("Loading language detector model from '$modelFilename'\n")
-    val model = LanguageDetectorModel.load(FileInputStream(File(modelFilename)))
-
-    this.logger.info("Loading CJK tokenizer model from '$cjkModelFilename'\n")
-    val tokenizer = TextTokenizer(cjkModel = NeuralTokenizerModel.load(FileInputStream(File(cjkModelFilename))))
-
-    val freqDictionary = if (frequencyDictionaryFilename != null) {
-      this.logger.info("Loading frequency dictionary from '$frequencyDictionaryFilename'\n")
-      FrequencyDictionary.load(FileInputStream(File(frequencyDictionaryFilename)))
-    } else {
-      this.logger.info("No frequency dictionary used to detect the language\n")
-      null
-    }
-
-    this.languageDetector = LanguageDetector(model = model, tokenizer = tokenizer, frequencyDictionary = freqDictionary)
-  }
+class DetectLanguage(private val languageDetector: LanguageDetector) {
 
   /**
    * Detect the language of the given [text].

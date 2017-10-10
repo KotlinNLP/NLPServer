@@ -7,6 +7,12 @@
 
 package com.kotlinnlp.nlpserver
 
+import com.kotlinnlp.languagedetector.LanguageDetector
+import com.kotlinnlp.languagedetector.LanguageDetectorModel
+import com.kotlinnlp.languagedetector.utils.FrequencyDictionary
+import com.kotlinnlp.languagedetector.utils.TextTokenizer
+import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
+import com.kotlinnlp.neuraltokenizer.NeuralTokenizerModel
 import com.kotlinnlp.nlpserver.commands.DetectLanguage
 import com.kotlinnlp.nlpserver.commands.Parse
 import com.kotlinnlp.nlpserver.commands.Tokenize
@@ -14,6 +20,8 @@ import com.kotlinnlp.nlpserver.commands.exceptions.MissingParameters
 import com.kotlinnlp.nlpserver.commands.exceptions.NotSupportedLanguage
 import spark.Request
 import spark.Spark
+import java.io.File
+import java.io.FileInputStream
 import java.util.logging.Logger
 
 /**
@@ -39,6 +47,19 @@ class NLPServer(
   private val logger = Logger.getLogger("NLP Server")
 
   /**
+   * A [LanguageDetector].
+   */
+  private val languageDetector: LanguageDetector? = this.buildLanguageDetector(
+    languageDetectorModelFilename = languageDetectorModelFilename,
+    cjkModelFilename = cjkModelFilename,
+    frequencyDictionaryFilename = frequencyDictionaryFilename)
+
+  /**
+   * A [Map] of languages iso-a2 codes to the related [NeuralTokenizer]s.
+   */
+  private val tokenizers: Map<String, NeuralTokenizer>? = this.buildTokenizers(tokenizerModelsDir)
+
+  /**
    * The handler of the Parse command.
    */
   private val parse = Parse()
@@ -46,19 +67,25 @@ class NLPServer(
   /**
    * The handler of the DetectLanguage command.
    */
-  private val detectLanguage: DetectLanguage? = this.buildDetectLanguageCmd(
-    languageDetectorModelFilename = languageDetectorModelFilename,
-    cjkModelFilename = cjkModelFilename,
-    frequencyDictionaryFilename = frequencyDictionaryFilename)
+  private val detectLanguage: DetectLanguage? =
+    if (this.languageDetector != null)
+      DetectLanguage(this.languageDetector)
+    else
+      null
 
   /**
    * The handler of the Tokenize command.
    */
-  private val tokenize: Tokenize? = this.buildTokenizeCmd(tokenizerModelsDir = tokenizerModelsDir)
+  private val tokenize: Tokenize? =
+    if (this.tokenizers != null && this.languageDetector != null)
+      Tokenize(
+        tokenizers = this.tokenizers,
+        languageDetector = this.languageDetector)
+    else
+      null
 
   /**
-   * Initialize Spark.
-   * Set port and exceptions handling.
+   * Initialize Spark: set port and exceptions handling.
    */
   init {
 
@@ -109,41 +136,83 @@ class NLPServer(
   }
 
   /**
-   * Build the [DetectLanguage] command.
-   * The [languageDetectorModelFilename] and the [cjkModelFilename] arguments are required to be not null to build the command,
+   * Build a [LanguageDetector].
+   * The [languageDetectorModelFilename] and the [cjkModelFilename] arguments are required to be not null to build it,
    * otherwise null is returned.
    *
    * @param languageDetectorModelFilename the filename of the language detector model
    * @param cjkModelFilename the filename of the CJK tokenizer used by the language detector
    * @param frequencyDictionaryFilename the filename of the frequency dictionary
    *
-   * @return the [DetectLanguage] command if the requirements are satisfied, null otherwise
+   * @return a [LanguageDetector] with the given models
    */
-  private fun buildDetectLanguageCmd(languageDetectorModelFilename: String?,
-                                     cjkModelFilename: String?,
-                                     frequencyDictionaryFilename: String?): DetectLanguage? =
-    if (languageDetectorModelFilename == null || cjkModelFilename == null)
+  private fun buildLanguageDetector(languageDetectorModelFilename: String?,
+                                    cjkModelFilename: String?,
+                                    frequencyDictionaryFilename: String?): LanguageDetector? {
+
+    return if (languageDetectorModelFilename == null || cjkModelFilename == null) {
+
+      this.logger.info("No language detector loaded\n")
+
       null
-    else
-      DetectLanguage(
-        modelFilename = languageDetectorModelFilename,
-        cjkModelFilename = cjkModelFilename,
-        frequencyDictionaryFilename = frequencyDictionaryFilename)
+
+    } else {
+
+      this.logger.info("Loading language detector model from '$languageDetectorModelFilename'\n")
+      val model = LanguageDetectorModel.load(FileInputStream(File(languageDetectorModelFilename)))
+
+      this.logger.info("Loading CJK tokenizer model from '$cjkModelFilename'\n")
+      val tokenizer = TextTokenizer(cjkModel = NeuralTokenizerModel.load(FileInputStream(File(cjkModelFilename))))
+
+      val freqDictionary = if (frequencyDictionaryFilename != null) {
+        this.logger.info("Loading frequency dictionary from '$frequencyDictionaryFilename'\n")
+        FrequencyDictionary.load(FileInputStream(File(frequencyDictionaryFilename)))
+      } else {
+        this.logger.info("No frequency dictionary used to detect the language\n")
+        null
+      }
+
+      return LanguageDetector(model = model, tokenizer = tokenizer, frequencyDictionary = freqDictionary)
+    }
+  }
 
   /**
-   * Build the [Tokenize] command.
-   * The [tokenizerModelsDir] argument and the [detectLanguage] command are required to be not null to build the command,
+   * Build the [Map] of languages iso-a2 codes to the related [NeuralTokenizer]s.
+   * The [tokenizerModelsDir] argument and the [detectLanguage] command are required to be not null to build it,
    * otherwise null is returned.
    *
-   * @param tokenizerModelsDir the directory containing the tokenizer models
+   * @param tokenizerModelsDir the directory containing the tokenizers models
    *
-   * @return the [Tokenize] command if the requirements are satisfied, null otherwise
+   * @return a [Map] of languages iso-a2 codes to the related [NeuralTokenizer]s
    */
-  private fun buildTokenizeCmd(tokenizerModelsDir: String?): Tokenize? =
-    if (this.detectLanguage == null || tokenizerModelsDir == null)
+  private fun buildTokenizers(tokenizerModelsDir: String?): Map<String, NeuralTokenizer>? {
+
+    return if (this.detectLanguage == null || tokenizerModelsDir == null) {
+
+      this.logger.info("No tokenizer loaded")
+
       null
-    else
-      Tokenize(modelsDir = tokenizerModelsDir, detectLanguageCmd = this.detectLanguage)
+
+    } else {
+
+      this.logger.info("Loading tokenizer models from '$tokenizerModelsDir'")
+      val modelsDirectory = File(tokenizerModelsDir)
+
+      require(modelsDirectory.isDirectory) { "$tokenizerModelsDir is not a directory" }
+
+      val tokenizersMap = mutableMapOf<String, NeuralTokenizer>()
+
+      modelsDirectory.listFiles().forEach { modelFile ->
+
+        this.logger.info("Loading '${modelFile.name}'...")
+        val model = NeuralTokenizerModel.load(FileInputStream(modelFile))
+
+        tokenizersMap[model.language] = NeuralTokenizer(model)
+      }
+
+      tokenizersMap.toMap()
+    }
+  }
 
   /**
    * Define the '/parse' route.
