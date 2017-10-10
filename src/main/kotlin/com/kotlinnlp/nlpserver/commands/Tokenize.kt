@@ -13,6 +13,7 @@ import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.Sentence
 import com.kotlinnlp.neuraltokenizer.Token
+import com.kotlinnlp.nlpserver.commands.exceptions.NotSupportedLanguage
 
 /**
  * The command executed on the route '/tokenize'.
@@ -39,7 +40,9 @@ class Tokenize(
 
     val tokenizerLang: String = language?.toLowerCase() ?: this.languageDetector.detectLanguage(text).isoCode
 
-    require(tokenizerLang in this.tokenizers) { "Language $tokenizerLang not supported." }
+    if (tokenizerLang !in this.tokenizers) {
+      throw NotSupportedLanguage(tokenizerLang)
+    }
 
     return this.tokenizers[tokenizerLang]!!.tokenize(text).toJsonSentences().toJsonString() + "\n"
   }
