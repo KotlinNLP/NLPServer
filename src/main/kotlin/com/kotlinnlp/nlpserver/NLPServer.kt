@@ -11,6 +11,7 @@ import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.languagedetector.LanguageDetectorModel
 import com.kotlinnlp.languagedetector.utils.FrequencyDictionary
 import com.kotlinnlp.languagedetector.utils.TextTokenizer
+import com.kotlinnlp.linguisticdescription.morphology.MorphologyDictionary
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizerModel
 import com.kotlinnlp.nlpserver.commands.DetectLanguage
@@ -32,13 +33,15 @@ import java.util.logging.Logger
  * @param languageDetectorModelFilename the filename of the language detector model (default = null)
  * @param cjkModelFilename the filename of the CJK tokenizer used by the language detector (default = null)
  * @param frequencyDictionaryFilename the filename of the frequency dictionary (default = null)
+ * @param morphologyDictionaryFilename the filename of the morphology dictionary (default = null)
  */
 class NLPServer(
   port: Int = 3000,
   tokenizerModelsDir: String? = null,
   languageDetectorModelFilename: String? = null,
   cjkModelFilename: String? = null,
-  frequencyDictionaryFilename: String? = null
+  frequencyDictionaryFilename: String? = null,
+  morphologyDictionaryFilename: String? = null
 ) {
 
   /**
@@ -60,9 +63,18 @@ class NLPServer(
   private val tokenizers: Map<String, NeuralTokenizer>? = this.buildTokenizers(tokenizerModelsDir)
 
   /**
+   * A [MorphologyDictionary].
+   */
+  private val morphologyDictionary: MorphologyDictionary? = this.buildMorphologyDictionary(morphologyDictionaryFilename)
+
+  /**
    * The handler of the Parse command.
    */
-  private val parse = Parse()
+  private val parse: Parse? =
+    if (this.morphologyDictionary != null)
+      Parse(morphologyDictionary = this.morphologyDictionary)
+    else
+      null
 
   /**
    * The handler of the DetectLanguage command.
@@ -78,9 +90,7 @@ class NLPServer(
    */
   private val tokenize: Tokenize? =
     if (this.tokenizers != null && this.languageDetector != null)
-      Tokenize(
-        tokenizers = this.tokenizers,
-        languageDetector = this.languageDetector)
+      Tokenize(tokenizers = this.tokenizers, languageDetector = this.languageDetector)
     else
       null
 
@@ -215,6 +225,16 @@ class NLPServer(
   }
 
   /**
+   * Build the [MorphologyDictionary] if the given filename is not null, otherwise null is returned.
+   *
+   * @param morphologyDictionaryFilename the filename of the morphology dictionary
+   *
+   * @return a morphology dictionary
+   */
+  private fun buildMorphologyDictionary(morphologyDictionaryFilename: String?): MorphologyDictionary?
+    = if (morphologyDictionaryFilename != null) MorphologyDictionary.load(morphologyDictionaryFilename) else null
+
+  /**
    * Define the '/parse' route.
    */
   private fun parseRoute() {
@@ -223,22 +243,22 @@ class NLPServer(
 
       request.checkRequiredParams(requiredParams = listOf("text"))
 
-      this.parse(text = request.queryParams("text"), lang = request.queryParams("lang"))
+      this.parse!!(text = request.queryParams("text"), lang = request.queryParams("lang"))
     }
 
     Spark.get("/:lang") { request, _ ->
 
       request.checkRequiredParams(requiredParams = listOf("text"))
 
-      this.parse(text = request.queryParams("text"), lang = request.params("lang"))
+      this.parse!!(text = request.queryParams("text"), lang = request.params("lang"))
     }
 
     Spark.post("") { request, _ ->
-      this.parse(text = request.body())
+      this.parse!!(text = request.body())
     }
 
     Spark.post("/:lang") { request, _ ->
-      this.parse(text = request.body(), lang = request.params("lang"))
+      this.parse!!(text = request.body(), lang = request.params("lang"))
     }
   }
 
