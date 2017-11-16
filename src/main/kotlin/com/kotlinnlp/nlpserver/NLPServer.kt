@@ -199,13 +199,13 @@ class NLPServer(
 
     return if (this.languageDetector == null || tokenizerModelsDir == null) {
 
-      this.logger.info("No tokenizer loaded")
+      this.logger.info("No tokenizer loaded\n")
 
       null
 
     } else {
 
-      this.logger.info("Loading tokenizer models from '$tokenizerModelsDir'")
+      this.logger.info("Loading tokenizer models from '$tokenizerModelsDir'\n")
       val modelsDirectory = File(tokenizerModelsDir)
 
       require(modelsDirectory.isDirectory) { "$tokenizerModelsDir is not a directory" }
@@ -235,13 +235,13 @@ class NLPServer(
 
     return if (morphologyDictionaryFilename == null) {
 
-      this.logger.info("No morphology dictionary loaded")
+      this.logger.info("No morphology dictionary loaded\n")
 
       null
 
     } else {
 
-      this.logger.info("Loading morphology dictionary from '$morphologyDictionaryFilename'")
+      this.logger.info("Loading morphology dictionary from '$morphologyDictionaryFilename'\n")
 
       MorphologyDictionary.load(morphologyDictionaryFilename, verbose = false)
     }
