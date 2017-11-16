@@ -70,8 +70,12 @@ class Parse(
    *
    */
   private fun Sentence.toParserSentence() = com.kotlinnlp.neuralparser.language.Sentence(
-    tokens = this.tokens.filter { !it.isSpace }.map {
-      Token(id = it.id, word = it.form, pos = this@Parse.morphologyDictionary[it.form]?.form ?: "UNKNOWN")
+    tokens = this.tokens.filter { !it.isSpace }.mapIndexed { i, it ->
+
+      val firstPos: String?
+        = this@Parse.morphologyDictionary[it.form]?.morphologies?.first()?.list?.first()?.type?.annotation
+
+      Token(id = i, word = it.form, pos = firstPos ?: "UNKNOWN")
     }
   )
 }
