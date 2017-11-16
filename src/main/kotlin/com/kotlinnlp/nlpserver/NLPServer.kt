@@ -81,8 +81,12 @@ class NLPServer(
    * The handler of the Parse command.
    */
   private val parse: Parse? =
-    if (this.morphologyDictionary != null && this.neuralParser != null)
-      Parse(morphologyDictionary = this.morphologyDictionary, parser = this.neuralParser)
+    if (this.tokenizers != null && this.morphologyDictionary != null && this.neuralParser != null)
+      Parse(
+        tokenizers = this.tokenizers,
+        languageDetector = this.languageDetector,
+        morphologyDictionary = this.morphologyDictionary,
+        parser = this.neuralParser)
     else
       null
 
