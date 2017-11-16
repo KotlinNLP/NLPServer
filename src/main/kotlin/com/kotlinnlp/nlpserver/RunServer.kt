@@ -19,6 +19,7 @@ fun main(args: Array<String>) {
     tokenizerModelsDir = parsedArgs.tokenizerModelsDir,
     languageDetectorModelFilename = parsedArgs.langDetectorModel,
     cjkModelFilename = parsedArgs.cjkTokenizerModel,
-    frequencyDictionaryFilename = parsedArgs.freqDictionary
+    frequencyDictionaryFilename = parsedArgs.freqDictionary,
+    morphologyDictionaryFilename = parsedArgs.morphoDictionary
   ).start()
 }

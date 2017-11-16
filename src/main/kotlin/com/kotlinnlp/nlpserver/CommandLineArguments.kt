@@ -69,6 +69,15 @@ class CommandLineArguments(args: Array<String>) {
   ).default(null)
 
   /**
+   * The filename of the MorphologyDictionary.
+   */
+  val morphoDictionary: String? by parser.storing(
+    "-f",
+    "--morphology-dictionary",
+    help="the filename of the morphology dictionary used by the parser"
+  ).default(null)
+
+  /**
    * Force parsing all arguments (only read ones are parsed by default).
    * Check dependencies.
    */
