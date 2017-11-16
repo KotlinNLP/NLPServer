@@ -19,6 +19,7 @@
         <xenocom.version>0.0.5</xenocom.version>
         <neuraltokenizer.version>0.1.0</neuraltokenizer.version>
         <languagedetector.version>0.1.0</languagedetector.version>
+        <linguisticdescription.version>0.1.0</linguisticdescription.version>
         <klaxon.version>0.30</klaxon.version>
     </properties>
 
@@ -187,6 +188,12 @@
             <groupId>com.kotlinnlp</groupId>
             <artifactId>languagedetector</artifactId>
             <version>${languagedetector.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.kotlinnlp</groupId>
+            <artifactId>linguisticdescription</artifactId>
+            <version>${linguisticdescription.version}</version>
         </dependency>
 
         <dependency>
