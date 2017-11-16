@@ -72,7 +72,7 @@ class CommandLineArguments(args: Array<String>) {
    * The filename of the MorphologyDictionary.
    */
   val morphoDictionary: String? by parser.storing(
-    "-f",
+    "-m",
     "--morphology-dictionary",
     help="the filename of the morphology dictionary used by the parser"
   ).default(null)
