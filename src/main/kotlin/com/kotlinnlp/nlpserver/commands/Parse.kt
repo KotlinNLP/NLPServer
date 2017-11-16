@@ -7,8 +7,12 @@
 
 package com.kotlinnlp.nlpserver.commands
 
+import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.linguisticdescription.morphology.MorphologyDictionary
 import com.kotlinnlp.neuralparser.NeuralParser
+import com.kotlinnlp.neuralparser.language.Token
+import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
+import com.kotlinnlp.neuraltokenizer.Sentence
 import com.kotlinnlp.nlpserver.commands.exceptions.NotSupportedLanguage
 
 /**
@@ -19,7 +23,9 @@ import com.kotlinnlp.nlpserver.commands.exceptions.NotSupportedLanguage
  */
 class Parse(
   private val morphologyDictionary: MorphologyDictionary,
-  private val parser: NeuralParser<*, *, *, *, *, *, *, *, *>
+  private val parser: NeuralParser<*, *, *, *, *, *, *, *, *>,
+  private val tokenizers: Map<String, NeuralTokenizer>,
+  private val languageDetector: LanguageDetector?
 ) {
 
   /**
@@ -32,10 +38,40 @@ class Parse(
    */
   operator fun invoke(text: String, lang: String? = null): String {
 
-    if (lang != null) {
-      throw NotSupportedLanguage(lang)
-    }
+    val tokenizerLang: String = this.getTokenizerLanguage(text = text, forcedLang = lang)
+    val sentences: ArrayList<Sentence> = this.tokenizers[tokenizerLang]!!.tokenize(text)
 
-    return "{\"parsed\": [], \"text\": \"$text\", \"lang\": \"$lang\"}\n"
+    return sentences.joinToString(separator = "\n\n") {
+      val parserSentence = it.toParserSentence()
+      parserSentence.toCoNLL(dependencyTree = this.parser.parse(parserSentence)).toCoNLL(writeComments = false)
+    }
   }
+
+  /**
+   *
+   */
+  private fun getTokenizerLanguage(text: String, forcedLang: String?): String {
+
+    return if (this.languageDetector == null) {
+      if (forcedLang == null) throw RuntimeException("Cannot determine language automatically (missing language detector)")
+      if (forcedLang !in this.tokenizers) throw NotSupportedLanguage(forcedLang)
+
+      forcedLang
+
+    } else {
+      val tokenizerLang: String = forcedLang?.toLowerCase() ?: this.languageDetector.detectLanguage(text).isoCode
+      if (tokenizerLang !in this.tokenizers) throw NotSupportedLanguage(tokenizerLang)
+
+      tokenizerLang
+    }
+  }
+
+  /**
+   *
+   */
+  private fun Sentence.toParserSentence() = com.kotlinnlp.neuralparser.language.Sentence(
+    tokens = this.tokens.filter { !it.isSpace }.map {
+      Token(id = it.id, word = it.form, pos = this@Parse.morphologyDictionary[it.form]?.form ?: "UNKNOWN")
+    }
+  )
 }
