@@ -31,22 +31,22 @@ import java.util.logging.Logger
 /**
  * The NLP Server class.
  *
- * @param port the port listened from the server (default = 3000)
- * @param tokenizerModelsDir the directory containing the tokenizer models (default = null)
- * @param languageDetectorModelFilename the filename of the language detector model (default = null)
- * @param cjkModelFilename the filename of the CJK tokenizer used by the language detector (default = null)
- * @param frequencyDictionaryFilename the filename of the frequency dictionary (default = null)
- * @param morphologyDictionaryFilename the filename of the morphology dictionary (default = null)
- * @param neuralParserModelFilename the filename of the neural parser model (default = null)
+ * @param port the port listened from the server
+ * @param tokenizerModelsDir the directory containing the tokenizer models
+ * @param languageDetectorModelFilename the filename of the language detector model
+ * @param cjkModelFilename the filename of the CJK tokenizer used by the language detector
+ * @param frequencyDictionaryFilename the filename of the frequency dictionary
+ * @param morphologyDictionaryFilename the filename of the morphology dictionary
+ * @param neuralParserModelFilename the filename of the neural parser model
  */
 class NLPServer(
-  port: Int = 3000,
-  tokenizerModelsDir: String? = null,
-  languageDetectorModelFilename: String? = null,
-  cjkModelFilename: String? = null,
-  frequencyDictionaryFilename: String? = null,
-  morphologyDictionaryFilename: String? = null,
-  neuralParserModelFilename: String? = null
+  port: Int,
+  tokenizerModelsDir: String?,
+  languageDetectorModelFilename: String?,
+  cjkModelFilename: String?,
+  frequencyDictionaryFilename: String?,
+  morphologyDictionaryFilename: String?,
+  neuralParserModelFilename: String?
 ) {
 
   /**
