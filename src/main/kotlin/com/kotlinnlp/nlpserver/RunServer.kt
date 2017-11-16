@@ -20,6 +20,7 @@ fun main(args: Array<String>) {
     languageDetectorModelFilename = parsedArgs.langDetectorModel,
     cjkModelFilename = parsedArgs.cjkTokenizerModel,
     frequencyDictionaryFilename = parsedArgs.freqDictionary,
-    morphologyDictionaryFilename = parsedArgs.morphoDictionary
+    morphologyDictionaryFilename = parsedArgs.morphoDictionary,
+    neuralParserModelFilename = parsedArgs.neuralParserModel
   ).start()
 }

@@ -78,6 +78,15 @@ class CommandLineArguments(args: Array<String>) {
   ).default(null)
 
   /**
+   * The filename of the NeuralParser serialized model.
+   */
+  val neuralParserModel: String? by parser.storing(
+    "-n",
+    "--neural-parser",
+    help="the filename of the neural parser serialized model"
+  ).default(null)
+
+  /**
    * Force parsing all arguments (only read ones are parsed by default).
    * Check dependencies.
    */
