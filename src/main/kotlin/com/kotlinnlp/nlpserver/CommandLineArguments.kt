@@ -114,10 +114,19 @@ class CommandLineArguments(args: Array<String>) {
         argName = "cjk tokenizer model",
         dependencies = listOf("language detector model"))
 
-    if (this.tokenizerModelsDir != null && this.langDetectorModel == null)
+    if (this.morphoDictionary != null && (this.neuralParserModel == null))
       throw ArgumentDependenciesNotSatisfied(
-        argName = "tokenizer models dir",
-        dependencies = listOf("language detector model", "cjk tokenizer model"))
+        argName = "morphology dictionary",
+        dependencies = listOf("neural parser model"))
 
+    if (this.neuralParserModel != null && (this.morphoDictionary == null))
+      throw ArgumentDependenciesNotSatisfied(
+        argName = "neural parser model",
+        dependencies = listOf("morphology dictionary"))
+
+    if (this.neuralParserModel != null && (this.tokenizerModelsDir == null))
+      throw ArgumentDependenciesNotSatisfied(
+        argName = "neural parser model",
+        dependencies = listOf("tokenizer models directory"))
   }
 }
