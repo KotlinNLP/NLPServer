@@ -221,10 +221,11 @@ class NLPServer(
       require(modelsDirectory.isDirectory) { "$tokenizerModelsDir is not a directory" }
 
       val tokenizersMap = mutableMapOf<String, NeuralTokenizer>()
+      val modelsFiles: Array<File> = modelsDirectory.listFiles()
 
-      modelsDirectory.listFiles().forEach { modelFile ->
+      modelsFiles.forEachIndexed { i, modelFile ->
 
-        this.logger.info("Loading '${modelFile.name}'...")
+        this.logger.info("Loading '${modelFile.name}'..." + if (i == modelsFiles.lastIndex) "\n" else "")
         val model = NeuralTokenizerModel.load(FileInputStream(modelFile))
 
         tokenizersMap[model.language] = NeuralTokenizer(model)
