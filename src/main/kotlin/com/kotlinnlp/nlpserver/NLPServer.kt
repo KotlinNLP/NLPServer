@@ -12,6 +12,9 @@ import com.kotlinnlp.languagedetector.LanguageDetectorModel
 import com.kotlinnlp.languagedetector.utils.FrequencyDictionary
 import com.kotlinnlp.languagedetector.utils.TextTokenizer
 import com.kotlinnlp.linguisticdescription.morphology.MorphologyDictionary
+import com.kotlinnlp.neuralparser.NeuralParser
+import com.kotlinnlp.neuralparser.NeuralParserModel
+import com.kotlinnlp.neuralparser.parsers.arcstandard.BiRNNArcStandardParser
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizerModel
 import com.kotlinnlp.nlpserver.commands.DetectLanguage
@@ -34,6 +37,7 @@ import java.util.logging.Logger
  * @param cjkModelFilename the filename of the CJK tokenizer used by the language detector (default = null)
  * @param frequencyDictionaryFilename the filename of the frequency dictionary (default = null)
  * @param morphologyDictionaryFilename the filename of the morphology dictionary (default = null)
+ * @param neuralParserModelFilename the filename of the neural parser model (default = null)
  */
 class NLPServer(
   port: Int = 3000,
@@ -41,7 +45,8 @@ class NLPServer(
   languageDetectorModelFilename: String? = null,
   cjkModelFilename: String? = null,
   frequencyDictionaryFilename: String? = null,
-  morphologyDictionaryFilename: String? = null
+  morphologyDictionaryFilename: String? = null,
+  neuralParserModelFilename: String? = null
 ) {
 
   /**
@@ -68,11 +73,16 @@ class NLPServer(
   private val morphologyDictionary: MorphologyDictionary? = this.buildMorphologyDictionary(morphologyDictionaryFilename)
 
   /**
+   * A [NeuralParser].
+   */
+  private val neuralParser: NeuralParser<*, *, *, *, *, *, *, *, *>? = this.buildNeuralParser(neuralParserModelFilename)
+
+  /**
    * The handler of the Parse command.
    */
   private val parse: Parse? =
-    if (this.morphologyDictionary != null)
-      Parse(morphologyDictionary = this.morphologyDictionary)
+    if (this.morphologyDictionary != null && this.neuralParser != null)
+      Parse(morphologyDictionary = this.morphologyDictionary, parser = this.neuralParser)
     else
       null
 
@@ -244,6 +254,29 @@ class NLPServer(
       this.logger.info("Loading morphology dictionary from '$morphologyDictionaryFilename'\n")
 
       MorphologyDictionary.load(morphologyDictionaryFilename, verbose = false)
+    }
+  }
+
+  /**
+   * Build the [NeuralParser] if the given filename is not null, otherwise null is returned.
+   *
+   * @param neuralParserModelFilename the filename of the neural parser
+   *
+   * @return a neural parser
+   */
+  private fun buildNeuralParser(neuralParserModelFilename: String?): NeuralParser<*, *, *, *, *, *, *, *, *>? {
+
+    return if (neuralParserModelFilename == null) {
+
+      this.logger.info("No morphology dictionary loaded\n")
+
+      null
+
+    } else {
+
+      this.logger.info("Loading neural parser model from '$neuralParserModelFilename'\n")
+
+      BiRNNArcStandardParser(model = NeuralParserModel.load(FileInputStream(File(neuralParserModelFilename))))
     }
   }
 
