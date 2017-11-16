@@ -99,7 +99,7 @@ class NLPServer(
    * The handler of the Tokenize command.
    */
   private val tokenize: Tokenize? =
-    if (this.tokenizers != null && this.languageDetector != null)
+    if (this.tokenizers != null)
       Tokenize(tokenizers = this.tokenizers, languageDetector = this.languageDetector)
     else
       null
@@ -207,7 +207,7 @@ class NLPServer(
    */
   private fun buildTokenizers(tokenizerModelsDir: String?): Map<String, NeuralTokenizer>? {
 
-    return if (this.languageDetector == null || tokenizerModelsDir == null) {
+    return if (tokenizerModelsDir == null) {
 
       this.logger.info("No tokenizer loaded\n")
 
