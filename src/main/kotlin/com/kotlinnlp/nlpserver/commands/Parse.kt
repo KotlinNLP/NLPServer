@@ -8,14 +8,19 @@
 package com.kotlinnlp.nlpserver.commands
 
 import com.kotlinnlp.linguisticdescription.morphology.MorphologyDictionary
+import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.nlpserver.commands.exceptions.NotSupportedLanguage
 
 /**
  * The command executed on the route '/parse'.
  *
- * @property morphologyDictionary a morphology dictionary
+ * @param morphologyDictionary a morphology dictionary
+ * @param parser a neural parser
  */
-class Parse(private val morphologyDictionary: MorphologyDictionary) {
+class Parse(
+  private val morphologyDictionary: MorphologyDictionary,
+  private val parser: NeuralParser<*, *, *, *, *, *, *, *, *>
+) {
 
   /**
    * Parse the given [text], eventually forcing on the language [lang].
