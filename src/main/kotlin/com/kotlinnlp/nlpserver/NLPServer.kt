@@ -231,8 +231,21 @@ class NLPServer(
    *
    * @return a morphology dictionary
    */
-  private fun buildMorphologyDictionary(morphologyDictionaryFilename: String?): MorphologyDictionary?
-    = if (morphologyDictionaryFilename != null) MorphologyDictionary.load(morphologyDictionaryFilename) else null
+  private fun buildMorphologyDictionary(morphologyDictionaryFilename: String?): MorphologyDictionary? {
+
+    return if (morphologyDictionaryFilename == null) {
+
+      this.logger.info("No morphology dictionary loaded")
+
+      null
+
+    } else {
+
+      this.logger.info("Loading morphology dictionary from '$morphologyDictionaryFilename'")
+
+      MorphologyDictionary.load(morphologyDictionaryFilename, verbose = false)
+    }
+  }
 
   /**
    * Define the '/parse' route.
