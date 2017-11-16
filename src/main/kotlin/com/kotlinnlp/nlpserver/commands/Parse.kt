@@ -7,12 +7,15 @@
 
 package com.kotlinnlp.nlpserver.commands
 
+import com.kotlinnlp.linguisticdescription.morphology.MorphologyDictionary
 import com.kotlinnlp.nlpserver.commands.exceptions.NotSupportedLanguage
 
 /**
  * The command executed on the route '/parse'.
+ *
+ * @property morphologyDictionary a morphology dictionary
  */
-class Parse {
+class Parse(private val morphologyDictionary: MorphologyDictionary) {
 
   /**
    * Parse the given [text], eventually forcing on the language [lang].
