@@ -14,6 +14,7 @@ import com.kotlinnlp.languagedetector.utils.TextTokenizer
 import com.kotlinnlp.linguisticdescription.morphology.MorphologyDictionary
 import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.NeuralParserModel
+import com.kotlinnlp.neuralparser.parsers.GenericNeuralParser
 import com.kotlinnlp.neuralparser.parsers.arcstandard.BiRNNArcStandardParser
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizerModel
@@ -75,7 +76,7 @@ class NLPServer(
   /**
    * A [NeuralParser].
    */
-  private val neuralParser: NeuralParser<*, *, *, *, *, *, *, *, *>? = this.buildNeuralParser(neuralParserModelFilename)
+  private val neuralParser: GenericNeuralParser? = this.buildNeuralParser(neuralParserModelFilename)
 
   /**
    * The handler of the Parse command.
@@ -269,7 +270,7 @@ class NLPServer(
    *
    * @return a neural parser
    */
-  private fun buildNeuralParser(neuralParserModelFilename: String?): NeuralParser<*, *, *, *, *, *, *, *, *>? {
+  private fun buildNeuralParser(neuralParserModelFilename: String?): GenericNeuralParser? {
 
     return if (neuralParserModelFilename == null) {
 

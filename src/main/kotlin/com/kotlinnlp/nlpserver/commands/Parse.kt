@@ -11,6 +11,7 @@ import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.linguisticdescription.morphology.MorphologyDictionary
 import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.language.Token
+import com.kotlinnlp.neuralparser.parsers.GenericNeuralParser
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.Sentence
 import com.kotlinnlp.nlpserver.commands.exceptions.NotSupportedLanguage
@@ -23,7 +24,7 @@ import com.kotlinnlp.nlpserver.commands.exceptions.NotSupportedLanguage
  */
 class Parse(
   private val morphologyDictionary: MorphologyDictionary,
-  private val parser: NeuralParser<*, *, *, *, *, *, *, *, *>,
+  private val parser: GenericNeuralParser,
   private val tokenizers: Map<String, NeuralTokenizer>,
   private val languageDetector: LanguageDetector?
 ) {
