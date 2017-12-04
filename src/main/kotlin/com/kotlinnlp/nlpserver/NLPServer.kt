@@ -15,7 +15,7 @@ import com.kotlinnlp.linguisticdescription.morphology.MorphologyDictionary
 import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.NeuralParserModel
 import com.kotlinnlp.neuralparser.parsers.GenericNeuralParser
-import com.kotlinnlp.neuralparser.parsers.arcstandard.BiRNNArcStandardParser
+import com.kotlinnlp.neuralparser.parsers.arcstandard.simple.BiRNNArcStandardParser
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizerModel
 import com.kotlinnlp.nlpserver.commands.DetectLanguage
