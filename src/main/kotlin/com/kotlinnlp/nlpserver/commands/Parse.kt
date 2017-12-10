@@ -7,6 +7,7 @@
 
 package com.kotlinnlp.nlpserver.commands
 
+import com.beust.klaxon.json
 import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.linguisticdescription.morphology.MorphologyDictionary
 import com.kotlinnlp.neuralparser.language.Token
@@ -29,21 +30,30 @@ class Parse(
 ) {
 
   /**
+   * The format of the parsing response.
+   *
+   * @property CoNLL the response will be written in CoNLL format
+   * @property JSON the response will be written in JSON format
+   */
+  enum class ResponseFormat { CoNLL, JSON }
+
+  /**
    * Parse the given [text], eventually forcing on the language [lang].
    *
    * @param text the text to parse
    * @param lang the language to use to parse the [text] (default = null)
+   * @param format the string format of the parsed sentences response (default = JSON)
    *
-   * @return the parsed [text] in JSON format
+   * @return the parsed [text] in the given string [format]
    */
-  operator fun invoke(text: String, lang: String? = null): String {
+  operator fun invoke(text: String, lang: String? = null, format: ResponseFormat = ResponseFormat.JSON): String {
 
     val tokenizerLang: String = this.getTokenizerLanguage(text = text, forcedLang = lang)
     val sentences: ArrayList<Sentence> = this.tokenizers[tokenizerLang]!!.tokenize(text)
 
-    return sentences.joinToString(separator = "\n\n") {
-      val parserSentence = it.toParserSentence()
-      parserSentence.toCoNLL(dependencyTree = this.parser.parse(parserSentence)).toCoNLLString(writeComments = false)
+    return when (format) {
+      ResponseFormat.CoNLL -> this.parseToCoNLLFormat(sentences)
+      ResponseFormat.JSON -> this.parseToJSONFormat(sentences)
     }
   }
 
@@ -65,6 +75,34 @@ class Parse(
       tokenizerLang
     }
   }
+
+  /**
+   * Parse the given [sentences] and return the response in CoNLL format.
+   *
+   * @param sentences the list of sentences to parse
+   *
+   * @return the parsed sentences in CoNLL string format
+   */
+  private fun parseToCoNLLFormat(sentences: List<Sentence>): String = sentences.joinToString(separator = "\n\n") {
+    val parserSentence = it.toParserSentence()
+    parserSentence.toCoNLL(dependencyTree = this.parser.parse(parserSentence)).toCoNLLString(writeComments = false)
+  }
+
+  /**
+   * Parse the given [sentences] and return the response in JSON format.
+   *
+   * @param sentences the list of sentences to parse
+   *
+   * @return the parsed sentences in JSON string format
+   */
+  private fun parseToJSONFormat(sentences: List<Sentence>): String = json {
+    array(
+      sentences.map {
+        val parserSentence = it.toParserSentence()
+        parserSentence.toJSON(dependencyTree = this@Parse.parser.parse(parserSentence))
+      }
+    )
+  }.toJsonString()
 
   /**
    *
