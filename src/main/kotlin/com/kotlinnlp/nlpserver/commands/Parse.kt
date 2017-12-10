@@ -9,7 +9,6 @@ package com.kotlinnlp.nlpserver.commands
 
 import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.linguisticdescription.morphology.MorphologyDictionary
-import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.language.Token
 import com.kotlinnlp.neuralparser.parsers.GenericNeuralParser
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
