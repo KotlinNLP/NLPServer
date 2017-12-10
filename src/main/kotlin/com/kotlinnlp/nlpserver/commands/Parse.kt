@@ -43,7 +43,7 @@ class Parse(
 
     return sentences.joinToString(separator = "\n\n") {
       val parserSentence = it.toParserSentence()
-      parserSentence.toCoNLL(dependencyTree = this.parser.parse(parserSentence)).toCoNLL(writeComments = false)
+      parserSentence.toCoNLL(dependencyTree = this.parser.parse(parserSentence)).toCoNLLString(writeComments = false)
     }
   }
 
