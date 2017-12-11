@@ -7,7 +7,7 @@
 
 package com.kotlinnlp.nlpserver
 
-import com.kotlinnlp.nlpserver.commands.exceptions.ArgumentDependenciesNotSatisfied
+import com.kotlinnlp.nlpserver.commands.exceptions.ArgumentDependencyNotSatisfied
 import com.xenomachina.argparser.ArgParser
 import com.xenomachina.argparser.default
 
@@ -100,33 +100,44 @@ class CommandLineArguments(args: Array<String>) {
   /**
    * Check dependencies of all arguments.
    *
-   * @throws ArgumentDependenciesNotSatisfied if at least one dependency of an argument is not satisfied
+   * @throws ArgumentDependencyNotSatisfied if at least one dependency of an argument is not satisfied
    */
   private fun checkDependencies() {
 
-    if (this.langDetectorModel != null && this.cjkTokenizerModel == null)
-      throw ArgumentDependenciesNotSatisfied(
-        argName = "language detector model",
-        dependencies = listOf("cjk tokenizer model"))
+    this.checkDependency(
+      arg = this.langDetectorModel, argName = "language detector model",
+      dep = this.cjkTokenizerModel, depName = "cjk tokenizer model")
 
-    if (this.cjkTokenizerModel != null && this.langDetectorModel == null)
-      throw ArgumentDependenciesNotSatisfied(
-        argName = "cjk tokenizer model",
-        dependencies = listOf("language detector model"))
+    this.checkDependency(
+      arg = this.cjkTokenizerModel, argName = "cjk tokenizer model",
+      dep = this.langDetectorModel, depName = "language detector model")
 
-    if (this.morphoDictionary != null && (this.neuralParserModel == null))
-      throw ArgumentDependenciesNotSatisfied(
-        argName = "morphology dictionary",
-        dependencies = listOf("neural parser model"))
+    this.checkDependency(
+      arg = this.morphoDictionary, argName = "morphology dictionary",
+      dep = this.neuralParserModel, depName = "neural parser model")
 
-    if (this.neuralParserModel != null && (this.morphoDictionary == null))
-      throw ArgumentDependenciesNotSatisfied(
-        argName = "neural parser model",
-        dependencies = listOf("morphology dictionary"))
+    this.checkDependency(
+      arg = this.neuralParserModel, argName = "neural parser model",
+      dep = this.morphoDictionary, depName = "morphology dictionary")
 
-    if (this.neuralParserModel != null && (this.tokenizerModelsDir == null))
-      throw ArgumentDependenciesNotSatisfied(
-        argName = "neural parser model",
-        dependencies = listOf("tokenizer models directory"))
+    this.checkDependency(
+      arg = this.neuralParserModel, argName = "neural parser model",
+      dep = this.tokenizerModelsDir, depName = "tokenizer models directory")
+  }
+
+  /**
+   * Check the dependency of an argument.
+   *
+   * @param arg the argument
+   * @param argName the argument name
+   * @param dep the dependency to check
+   * @param depName the dependency name
+   *
+   * @throws ArgumentDependencyNotSatisfied if at least one dependency of an argument is not satisfied
+   */
+  private fun checkDependency(arg: Any?, argName: String, dep: Any?, depName: String) {
+
+    if (arg != null && dep == null)
+      throw ArgumentDependencyNotSatisfied(argName = argName, dependency = depName)
   }
 }
