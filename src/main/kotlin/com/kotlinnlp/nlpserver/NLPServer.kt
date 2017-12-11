@@ -13,9 +13,9 @@ import com.kotlinnlp.languagedetector.utils.FrequencyDictionary
 import com.kotlinnlp.languagedetector.utils.TextTokenizer
 import com.kotlinnlp.linguisticdescription.morphology.MorphologyDictionary
 import com.kotlinnlp.neuralparser.NeuralParser
+import com.kotlinnlp.neuralparser.NeuralParserFactory
 import com.kotlinnlp.neuralparser.NeuralParserModel
 import com.kotlinnlp.neuralparser.parsers.GenericNeuralParser
-import com.kotlinnlp.neuralparser.parsers.arcstandard.simple.BiRNNArcStandardParser
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizerModel
 import com.kotlinnlp.nlpserver.commands.DetectLanguage
@@ -282,7 +282,7 @@ class NLPServer(
 
       this.logger.info("Loading neural parser model from '$neuralParserModelFilename'\n")
 
-      BiRNNArcStandardParser(model = NeuralParserModel.load(FileInputStream(File(neuralParserModelFilename))))
+      NeuralParserFactory(model = NeuralParserModel.load(FileInputStream(File(neuralParserModelFilename))))
     }
   }
 
