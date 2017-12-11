@@ -112,7 +112,7 @@ class Parse(
         parserSentence.toJSON(dependencyTree = this@Parse.parser.parse(parserSentence))
       }
     )
-  }.toJsonString()
+  }.toJsonString() + "\n"
 
   /**
    * Convert this tokenizer Sentence object into the Sentence object of the NeuralParser.
