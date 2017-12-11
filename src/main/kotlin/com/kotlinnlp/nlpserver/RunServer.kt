@@ -7,10 +7,12 @@
 
 package com.kotlinnlp.nlpserver
 
+import com.xenomachina.argparser.mainBody
+
 /**
  * Run the NLP Server.
  */
-fun main(args: Array<String>) {
+fun main(args: Array<String>) = mainBody {
 
   val parsedArgs = CommandLineArguments(args)
 
