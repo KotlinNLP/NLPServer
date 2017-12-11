@@ -113,16 +113,17 @@ class CommandLineArguments(args: Array<String>) {
       dep = this.langDetectorModel, depName = "language detector model")
 
     this.checkDependency(
-      arg = this.morphoDictionary, argName = "morphology dictionary",
-      dep = this.neuralParserModel, depName = "neural parser model")
-
-    this.checkDependency(
-      arg = this.neuralParserModel, argName = "neural parser model",
-      dep = this.morphoDictionary, depName = "morphology dictionary")
-
-    this.checkDependency(
       arg = this.neuralParserModel, argName = "neural parser model",
       dep = this.tokenizerModelsDir, depName = "tokenizer models directory")
+
+//    TODO: uncomment in the future when building the parser with the morphology dictionary
+//    this.checkDependency(
+//      arg = this.morphoDictionary, argName = "morphology dictionary",
+//      dep = this.neuralParserModel, depName = "neural parser model")
+//
+//    this.checkDependency(
+//      arg = this.neuralParserModel, argName = "neural parser model",
+//      dep = this.morphoDictionary, depName = "morphology dictionary")
   }
 
   /**
