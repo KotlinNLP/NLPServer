@@ -9,7 +9,6 @@ package com.kotlinnlp.nlpserver.commands
 
 import com.beust.klaxon.json
 import com.kotlinnlp.languagedetector.LanguageDetector
-import com.kotlinnlp.linguisticdescription.morphology.MorphologyDictionary
 import com.kotlinnlp.neuralparser.language.Token
 import com.kotlinnlp.neuralparser.parsers.GenericNeuralParser
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
@@ -18,12 +17,10 @@ import com.kotlinnlp.nlpserver.commands.exceptions.NotSupportedLanguage
 
 /**
  * The command executed on the route '/parse'.
- *
- * @param morphologyDictionary a morphology dictionary
+
  * @param parser a neural parser
  */
 class Parse(
-  private val morphologyDictionary: MorphologyDictionary,
   private val parser: GenericNeuralParser,
   private val tokenizers: Map<String, NeuralTokenizer>,
   private val languageDetector: LanguageDetector?
@@ -108,12 +105,6 @@ class Parse(
    *
    */
   private fun Sentence.toParserSentence() = com.kotlinnlp.neuralparser.language.Sentence(
-    tokens = this.tokens.filter { !it.isSpace }.mapIndexed { i, it ->
-
-      val firstPos: String?
-        = this@Parse.morphologyDictionary[it.form]?.morphologies?.first()?.list?.first()?.type?.annotation
-
-      Token(id = i, word = it.form, pos = firstPos ?: "UNKNOWN")
-    }
+    tokens = this.tokens.filter { !it.isSpace }.mapIndexed { i, it -> Token(id = i, word = it.form) }
   )
 }
