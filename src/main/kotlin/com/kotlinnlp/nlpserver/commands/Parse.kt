@@ -19,6 +19,8 @@ import com.kotlinnlp.nlpserver.commands.exceptions.NotSupportedLanguage
  * The command executed on the route '/parse'.
 
  * @param parser a neural parser
+ * @param tokenizers a map of languages iso-a2 codes to neural tokenizers
+ * @param languageDetector a language detector (can be null)
  */
 class Parse(
   private val parser: GenericNeuralParser,
@@ -45,7 +47,7 @@ class Parse(
    */
   operator fun invoke(text: String, lang: String? = null, format: ResponseFormat = ResponseFormat.JSON): String {
 
-    val tokenizerLang: String = this.getTokenizerLanguage(text = text, forcedLang = lang)
+    val tokenizerLang: String = this.getTextLanguage(text = text, forcedLang = lang)
     val sentences: ArrayList<Sentence> = this.tokenizers[tokenizerLang]!!.tokenize(text)
 
     return when (format) {
@@ -55,15 +57,26 @@ class Parse(
   }
 
   /**
+   * @param text the text to parse (of which to detect the language if [forcedLang] is null)
+   * @param forcedLang force this language to be returned (if it is supported)
    *
+   * @throws NotSupportedLanguage when the returning language is not supported
+   * @throws RuntimeException when [forcedLang] is 'null' but the language detector is missing
+   *
+   * @return the language iso-a2 code of the given [text]
    */
-  private fun getTokenizerLanguage(text: String, forcedLang: String?): String {
+  private fun getTextLanguage(text: String, forcedLang: String?): String {
 
     return if (this.languageDetector == null) {
-      if (forcedLang == null) throw RuntimeException("Cannot determine language automatically (missing language detector)")
-      if (forcedLang !in this.tokenizers) throw NotSupportedLanguage(forcedLang)
 
-      forcedLang
+      if (forcedLang == null) {
+        throw RuntimeException("Cannot determine language automatically (missing language detector)")
+
+      } else {
+        if (forcedLang !in this.tokenizers) throw NotSupportedLanguage(forcedLang)
+
+        forcedLang
+      }
 
     } else {
       val tokenizerLang: String = forcedLang?.toLowerCase() ?: this.languageDetector.detectLanguage(text).isoCode
@@ -102,7 +115,9 @@ class Parse(
   }.toJsonString()
 
   /**
+   * Convert this tokenizer Sentence object into the Sentence object of the NeuralParser.
    *
+   * @return a NeuralParser Sentence object
    */
   private fun Sentence.toParserSentence() = com.kotlinnlp.neuralparser.language.Sentence(
     tokens = this.tokens.filter { !it.isSpace }.mapIndexed { i, it -> Token(id = i, word = it.form) }
