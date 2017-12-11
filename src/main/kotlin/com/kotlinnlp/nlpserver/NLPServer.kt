@@ -71,6 +71,7 @@ class NLPServer(
   /**
    * A [MorphologyDictionary].
    */
+  @Suppress("UNUSED") // TODO: use it to build the parser in the future
   private val morphologyDictionary: MorphologyDictionary? = this.buildMorphologyDictionary(morphologyDictionaryFilename)
 
   /**
@@ -82,11 +83,10 @@ class NLPServer(
    * The handler of the Parse command.
    */
   private val parse: Parse? =
-    if (this.tokenizers != null && this.morphologyDictionary != null && this.neuralParser != null)
+    if (this.tokenizers != null && this.neuralParser != null)
       Parse(
         tokenizers = this.tokenizers,
         languageDetector = this.languageDetector,
-        morphologyDictionary = this.morphologyDictionary,
         parser = this.neuralParser)
     else
       null
