@@ -8,11 +8,9 @@
 package com.kotlinnlp.nlpserver.commands.exceptions
 
 /**
- * Exception raised when one or more dependencies of a command line argument are not satisfied.
+ * Exception raised when a dependency of a command line argument is not satisfied.
  *
- * @param dependencies the list of not satisfied dependencies
+ * @param dependency the name of the not satisfied dependency
  */
-class ArgumentDependenciesNotSatisfied(
-  argName: String,
-  dependencies: List<String>
-) : RuntimeException("'$argName' requires: '${dependencies.joinToString("', '")}'")
+class ArgumentDependencyNotSatisfied(argName: String, dependency: String)
+  : RuntimeException("'$argName' requires '$dependency'")
