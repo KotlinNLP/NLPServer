@@ -42,17 +42,20 @@ class Parse(
    * @param text the text to parse
    * @param lang the language to use to parse the [text] (default = null)
    * @param format the string format of the parsed sentences response (default = JSON)
+   * @param prettyPrint pretty print, used for JSON format (default = false)
    *
    * @return the parsed [text] in the given string [format]
    */
-  operator fun invoke(text: String, lang: String? = null, format: ResponseFormat = ResponseFormat.JSON): String {
+  operator fun invoke(text: String, lang: String? = null,
+                      format: ResponseFormat = ResponseFormat.JSON,
+                      prettyPrint: Boolean = false): String {
 
     val tokenizerLang: String = this.getTextLanguage(text = text, forcedLang = lang)
     val sentences: ArrayList<Sentence> = this.tokenizers[tokenizerLang]!!.tokenize(text)
 
     return when (format) {
       ResponseFormat.CoNLL -> this.parseToCoNLLFormat(sentences)
-      ResponseFormat.JSON -> this.parseToJSONFormat(sentences)
+      ResponseFormat.JSON -> this.parseToJSONFormat(sentences, prettyPrint = prettyPrint)
     } + "\n"
   }
 
@@ -102,17 +105,18 @@ class Parse(
    * Parse the given [sentences] and return the response in JSON format.
    *
    * @param sentences the list of sentences to parse
+   * @param prettyPrint pretty print (default = false)
    *
    * @return the parsed sentences in JSON string format
    */
-  private fun parseToJSONFormat(sentences: List<Sentence>): String = json {
+  private fun parseToJSONFormat(sentences: List<Sentence>, prettyPrint: Boolean = false): String = json {
     array(
       sentences.map {
         val parserSentence = it.toParserSentence()
         parserSentence.toJSON(dependencyTree = this@Parse.parser.parse(parserSentence))
       }
     )
-  }.toJsonString()
+  }.toJsonString(prettyPrint = prettyPrint)
 
   /**
    * Convert this tokenizer Sentence object into the Sentence object of the NeuralParser.
