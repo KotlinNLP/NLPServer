@@ -80,18 +80,6 @@ class NLPServer(
   private val neuralParser: GenericNeuralParser? = this.buildNeuralParser(neuralParserModelFilename)
 
   /**
-   * The handler of the Parse command.
-   */
-  private val parse: Parse? =
-    if (this.tokenizers != null && this.neuralParser != null)
-      Parse(
-        tokenizers = this.tokenizers,
-        languageDetector = this.languageDetector,
-        parser = this.neuralParser)
-    else
-      null
-
-  /**
    * The handler of the DetectLanguage command.
    */
   private val detectLanguage: DetectLanguage? =
@@ -106,6 +94,18 @@ class NLPServer(
   private val tokenize: Tokenize? =
     if (this.tokenizers != null)
       Tokenize(tokenizers = this.tokenizers, languageDetector = this.languageDetector)
+    else
+      null
+
+  /**
+   * The handler of the Parse command.
+   */
+  private val parse: Parse? =
+    if (this.tokenizers != null && this.neuralParser != null)
+      Parse(
+        tokenizers = this.tokenizers,
+        languageDetector = this.languageDetector,
+        parser = this.neuralParser)
     else
       null
 
@@ -138,10 +138,6 @@ class NLPServer(
    */
   fun start() {
 
-    Spark.path("/parse") {
-      this.parseRoute()
-    }
-
     if (this.detectLanguage != null) {
       Spark.path("/detect-language") {
         this.detectLanguageRoute()
@@ -154,6 +150,12 @@ class NLPServer(
     if (this.tokenize != null) {
       Spark.path("/tokenize") {
         this.tokenizeRoute()
+      }
+
+      if (this.parse != null) {
+        Spark.path("/parse") {
+          this.parseRoute()
+        }
       }
     }
 
