@@ -53,7 +53,7 @@ class Parse(
     return when (format) {
       ResponseFormat.CoNLL -> this.parseToCoNLLFormat(sentences)
       ResponseFormat.JSON -> this.parseToJSONFormat(sentences)
-    }
+    } + "\n"
   }
 
   /**
@@ -112,7 +112,7 @@ class Parse(
         parserSentence.toJSON(dependencyTree = this@Parse.parser.parse(parserSentence))
       }
     )
-  }.toJsonString() + "\n"
+  }.toJsonString()
 
   /**
    * Convert this tokenizer Sentence object into the Sentence object of the NeuralParser.
