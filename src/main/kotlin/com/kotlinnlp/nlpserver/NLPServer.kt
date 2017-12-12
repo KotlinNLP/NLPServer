@@ -300,7 +300,8 @@ class NLPServer(
       this.parse!!(
         text = request.queryParams("text"),
         lang = request.queryParams("lang"),
-        format = this.getParsedFormat(request.queryParams("format") ?: "JSON"))
+        format = this.getParsedFormat(request.queryParams("format") ?: "JSON"),
+        prettyPrint = request.queryParams("pretty") != null)
     }
 
     Spark.get("/:lang") { request, _ ->
@@ -310,20 +311,23 @@ class NLPServer(
       this.parse!!(
         text = request.queryParams("text"),
         lang = request.params("lang"),
-        format = this.getParsedFormat(request.queryParams("format") ?: "JSON"))
+        format = this.getParsedFormat(request.queryParams("format") ?: "JSON"),
+        prettyPrint = request.queryParams("pretty") != null)
     }
 
     Spark.post("") { request, _ ->
       this.parse!!(
         text = request.body(),
-        format = this.getParsedFormat(request.queryParams("format") ?: "JSON"))
+        format = this.getParsedFormat(request.queryParams("format") ?: "JSON"),
+        prettyPrint = request.queryParams("pretty") != null)
     }
 
     Spark.post("/:lang") { request, _ ->
       this.parse!!(
         text = request.body(),
         lang = request.params("lang"),
-        format = this.getParsedFormat(request.queryParams("format") ?: "JSON"))
+        format = this.getParsedFormat(request.queryParams("format") ?: "JSON"),
+        prettyPrint = request.queryParams("pretty") != null)
     }
   }
 
