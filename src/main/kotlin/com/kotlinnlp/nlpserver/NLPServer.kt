@@ -297,23 +297,45 @@ class NLPServer(
 
       request.checkRequiredParams(requiredParams = listOf("text"))
 
-      this.parse!!(text = request.queryParams("text"), lang = request.queryParams("lang"))
+      this.parse!!(
+        text = request.queryParams("text"),
+        lang = request.queryParams("lang"),
+        format = this.getParsedFormat(request.queryParams("format") ?: "JSON"))
     }
 
     Spark.get("/:lang") { request, _ ->
 
       request.checkRequiredParams(requiredParams = listOf("text"))
 
-      this.parse!!(text = request.queryParams("text"), lang = request.params("lang"))
+      this.parse!!(
+        text = request.queryParams("text"),
+        lang = request.params("lang"),
+        format = this.getParsedFormat(request.queryParams("format") ?: "JSON"))
     }
 
     Spark.post("") { request, _ ->
-      this.parse!!(text = request.body())
+      this.parse!!(
+        text = request.body(),
+        format = this.getParsedFormat(request.queryParams("format") ?: "JSON"))
     }
 
     Spark.post("/:lang") { request, _ ->
-      this.parse!!(text = request.body(), lang = request.params("lang"))
+      this.parse!!(
+        text = request.body(),
+        lang = request.params("lang"),
+        format = this.getParsedFormat(request.queryParams("format") ?: "JSON"))
     }
+  }
+
+  /**
+   * @param formatString a string representing a parsing response format ('JSON', 'CoNLL')
+   *
+   * @return the parse response format related to the given [formatString]
+   */
+  private fun getParsedFormat(formatString: String): Parse.ResponseFormat = when (formatString.toLowerCase()) {
+    "json" -> Parse.ResponseFormat.JSON
+    "conll" -> Parse.ResponseFormat.CoNLL
+    else -> throw RuntimeException("Invalid parsing response format: $formatString.")
   }
 
   /**
