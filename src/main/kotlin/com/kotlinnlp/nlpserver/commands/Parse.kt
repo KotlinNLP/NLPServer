@@ -50,12 +50,12 @@ class Parse(
                       format: ResponseFormat = ResponseFormat.JSON,
                       prettyPrint: Boolean = false): String {
 
-    val tokenizerLang: String = this.getTextLanguage(text = text, forcedLang = lang)
-    val sentences: ArrayList<Sentence> = this.tokenizers[tokenizerLang]!!.tokenize(text)
+    val textLanguage: String = this.getTextLanguage(text = text, forcedLang = lang)
+    val sentences: ArrayList<Sentence> = this.tokenizers[textLanguage]!!.tokenize(text)
 
     return when (format) {
       ResponseFormat.CoNLL -> this.parseToCoNLLFormat(sentences)
-      ResponseFormat.JSON -> this.parseToJSONFormat(sentences, prettyPrint = prettyPrint)
+      ResponseFormat.JSON -> this.parseToJSONFormat(sentences, lang = textLanguage, prettyPrint = prettyPrint)
     } + "\n"
   }
 
@@ -82,10 +82,10 @@ class Parse(
       }
 
     } else {
-      val tokenizerLang: String = forcedLang?.toLowerCase() ?: this.languageDetector.detectLanguage(text).isoCode
-      if (tokenizerLang !in this.tokenizers) throw NotSupportedLanguage(tokenizerLang)
+      val lang: String = forcedLang?.toLowerCase() ?: this.languageDetector.detectLanguage(text).isoCode
+      if (lang !in this.tokenizers) throw NotSupportedLanguage(lang)
 
-      tokenizerLang
+      lang
     }
   }
 
@@ -105,16 +105,20 @@ class Parse(
    * Parse the given [sentences] and return the response in JSON format.
    *
    * @param sentences the list of sentences to parse
+   * @param lang the text language
    * @param prettyPrint pretty print (default = false)
    *
    * @return the parsed sentences in JSON string format
    */
-  private fun parseToJSONFormat(sentences: List<Sentence>, prettyPrint: Boolean = false): String = json {
-    array(
-      sentences.map {
-        val parserSentence = it.toParserSentence()
-        parserSentence.toJSON(dependencyTree = this@Parse.parser.parse(parserSentence))
-      }
+  private fun parseToJSONFormat(sentences: List<Sentence>, lang: String, prettyPrint: Boolean = false): String = json {
+    obj (
+      "lang" to lang,
+      "sentences" to array(
+        sentences.map {
+          val parserSentence = it.toParserSentence()
+          parserSentence.toJSON(dependencyTree = this@Parse.parser.parse(parserSentence))
+        }
+      )
     )
   }.toJsonString(prettyPrint = prettyPrint)
 
