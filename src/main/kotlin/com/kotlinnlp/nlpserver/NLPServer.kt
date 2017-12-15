@@ -138,6 +138,8 @@ class NLPServer(
    */
   fun start() {
 
+    this.enbaleCORS()
+
     if (this.detectLanguage != null) {
       Spark.path("/detect-language") {
         this.detectLanguageRoute()
@@ -160,6 +162,16 @@ class NLPServer(
     }
 
     this.logger.info("NLP Server running on 'localhost:%d'\n".format(Spark.port()))
+  }
+
+  /**
+   * Enable CORS requests.
+   */
+  private fun enbaleCORS() {
+
+    Spark.before("/*") { _, response ->
+      response.header("Access-Control-Allow-Origin", "*")
+    }
   }
 
   /**
