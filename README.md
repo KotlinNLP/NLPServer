@@ -5,11 +5,11 @@ NLPServer implements a server listening http requests on different routes, to qu
 NLPServer is part of [KotlinNLP](http://kotlinnlp.com/ "KotlinNLP").
 
 
+
 ## Getting Started
 
 Run the server simply passing configuration parameters by command line to the
 [RunServerKt](https://???/ "RunServerKt") script.
-
 
 ### Command line arguments
 
@@ -21,6 +21,16 @@ required arguments:
   -l LANGUAGE_DETECTOR_MODEL,  the filename of the model of the language detector
   -f FREQUENCY_DICTIONARY      the filename of the frequency dictionary used by the 
                                language detector
+```
+
+### Import with Maven
+
+```xml
+<dependency>
+    <groupId>com.kotlinnlp</groupId>
+    <artifactId>nlpserver</artifactId>
+    <version>0.1.0</version>
+</dependency>
 ```
 
 
