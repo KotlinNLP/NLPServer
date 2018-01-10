@@ -1,4 +1,4 @@
-# NLPServer [![GitHub version](https://badge.fury.io/gh/KotlinNLP%2Fnlpserver.svg)](https://badge.fury.io/gh/KotlinNLP%2Fnlpserver) [![Build Status](https://travis-ci.org/KotlinNLP/NLPServer.svg?branch=master)](https://travis-ci.org/KotlinNLP/NLPServer)
+# NLPServer [![GitHub version](https://badge.fury.io/gh/KotlinNLP%2FNLPServer.svg)](https://badge.fury.io/gh/KotlinNLP%2FNLPServer) [![Build Status](https://travis-ci.org/KotlinNLP/NLPServer.svg?branch=master)](https://travis-ci.org/KotlinNLP/NLPServer)
 
 NLPServer implements a server listening http requests on different routes, to query different modules of the [KotlinNLP](http://kotlinnlp.com/ "KotlinNLP") library.
 
