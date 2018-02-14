@@ -9,8 +9,8 @@ package com.kotlinnlp.nlpserver.commands
 
 import com.beust.klaxon.json
 import com.kotlinnlp.languagedetector.LanguageDetector
+import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.language.Token
-import com.kotlinnlp.neuralparser.parsers.GenericNeuralParser
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.Sentence
 import com.kotlinnlp.nlpserver.commands.exceptions.NotSupportedLanguage
@@ -23,7 +23,7 @@ import com.kotlinnlp.nlpserver.commands.exceptions.NotSupportedLanguage
  * @param languageDetector a language detector (can be null)
  */
 class Parse(
-  private val parser: GenericNeuralParser,
+  private val parser: NeuralParser<*>,
   private val tokenizers: Map<String, NeuralTokenizer>,
   private val languageDetector: LanguageDetector?
 ) {
