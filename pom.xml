@@ -68,7 +68,7 @@
         <neuraltokenizer.version>0.1.0</neuraltokenizer.version>
         <languagedetector.version>0.1.0</languagedetector.version>
         <linguisticdescription.version>0.1.0</linguisticdescription.version>
-        <neuralparser.version>0.2.4</neuralparser.version>
+        <neuralparser.version>0.2.5</neuralparser.version>
     </properties>
 
     <repositories>
