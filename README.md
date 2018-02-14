@@ -28,7 +28,7 @@ required arguments:
 <dependency>
     <groupId>com.kotlinnlp</groupId>
     <artifactId>nlpserver</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.1</version>
 </dependency>
 ```
 
