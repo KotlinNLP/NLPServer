@@ -7,16 +7,6 @@
 
 package com.kotlinnlp.nlpserver
 
-import com.kotlinnlp.languagedetector.LanguageDetector
-import com.kotlinnlp.languagedetector.LanguageDetectorModel
-import com.kotlinnlp.languagedetector.utils.FrequencyDictionary
-import com.kotlinnlp.languagedetector.utils.TextTokenizer
-import com.kotlinnlp.linguisticdescription.morphology.MorphologyDictionary
-import com.kotlinnlp.neuralparser.NeuralParser
-import com.kotlinnlp.neuralparser.NeuralParserFactory
-import com.kotlinnlp.neuralparser.NeuralParserModel
-import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
-import com.kotlinnlp.neuraltokenizer.NeuralTokenizerModel
 import com.kotlinnlp.nlpserver.commands.DetectLanguage
 import com.kotlinnlp.nlpserver.commands.Parse
 import com.kotlinnlp.nlpserver.commands.Tokenize
@@ -24,89 +14,27 @@ import com.kotlinnlp.nlpserver.commands.exceptions.MissingParameters
 import com.kotlinnlp.nlpserver.commands.exceptions.NotSupportedLanguage
 import spark.Request
 import spark.Spark
-import java.io.File
-import java.io.FileInputStream
 import java.util.logging.Logger
 
 /**
  * The NLP Server class.
  *
  * @param port the port listened from the server
- * @param tokenizerModelsDir the directory containing the tokenizer models
- * @param languageDetectorModelFilename the filename of the language detector model
- * @param cjkModelFilename the filename of the CJK tokenizer used by the language detector
- * @param frequencyDictionaryFilename the filename of the frequency dictionary
- * @param morphologyDictionaryFilename the filename of the morphology dictionary
- * @param neuralParserModelFilename the filename of the neural parser model
+ * @param detectLanguage the handler of the 'DetectLanguage' command
+ * @param tokenize the handler of the 'Tokenize' command
+ * @param parse the handler of the 'Parse' command
  */
 class NLPServer(
   port: Int,
-  tokenizerModelsDir: String?,
-  languageDetectorModelFilename: String?,
-  cjkModelFilename: String?,
-  frequencyDictionaryFilename: String?,
-  morphologyDictionaryFilename: String?,
-  neuralParserModelFilename: String?
+  private val detectLanguage: DetectLanguage?,
+  private val tokenize: Tokenize?,
+  private val parse: Parse?
 ) {
 
   /**
    * The logger of the server.
    */
   private val logger = Logger.getLogger("NLP Server")
-
-  /**
-   * A [LanguageDetector].
-   */
-  private val languageDetector: LanguageDetector? = this.buildLanguageDetector(
-    languageDetectorModelFilename = languageDetectorModelFilename,
-    cjkModelFilename = cjkModelFilename,
-    frequencyDictionaryFilename = frequencyDictionaryFilename)
-
-  /**
-   * A [Map] of languages iso-a2 codes to the related [NeuralTokenizer]s.
-   */
-  private val tokenizers: Map<String, NeuralTokenizer>? = this.buildTokenizers(tokenizerModelsDir)
-
-  /**
-   * A [MorphologyDictionary].
-   */
-  @Suppress("UNUSED") // TODO: use it to build the parser in the future
-  private val morphologyDictionary: MorphologyDictionary? = this.buildMorphologyDictionary(morphologyDictionaryFilename)
-
-  /**
-   * A [NeuralParser].
-   */
-  private val neuralParser: NeuralParser<*>? = this.buildNeuralParser(neuralParserModelFilename)
-
-  /**
-   * The handler of the DetectLanguage command.
-   */
-  private val detectLanguage: DetectLanguage? =
-    if (this.languageDetector != null)
-      DetectLanguage(this.languageDetector)
-    else
-      null
-
-  /**
-   * The handler of the Tokenize command.
-   */
-  private val tokenize: Tokenize? =
-    if (this.tokenizers != null)
-      Tokenize(tokenizers = this.tokenizers, languageDetector = this.languageDetector)
-    else
-      null
-
-  /**
-   * The handler of the Parse command.
-   */
-  private val parse: Parse? =
-    if (this.tokenizers != null && this.neuralParser != null)
-      Parse(
-        tokenizers = this.tokenizers,
-        languageDetector = this.languageDetector,
-        parser = this.neuralParser)
-    else
-      null
 
   /**
    * Initialize Spark: set port and exceptions handling.
@@ -170,132 +98,6 @@ class NLPServer(
 
     Spark.before("/*") { _, response ->
       response.header("Access-Control-Allow-Origin", "*")
-    }
-  }
-
-  /**
-   * Build a [LanguageDetector].
-   * The [languageDetectorModelFilename] and the [cjkModelFilename] arguments are required to be not null to build it,
-   * otherwise null is returned.
-   *
-   * @param languageDetectorModelFilename the filename of the language detector model
-   * @param cjkModelFilename the filename of the CJK tokenizer used by the language detector
-   * @param frequencyDictionaryFilename the filename of the frequency dictionary
-   *
-   * @return a [LanguageDetector] with the given models
-   */
-  private fun buildLanguageDetector(languageDetectorModelFilename: String?,
-                                    cjkModelFilename: String?,
-                                    frequencyDictionaryFilename: String?): LanguageDetector? {
-
-    return if (languageDetectorModelFilename == null || cjkModelFilename == null) {
-
-      this.logger.info("No language detector loaded\n")
-
-      null
-
-    } else {
-
-      this.logger.info("Loading language detector model from '$languageDetectorModelFilename'\n")
-      val model = LanguageDetectorModel.load(FileInputStream(File(languageDetectorModelFilename)))
-
-      this.logger.info("Loading CJK tokenizer model from '$cjkModelFilename'\n")
-      val tokenizer = TextTokenizer(cjkModel = NeuralTokenizerModel.load(FileInputStream(File(cjkModelFilename))))
-
-      val freqDictionary = if (frequencyDictionaryFilename != null) {
-        this.logger.info("Loading frequency dictionary from '$frequencyDictionaryFilename'\n")
-        FrequencyDictionary.load(FileInputStream(File(frequencyDictionaryFilename)))
-      } else {
-        this.logger.info("No frequency dictionary used to detect the language\n")
-        null
-      }
-
-      return LanguageDetector(model = model, tokenizer = tokenizer, frequencyDictionary = freqDictionary)
-    }
-  }
-
-  /**
-   * Build the [Map] of languages iso-a2 codes to the related [NeuralTokenizer]s.
-   * The [tokenizerModelsDir] argument and the [detectLanguage] command are required to be not null to build it,
-   * otherwise null is returned.
-   *
-   * @param tokenizerModelsDir the directory containing the tokenizers models
-   *
-   * @return a [Map] of languages iso-a2 codes to the related [NeuralTokenizer]s
-   */
-  private fun buildTokenizers(tokenizerModelsDir: String?): Map<String, NeuralTokenizer>? {
-
-    return if (tokenizerModelsDir == null) {
-
-      this.logger.info("No tokenizer loaded\n")
-
-      null
-
-    } else {
-
-      this.logger.info("Loading tokenizer models from '$tokenizerModelsDir'\n")
-      val modelsDirectory = File(tokenizerModelsDir)
-
-      require(modelsDirectory.isDirectory) { "$tokenizerModelsDir is not a directory" }
-
-      val tokenizersMap = mutableMapOf<String, NeuralTokenizer>()
-      val modelsFiles: Array<File> = modelsDirectory.listFiles()
-
-      modelsFiles.forEachIndexed { i, modelFile ->
-
-        this.logger.info("Loading '${modelFile.name}'..." + if (i == modelsFiles.lastIndex) "\n" else "")
-        val model = NeuralTokenizerModel.load(FileInputStream(modelFile))
-
-        tokenizersMap[model.language] = NeuralTokenizer(model)
-      }
-
-      tokenizersMap.toMap()
-    }
-  }
-
-  /**
-   * Build the [MorphologyDictionary] if the given filename is not null, otherwise null is returned.
-   *
-   * @param morphologyDictionaryFilename the filename of the morphology dictionary
-   *
-   * @return a morphology dictionary
-   */
-  private fun buildMorphologyDictionary(morphologyDictionaryFilename: String?): MorphologyDictionary? {
-
-    return if (morphologyDictionaryFilename == null) {
-
-      this.logger.info("No morphology dictionary loaded\n")
-
-      null
-
-    } else {
-
-      this.logger.info("Loading morphology dictionary from '$morphologyDictionaryFilename'\n")
-
-      MorphologyDictionary.load(morphologyDictionaryFilename, verbose = false)
-    }
-  }
-
-  /**
-   * Build the [NeuralParser] if the given filename is not null, otherwise null is returned.
-   *
-   * @param neuralParserModelFilename the filename of the neural parser
-   *
-   * @return a neural parser
-   */
-  private fun buildNeuralParser(neuralParserModelFilename: String?): NeuralParser<*>? {
-
-    return if (neuralParserModelFilename == null) {
-
-      this.logger.info("No morphology dictionary loaded\n")
-
-      null
-
-    } else {
-
-      this.logger.info("Loading neural parser model from '$neuralParserModelFilename'\n")
-
-      NeuralParserFactory(model = NeuralParserModel.load(FileInputStream(File(neuralParserModelFilename))))
     }
   }
 
