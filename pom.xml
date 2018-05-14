@@ -70,6 +70,7 @@
         <linguisticdescription.version>0.1.0</linguisticdescription.version>
         <neuralparser.version>[0.2.7]</neuralparser.version>
         <simplednn.version>[0.6.0]</simplednn.version>
+        <geolocation.version>0.1.0</geolocation.version>
     </properties>
 
     <repositories>
@@ -310,6 +311,12 @@
             <groupId>com.kotlinnlp</groupId>
             <artifactId>simplednn</artifactId>
             <version>${simplednn.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.kotlinnlp</groupId>
+            <artifactId>geolocation</artifactId>
+            <version>${geolocation.version}</version>
         </dependency>
     </dependencies>
 </project>
