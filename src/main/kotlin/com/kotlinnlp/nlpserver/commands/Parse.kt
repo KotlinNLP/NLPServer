@@ -46,12 +46,13 @@ class Parse(
    *
    * @return the parsed [text] in the given string [format]
    */
-  operator fun invoke(text: String, lang: String? = null,
+  operator fun invoke(text: String,
+                      lang: String? = null,
                       format: ResponseFormat = ResponseFormat.JSON,
                       prettyPrint: Boolean = false): String {
 
     val textLanguage: String = this.getTextLanguage(text = text, forcedLang = lang)
-    val sentences: ArrayList<Sentence> = this.tokenizers[textLanguage]!!.tokenize(text)
+    val sentences: ArrayList<Sentence> = this.tokenizers.getValue(textLanguage).tokenize(text)
 
     return when (format) {
       ResponseFormat.CoNLL -> this.parseToCoNLLFormat(sentences)
