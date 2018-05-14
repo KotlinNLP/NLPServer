@@ -68,7 +68,8 @@
         <neuraltokenizer.version>0.1.0</neuraltokenizer.version>
         <languagedetector.version>0.1.0</languagedetector.version>
         <linguisticdescription.version>0.1.0</linguisticdescription.version>
-        <neuralparser.version>0.2.5</neuralparser.version>
+        <neuralparser.version>[0.2.7]</neuralparser.version>
+        <simplednn.version>[0.6.0]</simplednn.version>
     </properties>
 
     <repositories>
@@ -303,6 +304,12 @@
             <groupId>com.kotlinnlp</groupId>
             <artifactId>neuralparser</artifactId>
             <version>${neuralparser.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.kotlinnlp</groupId>
+            <artifactId>simplednn</artifactId>
+            <version>${simplednn.version}</version>
         </dependency>
     </dependencies>
 </project>
