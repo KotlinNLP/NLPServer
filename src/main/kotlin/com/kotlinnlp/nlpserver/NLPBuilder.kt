@@ -5,7 +5,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-package com.kotlinnlp.nlpserver.commands
+package com.kotlinnlp.nlpserver
 
 import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.languagedetector.LanguageDetectorModel
@@ -44,17 +44,17 @@ object NLPBuilder {
                             cjkModelFilename: String,
                             frequencyDictionaryFilename: String?): LanguageDetector {
 
-    this.logger.info("Loading language detector model from '$languageDetectorModelFilename'\n")
+    logger.info("Loading language detector model from '$languageDetectorModelFilename'\n")
     val model = LanguageDetectorModel.load(FileInputStream(File(languageDetectorModelFilename)))
 
-    this.logger.info("Loading CJK tokenizer model from '$cjkModelFilename'\n")
+    logger.info("Loading CJK tokenizer model from '$cjkModelFilename'\n")
     val tokenizer = TextTokenizer(cjkModel = NeuralTokenizerModel.load(FileInputStream(File(cjkModelFilename))))
 
     val freqDictionary = if (frequencyDictionaryFilename != null) {
-      this.logger.info("Loading frequency dictionary from '$frequencyDictionaryFilename'\n")
+      logger.info("Loading frequency dictionary from '$frequencyDictionaryFilename'\n")
       FrequencyDictionary.load(FileInputStream(File(frequencyDictionaryFilename)))
     } else {
-      this.logger.info("No frequency dictionary used to detect the language\n")
+      logger.info("No frequency dictionary used to detect the language\n")
       null
     }
 
@@ -70,7 +70,7 @@ object NLPBuilder {
    */
   fun buildTokenizers(tokenizerModelsDir: String): Map<String, NeuralTokenizer> {
 
-    this.logger.info("Loading tokenizer models from '$tokenizerModelsDir'\n")
+    logger.info("Loading tokenizer models from '$tokenizerModelsDir'\n")
     val modelsDirectory = File(tokenizerModelsDir)
 
     require(modelsDirectory.isDirectory) { "$tokenizerModelsDir is not a directory" }
@@ -80,7 +80,7 @@ object NLPBuilder {
 
     modelsFiles.forEachIndexed { i, modelFile ->
 
-      this.logger.info("Loading '${modelFile.name}'..." + if (i == modelsFiles.lastIndex) "\n" else "")
+      logger.info("Loading '${modelFile.name}'..." + if (i == modelsFiles.lastIndex) "\n" else "")
       val model = NeuralTokenizerModel.load(FileInputStream(modelFile))
 
       tokenizersMap[model.language] = NeuralTokenizer(model)
@@ -99,7 +99,7 @@ object NLPBuilder {
   @Suppress("UNUSED")
   fun buildMorphologyDictionary(morphologyDictionaryFilename: String): MorphologyDictionary {
 
-    this.logger.info("Loading morphology dictionary from '$morphologyDictionaryFilename'\n")
+    logger.info("Loading morphology dictionary from '$morphologyDictionaryFilename'\n")
 
     return MorphologyDictionary.load(morphologyDictionaryFilename, verbose = false)
   }
@@ -113,7 +113,7 @@ object NLPBuilder {
    */
   fun buildNeuralParser(neuralParserModelFilename: String): NeuralParser<*> {
 
-    this.logger.info("Loading neural parser model from '$neuralParserModelFilename'\n")
+    logger.info("Loading neural parser model from '$neuralParserModelFilename'\n")
 
     return NeuralParserFactory(model = NeuralParserModel.load(FileInputStream(File(neuralParserModelFilename))))
   }

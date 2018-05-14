@@ -11,7 +11,6 @@ import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.nlpserver.commands.DetectLanguage
-import com.kotlinnlp.nlpserver.commands.NLPBuilder
 import com.kotlinnlp.nlpserver.commands.Parse
 import com.kotlinnlp.nlpserver.commands.Tokenize
 import com.xenomachina.argparser.mainBody
