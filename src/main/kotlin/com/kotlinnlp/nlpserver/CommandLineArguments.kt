@@ -87,6 +87,15 @@ class CommandLineArguments(args: Array<String>) {
   ).default(null)
 
   /**
+   * The filename of the LocationsDictionary.
+   */
+  val locationsDictionary: String? by parser.storing(
+    "-d",
+    "--locations-dictionary",
+    help="the filename of the serialized locations dictionary"
+  ).default(null)
+
+  /**
    * Force parsing all arguments (only read ones are parsed by default).
    * Check dependencies.
    */
@@ -114,6 +123,10 @@ class CommandLineArguments(args: Array<String>) {
 
     this.checkDependency(
       arg = this.neuralParserModel, argName = "neural parser model",
+      dep = this.tokenizerModelsDir, depName = "tokenizer models directory")
+
+    this.checkDependency(
+      arg = this.locationsDictionary, argName = "locations dictionary",
       dep = this.tokenizerModelsDir, depName = "tokenizer models directory")
 
 //    TODO: uncomment in the future when building the parser with the morphology dictionary
