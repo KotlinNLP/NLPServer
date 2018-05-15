@@ -230,19 +230,48 @@ class NLPServer(
    */
   private fun findLocationsRoute() {
 
+    Spark.post("") { request, _ ->
+
+      val jsonBody: JsonObject = Parser().parse(StringBuilder(request.body())) as JsonObject
+
+      this.execFindLocations(
+        jsonBody = jsonBody,
+        lang = jsonBody.string("lang")!!,
+        prettyPrint = request.queryParams("pretty") != null
+      )
+    }
+
     Spark.post("/:lang") { request, _ ->
 
       val jsonBody: JsonObject = Parser().parse(StringBuilder(request.body())) as JsonObject
 
-      this.findLocations!!(
-        text = jsonBody.string("text")!!,
+      this.execFindLocations(
+        jsonBody = jsonBody,
         lang = request.params("lang"),
-        candidates = jsonBody.array<JsonArray<*>>("candidates")!!.map { jsonCandidate ->
-          jsonCandidate.let { Pair(it[0] as String, it[1] as Double) }
-        },
         prettyPrint = request.queryParams("pretty") != null
       )
     }
+  }
+
+  /**
+   * Execute the command 'FindLocations'.
+   *
+   * @param jsonBody the JSON object containing the body of the request
+   * @param lang the ISO 3166-1 alpha-2 code of the language of the input text
+   * @param prettyPrint whether to pretty print the result
+   *
+   * @return the result of the command
+   */
+  private fun execFindLocations(jsonBody: JsonObject, lang: String, prettyPrint: Boolean): String {
+
+    return this.findLocations!!(
+      text = jsonBody.string("text")!!,
+      lang = lang,
+      candidates = jsonBody.array<JsonArray<*>>("candidates")!!.map { jsonCandidate ->
+        jsonCandidate.let { Pair(it[0] as String, it[1] as Double) }
+      },
+      prettyPrint = prettyPrint
+    )
   }
 
   /**
