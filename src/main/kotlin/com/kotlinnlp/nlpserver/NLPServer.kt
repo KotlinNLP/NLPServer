@@ -12,8 +12,6 @@ import com.kotlinnlp.nlpserver.commands.DetectLanguage
 import com.kotlinnlp.nlpserver.commands.FindLocations
 import com.kotlinnlp.nlpserver.commands.Parse
 import com.kotlinnlp.nlpserver.commands.Tokenize
-import com.kotlinnlp.nlpserver.commands.exceptions.MissingParameters
-import com.kotlinnlp.nlpserver.commands.exceptions.LanguageNotSupported
 import spark.Request
 import spark.Spark
 import java.util.logging.Logger

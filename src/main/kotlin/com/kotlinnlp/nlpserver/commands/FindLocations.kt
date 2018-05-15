@@ -14,7 +14,7 @@ import com.kotlinnlp.geolocation.dictionary.LocationsDictionary
 import com.kotlinnlp.geolocation.structures.CandidateEntity
 import com.kotlinnlp.geolocation.structures.Location
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
-import com.kotlinnlp.nlpserver.commands.exceptions.LanguageNotSupported
+import com.kotlinnlp.nlpserver.LanguageNotSupported
 
 /**
  * The command executed on the route '/find-locations'.

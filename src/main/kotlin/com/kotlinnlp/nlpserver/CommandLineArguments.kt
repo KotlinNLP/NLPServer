@@ -7,7 +7,6 @@
 
 package com.kotlinnlp.nlpserver
 
-import com.kotlinnlp.nlpserver.commands.exceptions.ArgumentDependencyNotSatisfied
 import com.xenomachina.argparser.ArgParser
 import com.xenomachina.argparser.default
 

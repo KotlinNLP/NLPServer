@@ -13,7 +13,7 @@ import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.Sentence
 import com.kotlinnlp.neuraltokenizer.Token
-import com.kotlinnlp.nlpserver.commands.exceptions.LanguageNotSupported
+import com.kotlinnlp.nlpserver.LanguageNotSupported
 
 /**
  * The command executed on the route '/tokenize'.
