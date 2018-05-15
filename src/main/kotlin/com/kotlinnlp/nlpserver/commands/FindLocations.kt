@@ -20,7 +20,7 @@ import com.kotlinnlp.nlpserver.LanguageNotSupported
  * The command executed on the route '/find-locations'.
  *
  * @param dictionary a locations dictionary
- * @param tokenizers a map of languages iso-a2 codes to neural tokenizers
+ * @param tokenizers a map of languages ISO 3166-1 alpha-2 codes to neural tokenizers
  */
 class FindLocations(
   private val dictionary: LocationsDictionary,
@@ -31,7 +31,7 @@ class FindLocations(
    * Find locations in the given [text].
    *
    * @param text the input text
-   * @param lang the iso-a2 code of the language to use to tokenize the [text]
+   * @param lang the ISO 3166-1 alpha-2 code of the language to use to tokenize the [text]
    * @param candidates the list of candidate locations as pairs of <name, score>
    * @param prettyPrint pretty print (default = false)
    *
