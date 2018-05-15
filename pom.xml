@@ -162,6 +162,7 @@
                             <goal>javadocJar</goal>
                         </goals>
                         <configuration>
+                            <skip>true</skip>
                             <includes>
                                 <file>packages.md</file>
                             </includes>
@@ -209,6 +210,9 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
             </plugin>
 
             <plugin>
