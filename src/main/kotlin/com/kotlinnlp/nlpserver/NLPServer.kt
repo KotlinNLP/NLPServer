@@ -13,7 +13,7 @@ import com.kotlinnlp.nlpserver.commands.FindLocations
 import com.kotlinnlp.nlpserver.commands.Parse
 import com.kotlinnlp.nlpserver.commands.Tokenize
 import com.kotlinnlp.nlpserver.commands.exceptions.MissingParameters
-import com.kotlinnlp.nlpserver.commands.exceptions.NotSupportedLanguage
+import com.kotlinnlp.nlpserver.commands.exceptions.LanguageNotSupported
 import spark.Request
 import spark.Spark
 import java.util.logging.Logger
@@ -52,9 +52,9 @@ class NLPServer(
       response.body("Missing required parameters: %s\n".format((exception as MissingParameters).message))
     }
 
-    Spark.exception(NotSupportedLanguage::class.java) { exception, _, response ->
+    Spark.exception(LanguageNotSupported::class.java) { exception, _, response ->
       response.status(400)
-      response.body("Not supported language: %s\n".format((exception as NotSupportedLanguage).message))
+      response.body("Language not supported: %s\n".format((exception as LanguageNotSupported).message))
     }
 
     Spark.exception(RuntimeException::class.java) { exception, _, response ->

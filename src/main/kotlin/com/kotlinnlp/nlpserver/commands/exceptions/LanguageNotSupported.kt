@@ -12,4 +12,4 @@ package com.kotlinnlp.nlpserver.commands.exceptions
  *
  * @param lang the iso code of a language
  */
-class NotSupportedLanguage(lang: String) : RuntimeException(lang)
+class LanguageNotSupported(lang: String) : RuntimeException(lang)

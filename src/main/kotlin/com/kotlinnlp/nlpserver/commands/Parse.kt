@@ -13,7 +13,7 @@ import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.language.Token
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.Sentence
-import com.kotlinnlp.nlpserver.commands.exceptions.NotSupportedLanguage
+import com.kotlinnlp.nlpserver.commands.exceptions.LanguageNotSupported
 
 /**
  * The command executed on the route '/parse'.
@@ -64,7 +64,7 @@ class Parse(
    * @param text the text to parse (of which to detect the language if [forcedLang] is null)
    * @param forcedLang force this language to be returned (if it is supported)
    *
-   * @throws NotSupportedLanguage when the returning language is not supported
+   * @throws LanguageNotSupported when the returning language is not supported
    * @throws RuntimeException when [forcedLang] is 'null' but the language detector is missing
    *
    * @return the language iso-a2 code of the given [text]
@@ -77,14 +77,14 @@ class Parse(
         throw RuntimeException("Cannot determine language automatically (missing language detector)")
 
       } else {
-        if (forcedLang !in this.tokenizers) throw NotSupportedLanguage(forcedLang)
+        if (forcedLang !in this.tokenizers) throw LanguageNotSupported(forcedLang)
 
         forcedLang
       }
 
     } else {
       val lang: String = forcedLang?.toLowerCase() ?: this.languageDetector.detectLanguage(text).isoCode
-      if (lang !in this.tokenizers) throw NotSupportedLanguage(lang)
+      if (lang !in this.tokenizers) throw LanguageNotSupported(lang)
 
       lang
     }

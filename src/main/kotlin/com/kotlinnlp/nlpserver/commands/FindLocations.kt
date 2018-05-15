@@ -14,7 +14,7 @@ import com.kotlinnlp.geolocation.dictionary.LocationsDictionary
 import com.kotlinnlp.geolocation.structures.CandidateEntity
 import com.kotlinnlp.geolocation.structures.Location
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
-import com.kotlinnlp.nlpserver.commands.exceptions.NotSupportedLanguage
+import com.kotlinnlp.nlpserver.commands.exceptions.LanguageNotSupported
 
 /**
  * The command executed on the route '/find-locations'.
@@ -42,7 +42,7 @@ class FindLocations(
                       candidates: List<Pair<String, Double>>,
                       prettyPrint: Boolean = false): String {
 
-    if (lang !in this.tokenizers) throw NotSupportedLanguage(lang)
+    if (lang !in this.tokenizers) throw LanguageNotSupported(lang)
 
     val finder = LocationsFinder(
       dictionary = this.dictionary,
