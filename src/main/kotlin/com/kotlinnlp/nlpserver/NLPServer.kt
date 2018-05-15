@@ -7,7 +7,9 @@
 
 package com.kotlinnlp.nlpserver
 
+import com.beust.klaxon.*
 import com.kotlinnlp.nlpserver.commands.DetectLanguage
+import com.kotlinnlp.nlpserver.commands.FindLocations
 import com.kotlinnlp.nlpserver.commands.Parse
 import com.kotlinnlp.nlpserver.commands.Tokenize
 import com.kotlinnlp.nlpserver.commands.exceptions.MissingParameters
@@ -23,12 +25,14 @@ import java.util.logging.Logger
  * @param detectLanguage the handler of the 'DetectLanguage' command
  * @param tokenize the handler of the 'Tokenize' command
  * @param parse the handler of the 'Parse' command
+ * @param findLocations the handler of the 'FindLocations' command
  */
 class NLPServer(
   port: Int,
   private val detectLanguage: DetectLanguage?,
   private val tokenize: Tokenize?,
-  private val parse: Parse?
+  private val parse: Parse?,
+  private val findLocations: FindLocations?
 ) {
 
   /**
@@ -85,6 +89,12 @@ class NLPServer(
         Spark.path("/parse") {
           this.parseRoute()
         }
+      }
+    }
+
+    this.findLocations?.let {
+      Spark.path("/find-locations") {
+        this.findLocationsRoute()
       }
     }
 
@@ -214,6 +224,26 @@ class NLPServer(
 
     Spark.post("") { request, _ ->
       this.detectLanguage!!.perToken(text = request.body())
+    }
+  }
+
+  /**
+   * Define the '/find-locations' route.
+   */
+  private fun findLocationsRoute() {
+
+    Spark.post("/:lang") { request, _ ->
+
+      val jsonBody: JsonObject = Parser().parse(StringBuilder(request.body())) as JsonObject
+
+      this.findLocations!!(
+        text = jsonBody.string("text")!!,
+        lang = request.params("lang"),
+        candidates = jsonBody.array<JsonArray<*>>("candidates")!!.map { jsonCandidate ->
+          jsonCandidate.let { Pair(it[0] as String, it[1] as Double) }
+        },
+        prettyPrint = request.queryParams("pretty") != null
+      )
     }
   }
 
