@@ -7,6 +7,7 @@
 
 package com.kotlinnlp.nlpserver
 
+import com.kotlinnlp.geolocation.dictionary.LocationsDictionary
 import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.languagedetector.LanguageDetectorModel
 import com.kotlinnlp.languagedetector.utils.FrequencyDictionary
@@ -116,5 +117,19 @@ object NLPBuilder {
     logger.info("Loading neural parser model from '$neuralParserModelFilename'\n")
 
     return NeuralParserFactory(model = NeuralParserModel.load(FileInputStream(File(neuralParserModelFilename))))
+  }
+
+  /**
+   * Load a serialized [LocationsDictionary] from file.
+   *
+   * @param locationsDictionaryFilename the filename of the serialized locations dictionary
+   *
+   * @return a locations dictionary
+   */
+  fun buildLocationsDictionary(locationsDictionaryFilename: String): LocationsDictionary {
+
+    logger.info("Loading locations dictionary from '$locationsDictionaryFilename'\n")
+
+    return LocationsDictionary.load(FileInputStream(File(locationsDictionaryFilename)))
   }
 }
