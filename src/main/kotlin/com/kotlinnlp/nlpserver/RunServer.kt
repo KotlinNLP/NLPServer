@@ -7,10 +7,12 @@
 
 package com.kotlinnlp.nlpserver
 
+import com.kotlinnlp.geolocation.dictionary.LocationsDictionary
 import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.nlpserver.commands.DetectLanguage
+import com.kotlinnlp.nlpserver.commands.FindLocations
 import com.kotlinnlp.nlpserver.commands.Parse
 import com.kotlinnlp.nlpserver.commands.Tokenize
 import com.xenomachina.argparser.mainBody
@@ -36,12 +38,20 @@ fun main(args: Array<String>) = mainBody {
 
   val parser: NeuralParser<*>? = parsedArgs.neuralParserModel?.let { NLPBuilder.buildNeuralParser(it) }
 
+  val locationsDictionary: LocationsDictionary? = parsedArgs.locationsDictionary?.let {
+    NLPBuilder.buildLocationsDictionary(it)
+  }
+
   NLPServer(
     port = parsedArgs.port,
     detectLanguage = languageDetector?.let { DetectLanguage(it) },
     tokenize = tokenizers?.let { Tokenize(tokenizers = it, languageDetector = languageDetector) },
     parse = if (parser != null && tokenizers != null)
       Parse(parser = parser, tokenizers = tokenizers, languageDetector = languageDetector)
+    else
+      null,
+    findLocations = if (locationsDictionary != null && tokenizers != null)
+      FindLocations(dictionary = locationsDictionary, tokenizers = tokenizers)
     else
       null
   ).start()
