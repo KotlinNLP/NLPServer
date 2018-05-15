@@ -54,21 +54,19 @@ class FindLocations(
 
     return json {
       array(finder.bestLocations.map {
-        JsonObject(it.location.toJSON() + this@FindLocations.getParentsObj(it.location))
+        JsonObject(it.location.toJSON() + it.location.getParentsInfo())
       })
     }.toJsonString(prettyPrint) + "\n"
   }
 
   /**
-   *
+   * @return a map of parents info of this location (only actual parents are present)
    */
-  private fun getParentsObj(location: Location): JsonObject = JsonObject(
-    mapOf(
-      "region" to location.regionId?.let { this@FindLocations.dictionary[it]!!.name },
-      "continent" to location.continentId?.let { this@FindLocations.dictionary[it]!!.name },
-      "country" to location.countryId?.let { this@FindLocations.dictionary[it]!!.name },
-      "adminArea2" to location.adminArea2Id?.let { this@FindLocations.dictionary[it]!!.name },
-      "adminArea1" to location.adminArea1Id?.let { this@FindLocations.dictionary[it]!!.name }
-    ).filter { it.value != null }
+  private fun Location.getParentsInfo(): Map<String, String?> = mapOf(
+    "adminArea1" to this.adminArea1Id?.let { this@FindLocations.dictionary[it]!!.name },
+    "adminArea2" to this.adminArea2Id?.let { this@FindLocations.dictionary[it]!!.name },
+    "countryIso" to this.countryId?.let { this@FindLocations.dictionary[it]!!.isoA2 },
+    "country" to this.countryId?.let { this@FindLocations.dictionary[it]!!.name },
+    "continent" to this.continentId?.let { this@FindLocations.dictionary[it]!!.name }
   )
 }
