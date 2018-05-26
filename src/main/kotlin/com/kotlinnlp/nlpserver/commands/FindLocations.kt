@@ -54,7 +54,7 @@ class FindLocations(
 
     return json {
       array(finder.bestLocations.map {
-        JsonObject(it.location.toJSON() + it.location.getParentsInfo())
+        JsonObject(it.toJSON() + it.location.getParentsInfo())
       })
     }.toJsonString(prettyPrint) + "\n"
   }
