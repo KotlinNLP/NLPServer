@@ -300,12 +300,6 @@
 
         <dependency>
             <groupId>com.kotlinnlp</groupId>
-            <artifactId>linguisticdescription</artifactId>
-            <version>${linguisticdescription.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.kotlinnlp</groupId>
             <artifactId>neuralparser</artifactId>
             <version>${neuralparser.version}</version>
         </dependency>
