@@ -14,6 +14,7 @@ import com.kotlinnlp.neuralparser.language.Token
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.Sentence
 import com.kotlinnlp.nlpserver.LanguageNotSupported
+import com.kotlinnlp.neuralparser.language.Sentence as ParsedSentence
 
 /**
  * The command executed on the route '/parse'.

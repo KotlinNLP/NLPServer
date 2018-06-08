@@ -12,7 +12,6 @@ import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.languagedetector.LanguageDetectorModel
 import com.kotlinnlp.languagedetector.utils.FrequencyDictionary
 import com.kotlinnlp.languagedetector.utils.TextTokenizer
-import com.kotlinnlp.linguisticdescription.morphology.MorphologyDictionary
 import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.NeuralParserFactory
 import com.kotlinnlp.neuralparser.NeuralParserModel
@@ -90,20 +89,6 @@ object NLPBuilder {
     return tokenizersMap.toMap()
   }
 
-  /**
-   * Build a [MorphologyDictionary].
-   *
-   * @param morphologyDictionaryFilename the filename of the morphology dictionary
-   *
-   * @return a morphology dictionary
-   */
-  @Suppress("UNUSED")
-  fun buildMorphologyDictionary(morphologyDictionaryFilename: String): MorphologyDictionary {
-
-    logger.info("Loading morphology dictionary from '$morphologyDictionaryFilename'\n")
-
-    return MorphologyDictionary.load(morphologyDictionaryFilename, verbose = false)
-  }
 
   /**
    * Build a [NeuralParser].
