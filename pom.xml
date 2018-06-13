@@ -64,7 +64,7 @@
         <spark.version>2.5.4</spark.version>
         <argparser.version>2.0.3</argparser.version>
         <xenocom.version>0.0.5</xenocom.version>
-        <klaxon.version>2.1.14</klaxon.version>
+        <klaxon.version>3.0.5</klaxon.version>
         <neuraltokenizer.version>0.2.0</neuraltokenizer.version>
         <languagedetector.version>0.2.0</languagedetector.version>
         <neuralparser.version>0.3.0</neuralparser.version>
