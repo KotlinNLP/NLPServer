@@ -97,14 +97,9 @@
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-maven-plugin</artifactId>
                 <version>${kotlin.version}</version>
-
                 <configuration>
-                    <args>
-                        <arg>-Xcoroutines=enable</arg>
-                    </args>
                     <jvmTarget>1.8</jvmTarget>
                 </configuration>
-
                 <executions>
                     <execution>
                         <id>compile</id>
@@ -113,7 +108,6 @@
                             <goal>compile</goal>
                         </goals>
                     </execution>
-
                     <execution>
                         <id>test-compile</id>
                         <phase>test-compile</phase>
