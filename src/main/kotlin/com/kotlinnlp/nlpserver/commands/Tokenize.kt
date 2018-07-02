@@ -94,11 +94,9 @@ class Tokenize(
       size = this.size,
       init = { i ->
         JsonObject(mapOf(
-          Pair("id", this[i].id),
           Pair("form", this[i].form),
-          Pair("startAt", this[i].startAt),
-          Pair("endAt", this[i].endAt),
-          Pair("isSpace", this[i].isSpace)
+          Pair("startAt", this[i].position.start),
+          Pair("endAt", this[i].position.end)
         ))
       }
     ))
