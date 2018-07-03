@@ -53,7 +53,7 @@ class Parse(
                       prettyPrint: Boolean = false): String {
 
     val textLanguage: String = this.getTextLanguage(text = text, forcedLang = lang)
-    val sentences: ArrayList<Sentence> = this.tokenizers.getValue(textLanguage).tokenize(text)
+    val sentences: List<Sentence> = this.tokenizers.getValue(textLanguage).tokenize(text)
 
     return when (format) {
       ResponseFormat.CoNLL -> this.parseToCoNLLFormat(sentences)
@@ -130,6 +130,6 @@ class Parse(
    * @return a NeuralParser Sentence object
    */
   private fun Sentence.toParserSentence() = com.kotlinnlp.neuralparser.language.Sentence(
-    tokens = this.tokens.filter { !it.isSpace }.mapIndexed { i, it -> Token(id = i, word = it.form) }
+    tokens = this.tokens.mapIndexed { i, it -> Token(id = i, word = it.form) }
   )
 }

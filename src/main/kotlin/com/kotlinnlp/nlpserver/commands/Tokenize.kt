@@ -69,16 +69,14 @@ class Tokenize(
   /**
    * @return this list of sentences converted to a nested JsonArray of token forms
    */
-  private fun ArrayList<Sentence>.toJsonSentences(): JsonArray<JsonObject> {
+  private fun List<Sentence>.toJsonSentences(): JsonArray<JsonObject> {
 
     return JsonArray(*Array(
       size = this.size,
       init = { i ->
         JsonObject(mapOf(
-          Pair("id", this[i].id),
-          Pair("text", this[i].text),
-          Pair("startAt", this[i].startAt),
-          Pair("endAt", this[i].endAt),
+          Pair("startAt", this[i].position.start),
+          Pair("endAt", this[i].position.end),
           Pair("tokens", this[i].tokens.toJsonTokens())
         ))
       }
