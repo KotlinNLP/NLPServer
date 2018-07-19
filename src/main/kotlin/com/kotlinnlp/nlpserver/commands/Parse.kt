@@ -8,13 +8,18 @@
 package com.kotlinnlp.nlpserver.commands
 
 import com.beust.klaxon.json
+import com.kotlinnlp.conllio.Sentence as CoNLLSentence
+import com.kotlinnlp.conllio.Token as CoNLLToken
 import com.kotlinnlp.languagedetector.LanguageDetector
+import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
+import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSyntacticToken
+import com.kotlinnlp.linguisticdescription.sentence.token.RealToken
 import com.kotlinnlp.neuralparser.NeuralParser
-import com.kotlinnlp.neuralparser.language.Token
+import com.kotlinnlp.neuralparser.language.ParsingSentence
+import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.Sentence
 import com.kotlinnlp.nlpserver.LanguageNotSupported
-import com.kotlinnlp.neuralparser.language.Sentence as ParsedSentence
 
 /**
  * The command executed on the route '/parse'.
@@ -98,10 +103,10 @@ class Parse(
    *
    * @return the parsed sentences in CoNLL string format
    */
-  private fun parseToCoNLLFormat(sentences: List<Sentence>): String = sentences.joinToString(separator = "\n\n") {
-    val parserSentence = it.toParserSentence()
-    parserSentence.toCoNLL(dependencyTree = this.parser.parse(parserSentence)).toCoNLLString(writeComments = false)
-  }
+  private fun parseToCoNLLFormat(sentences: List<Sentence>): String =
+    sentences.joinToString(separator = "\n\n") { sentence ->
+      this.parser.parse(sentence.toParsingSentence()).toCoNLL().toCoNLLString(writeComments = false)
+    }
 
   /**
    * Parse the given [sentences] and return the response in JSON format.
@@ -115,21 +120,47 @@ class Parse(
   private fun parseToJSONFormat(sentences: List<Sentence>, lang: String, prettyPrint: Boolean = false): String = json {
     obj (
       "lang" to lang,
-      "sentences" to array(
-        sentences.map {
-          val parserSentence = it.toParserSentence()
-          parserSentence.toJSON(dependencyTree = this@Parse.parser.parse(parserSentence))
-        }
-      )
+      "sentences" to array(sentences.map { this@Parse.parser.parse(it.toParsingSentence()).toJSON() })
     )
   }.toJsonString(prettyPrint = prettyPrint)
 
   /**
-   * Convert this tokenizer Sentence object into the Sentence object of the NeuralParser.
+   * Convert this tokenizer Sentence object into the [ParsingSentence] object of the NeuralParser.
    *
-   * @return a NeuralParser Sentence object
+   * @return a NeuralParser Parsing Sentence
    */
-  private fun Sentence.toParserSentence() = com.kotlinnlp.neuralparser.language.Sentence(
-    tokens = this.tokens.mapIndexed { i, it -> Token(id = i, word = it.form) }
+  private fun Sentence.toParsingSentence() = ParsingSentence(
+    tokens = this.tokens.mapIndexed { i, it ->
+      ParsingToken(id = i, form = it.form, position = it.position, morphologies = emptyList(), posTag = null)
+    }
+  )
+
+  /**
+   * Convert this [MorphoSyntacticSentence] to a CoNLL Sentence.
+   *
+   * @return a CoNLL Sentence
+   */
+  private fun MorphoSyntacticSentence.toCoNLL(): CoNLLSentence = CoNLLSentence(
+    sentenceId = this.id.toString(),
+    text = this.buildText(),
+    tokens = this.tokens.map { it.toCoNLL() }
+  )
+
+  /**
+   * @return the CoNLL object that represents this token
+   */
+  private fun MorphoSyntacticToken.toCoNLL() = CoNLLToken(
+    id = this.id + 1, // id starts from 1 in the CoNLL format
+    form = (this as? RealToken)?.form ?: CoNLLToken.emptyFiller,
+    lemma = CoNLLToken.emptyFiller,
+    pos = if (this.morphologies.isNotEmpty())
+      this.morphologies.first().list.joinToString("-") { it.type.annotation }
+    else
+      CoNLLToken.emptyFiller,
+    pos2 = CoNLLToken.emptyFiller,
+    feats = emptyMap(),
+    head = this.dependencyRelation.governor,
+    deprel = this.dependencyRelation.deprel,
+    multiWord = null
   )
 }
