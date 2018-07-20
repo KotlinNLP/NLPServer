@@ -66,7 +66,7 @@
         <xenocom.version>0.0.5</xenocom.version>
         <klaxon.version>3.0.5</klaxon.version>
         <neuraltokenizer.version>0.3.0</neuraltokenizer.version>
-        <languagedetector.version>0.2.1</languagedetector.version>
+        <languagedetector.version>0.3.0</languagedetector.version>
         <neuralparser.version>0.3.2</neuralparser.version>
         <simplednn.version>0.11.0</simplednn.version>
         <geolocation.version>0.1.0</geolocation.version>
