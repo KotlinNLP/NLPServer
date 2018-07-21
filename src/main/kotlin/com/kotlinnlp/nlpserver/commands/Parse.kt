@@ -147,10 +147,15 @@ class Parse(
   )
 
   /**
+   * Note:
+   * This extension is specific for MorphoSyntacticTokens that come from the Neural Parser and they are built from
+   * ParsingTokens.
+   * ParsingTokens ids are sequential and start from 0. They start from 1 in the CoNLL format instead.
+   *
    * @return the CoNLL object that represents this token
    */
   private fun MorphoSyntacticToken.toCoNLL() = CoNLLToken(
-    id = this.id + 1, // id starts from 1 in the CoNLL format
+    id = this.id + 1, //
     form = (this as? RealToken)?.form ?: CoNLLToken.emptyFiller,
     lemma = CoNLLToken.emptyFiller,
     pos = if (this.morphologies.isNotEmpty())
@@ -159,7 +164,7 @@ class Parse(
       CoNLLToken.emptyFiller,
     pos2 = CoNLLToken.emptyFiller,
     feats = emptyMap(),
-    head = this.dependencyRelation.governor,
+    head = this.dependencyRelation.governor?.plus(1) ?: 0, // id starts from 1 in the CoNLL format
     deprel = this.dependencyRelation.deprel,
     multiWord = null
   )
