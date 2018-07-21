@@ -83,7 +83,7 @@ object NLPBuilder {
       logger.info("Loading '${modelFile.name}'..." + if (i == modelsFiles.lastIndex) "\n" else "")
       val model = NeuralTokenizerModel.load(FileInputStream(modelFile))
 
-      tokenizersMap[model.language] = NeuralTokenizer(model)
+      tokenizersMap[model.language] = NeuralTokenizer(model = model, useDropout = false)
     }
 
     return tokenizersMap.toMap()
