@@ -155,7 +155,7 @@ class Parse(
    * @return the CoNLL object that represents this token
    */
   private fun MorphoSyntacticToken.toCoNLL() = CoNLLToken(
-    id = this.id + 1, //
+    id = this.id + 1,
     form = (this as? RealToken)?.form ?: CoNLLToken.emptyFiller,
     lemma = CoNLLToken.emptyFiller,
     pos = if (this.morphologies.isNotEmpty())
@@ -164,7 +164,7 @@ class Parse(
       CoNLLToken.emptyFiller,
     pos2 = CoNLLToken.emptyFiller,
     feats = emptyMap(),
-    head = this.dependencyRelation.governor?.plus(1) ?: 0, // id starts from 1 in the CoNLL format
+    head = this.dependencyRelation.governor?.plus(1) ?: 0,
     deprel = this.dependencyRelation.deprel,
     multiWord = null
   )
