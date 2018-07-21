@@ -41,7 +41,7 @@ class DetectLanguage(private val languageDetector: LanguageDetector) {
   operator fun invoke(text: String): String {
 
     val prediction: DenseNDArray = this.languageDetector.predict(text)
-    val language: Language = this.languageDetector.extractLanguage(prediction)
+    val language: Language = this.languageDetector.getLanguage(prediction)
 
     return json {
       obj(
