@@ -18,7 +18,7 @@ import com.kotlinnlp.nlpserver.LanguageNotSupported
 /**
  * The command executed on the route '/tokenize'.
  *
- * @property tokenizers A [Map] of languages iso-a2 codes to the related [NeuralTokenizer]s
+ * @property tokenizers a map of languages iso-a2 codes to the related [NeuralTokenizer]s
  * @property languageDetector a [LanguageDetector] (can be null)
  */
 class Tokenize(

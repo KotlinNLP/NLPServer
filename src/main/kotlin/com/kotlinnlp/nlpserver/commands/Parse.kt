@@ -24,12 +24,12 @@ import com.kotlinnlp.nlpserver.LanguageNotSupported
 /**
  * The command executed on the route '/parse'.
 
- * @param parser a neural parser
+ * @param parsers a map of languages iso-a2 codes to the related [NeuralParser]s
  * @param tokenizers a map of languages iso-a2 codes to neural tokenizers
  * @param languageDetector a language detector (can be null)
  */
 class Parse(
-  private val parser: NeuralParser<*>,
+  private val parsers: Map<String, NeuralParser<*>>,
   private val tokenizers: Map<String, NeuralTokenizer>,
   private val languageDetector: LanguageDetector?
 ) {
@@ -59,10 +59,15 @@ class Parse(
 
     val textLanguage: String = this.getTextLanguage(text = text, forcedLang = lang)
     val sentences: List<Sentence> = this.tokenizers.getValue(textLanguage).tokenize(text)
+    val parser: NeuralParser<*> = this.parsers[textLanguage] ?: throw LanguageNotSupported(textLanguage)
 
     return when (format) {
-      ResponseFormat.CoNLL -> this.parseToCoNLLFormat(sentences)
-      ResponseFormat.JSON -> this.parseToJSONFormat(sentences, lang = textLanguage, prettyPrint = prettyPrint)
+      ResponseFormat.CoNLL -> this.parseToCoNLLFormat(parser = parser, sentences = sentences)
+      ResponseFormat.JSON -> this.parseToJSONFormat(
+        parser = parser,
+        sentences = sentences,
+        lang = textLanguage,
+        prettyPrint = prettyPrint)
     } + "\n"
   }
 
@@ -99,28 +104,33 @@ class Parse(
   /**
    * Parse the given [sentences] and return the response in CoNLL format.
    *
+   * @param parser the parser to use
    * @param sentences the list of sentences to parse
    *
    * @return the parsed sentences in CoNLL string format
    */
-  private fun parseToCoNLLFormat(sentences: List<Sentence>): String =
+  private fun parseToCoNLLFormat(parser: NeuralParser<*>, sentences: List<Sentence>): String =
     sentences.joinToString(separator = "\n\n") { sentence ->
-      this.parser.parse(sentence.toParsingSentence()).toCoNLL().toCoNLLString(writeComments = false)
+      parser.parse(sentence.toParsingSentence()).toCoNLL().toCoNLLString(writeComments = false)
     }
 
   /**
    * Parse the given [sentences] and return the response in JSON format.
    *
+   * @param parser the parser to use
    * @param sentences the list of sentences to parse
    * @param lang the text language
    * @param prettyPrint pretty print (default = false)
    *
    * @return the parsed sentences in JSON string format
    */
-  private fun parseToJSONFormat(sentences: List<Sentence>, lang: String, prettyPrint: Boolean = false): String = json {
+  private fun parseToJSONFormat(parser: NeuralParser<*>,
+                                sentences: List<Sentence>,
+                                lang: String,
+                                prettyPrint: Boolean = false): String = json {
     obj (
       "lang" to lang,
-      "sentences" to array(sentences.map { this@Parse.parser.parse(it.toParsingSentence()).toJSON() })
+      "sentences" to array(sentences.map { parser.parse(it.toParsingSentence()).toJSON() })
     )
   }.toJsonString(prettyPrint = prettyPrint)
 

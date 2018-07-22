@@ -36,7 +36,7 @@ fun main(args: Array<String>) = mainBody {
 
   val tokenizers: Map<String, NeuralTokenizer>? = parsedArgs.tokenizerModelsDir?.let { NLPBuilder.buildTokenizers(it) }
 
-  val parser: NeuralParser<*>? = parsedArgs.neuralParserModel?.let { NLPBuilder.buildNeuralParser(it) }
+  val parsers: Map<String, NeuralParser<*>>? = parsedArgs.neuralParserModelsDir?.let { NLPBuilder.buildNeuralParsers(it) }
 
   val locationsDictionary: LocationsDictionary? = parsedArgs.locationsDictionary?.let {
     NLPBuilder.buildLocationsDictionary(it)
@@ -46,8 +46,8 @@ fun main(args: Array<String>) = mainBody {
     port = parsedArgs.port,
     detectLanguage = languageDetector?.let { DetectLanguage(it) },
     tokenize = tokenizers?.let { Tokenize(tokenizers = it, languageDetector = languageDetector) },
-    parse = if (parser != null && tokenizers != null)
-      Parse(parser = parser, tokenizers = tokenizers, languageDetector = languageDetector)
+    parse = if (parsers != null && tokenizers != null)
+      Parse(parsers = parsers, tokenizers = tokenizers, languageDetector = languageDetector)
     else
       null,
     findLocations = if (locationsDictionary != null && tokenizers != null)

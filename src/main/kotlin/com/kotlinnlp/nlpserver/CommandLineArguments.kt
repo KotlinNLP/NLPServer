@@ -77,12 +77,12 @@ class CommandLineArguments(args: Array<String>) {
   ).default(null)
 
   /**
-   * The filename of the NeuralParser serialized model.
+   * The directory containing the serialized models of the NeuralParser, one per language.
    */
-  val neuralParserModel: String? by parser.storing(
+  val neuralParserModelsDir: String? by parser.storing(
     "-n",
     "--neural-parser",
-    help="the filename of the neural parser serialized model"
+    help="the directory containing the serialized models of the neural parsers (one per language)"
   ).default(null)
 
   /**
@@ -121,7 +121,7 @@ class CommandLineArguments(args: Array<String>) {
       dep = this.langDetectorModel, depName = "language detector model")
 
     this.checkDependency(
-      arg = this.neuralParserModel, argName = "neural parser model",
+      arg = this.neuralParserModelsDir, argName = "neural parser models directory",
       dep = this.tokenizerModelsDir, depName = "tokenizer models directory")
 
     this.checkDependency(
@@ -131,10 +131,10 @@ class CommandLineArguments(args: Array<String>) {
 //    TODO: uncomment in the future when building the parser with the morphology dictionary
 //    this.checkDependency(
 //      arg = this.morphoDictionary, argName = "morphology dictionary",
-//      dep = this.neuralParserModel, depName = "neural parser model")
+//      dep = this.neuralParserModelsDir, depName = "neural parser models directory")
 //
 //    this.checkDependency(
-//      arg = this.neuralParserModel, argName = "neural parser model",
+//      arg = this.neuralParserModelsDir, argName = "neural parser model",
 //      dep = this.morphoDictionary, depName = "morphology dictionary")
   }
 

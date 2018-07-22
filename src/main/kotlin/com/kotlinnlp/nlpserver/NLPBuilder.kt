@@ -86,17 +86,26 @@ object NLPBuilder {
 
 
   /**
-   * Build a [NeuralParser].
+   * Build the [Map] of languages iso-a2 codes to the related [NeuralParser]s.
    *
-   * @param neuralParserModelFilename the filename of the neural parser
+   * @param neuralParserModelsDir the directory containing the neural parser models
    *
-   * @return a neural parser
+   * @return a [Map] of languages iso-a2 codes to the related [NeuralParser]s
    */
-  fun buildNeuralParser(neuralParserModelFilename: String): NeuralParser<*> {
+  fun buildNeuralParsers(neuralParserModelsDir: String): Map<String, NeuralParser<*>> {
 
-    this.logger.info("Loading neural parser model from '$neuralParserModelFilename'")
+    this.logger.info("Loading neural parser models from '$neuralParserModelsDir'")
+    val modelsDirectory = File(neuralParserModelsDir)
 
-    return NeuralParserFactory(model = NeuralParserModel.load(FileInputStream(File(neuralParserModelFilename))))
+    require(modelsDirectory.isDirectory) { "$neuralParserModelsDir is not a directory" }
+
+    return modelsDirectory.listFiles().associate { modelFile ->
+
+      this.logger.info("Loading '${modelFile.name}'...")
+      val model: NeuralParserModel = NeuralParserModel.load(FileInputStream(modelFile))
+
+      model.langCode to NeuralParserFactory(model)
+    }
   }
 
   /**
