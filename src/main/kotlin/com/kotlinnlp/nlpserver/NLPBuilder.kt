@@ -44,17 +44,17 @@ object NLPBuilder {
                             cjkModelFilename: String,
                             frequencyDictionaryFilename: String?): LanguageDetector {
 
-    logger.info("Loading language detector model from '$languageDetectorModelFilename'\n")
+    this.logger.info("Loading language detector model from '$languageDetectorModelFilename'")
     val model = LanguageDetectorModel.load(FileInputStream(File(languageDetectorModelFilename)))
 
-    logger.info("Loading CJK tokenizer model from '$cjkModelFilename'\n")
+    this.logger.info("Loading CJK tokenizer model from '$cjkModelFilename'")
     val tokenizer = TextTokenizer(cjkModel = NeuralTokenizerModel.load(FileInputStream(File(cjkModelFilename))))
 
     val freqDictionary = if (frequencyDictionaryFilename != null) {
-      logger.info("Loading frequency dictionary from '$frequencyDictionaryFilename'\n")
+      this.logger.info("Loading frequency dictionary from '$frequencyDictionaryFilename'")
       FrequencyDictionary.load(FileInputStream(File(frequencyDictionaryFilename)))
     } else {
-      logger.info("No frequency dictionary used to detect the language\n")
+      this.logger.info("No frequency dictionary used to detect the language")
       null
     }
 
@@ -70,23 +70,18 @@ object NLPBuilder {
    */
   fun buildTokenizers(tokenizerModelsDir: String): Map<String, NeuralTokenizer> {
 
-    logger.info("Loading tokenizer models from '$tokenizerModelsDir'\n")
+    this.logger.info("Loading tokenizer models from '$tokenizerModelsDir'")
     val modelsDirectory = File(tokenizerModelsDir)
 
     require(modelsDirectory.isDirectory) { "$tokenizerModelsDir is not a directory" }
 
-    val tokenizersMap = mutableMapOf<String, NeuralTokenizer>()
-    val modelsFiles: Array<File> = modelsDirectory.listFiles()
+    return modelsDirectory.listFiles().associate { modelFile ->
 
-    modelsFiles.forEachIndexed { i, modelFile ->
-
-      logger.info("Loading '${modelFile.name}'..." + if (i == modelsFiles.lastIndex) "\n" else "")
+      this.logger.info("Loading '${modelFile.name}'...")
       val model = NeuralTokenizerModel.load(FileInputStream(modelFile))
 
-      tokenizersMap[model.language] = NeuralTokenizer(model = model, useDropout = false)
+      model.language to NeuralTokenizer(model = model, useDropout = false)
     }
-
-    return tokenizersMap.toMap()
   }
 
 
@@ -99,7 +94,7 @@ object NLPBuilder {
    */
   fun buildNeuralParser(neuralParserModelFilename: String): NeuralParser<*> {
 
-    logger.info("Loading neural parser model from '$neuralParserModelFilename'\n")
+    this.logger.info("Loading neural parser model from '$neuralParserModelFilename'")
 
     return NeuralParserFactory(model = NeuralParserModel.load(FileInputStream(File(neuralParserModelFilename))))
   }
@@ -113,7 +108,7 @@ object NLPBuilder {
    */
   fun buildLocationsDictionary(locationsDictionaryFilename: String): LocationsDictionary {
 
-    logger.info("Loading locations dictionary from '$locationsDictionaryFilename'\n")
+    this.logger.info("Loading locations dictionary from '$locationsDictionaryFilename'")
 
     return LocationsDictionary.load(FileInputStream(File(locationsDictionaryFilename)))
   }

@@ -96,7 +96,7 @@ class NLPServer(
       }
     }
 
-    this.logger.info("NLP Server running on 'localhost:%d'\n".format(Spark.port()))
+    this.logger.info("NLP Server running on 'localhost:%d'".format(Spark.port()))
   }
 
   /**
