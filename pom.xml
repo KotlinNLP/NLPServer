@@ -66,6 +66,7 @@
         <xenocom.version>0.0.5</xenocom.version>
         <klaxon.version>3.0.5</klaxon.version>
         <linguisticdescription.version>0.8.1</linguisticdescription.version>
+        <morphologicalanalyzer.version>0.2.0</morphologicalanalyzer.version>
         <neuraltokenizer.version>0.3.1</neuraltokenizer.version>
         <languagedetector.version>0.3.2</languagedetector.version>
         <neuralparser.version>0.4.0</neuralparser.version>
@@ -286,6 +287,12 @@
             <groupId>com.kotlinnlp</groupId>
             <artifactId>linguisticdescription</artifactId>
             <version>${linguisticdescription.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.kotlinnlp</groupId>
+            <artifactId>morphologicalanalyzer</artifactId>
+            <version>${morphologicalanalyzer.version}</version>
         </dependency>
 
         <dependency>
