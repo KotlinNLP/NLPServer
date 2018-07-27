@@ -68,12 +68,12 @@ class CommandLineArguments(args: Array<String>) {
   ).default(null)
 
   /**
-   * The filename of the MorphologyDictionary.
+   * The directory containing the morphology dictionaries used by the parser (one per language).
    */
-  val morphoDictionary: String? by parser.storing(
+  val morphoDictionaryDir: String? by parser.storing(
     "-m",
     "--morphology-dictionary",
-    help="the filename of the morphology dictionary used by the parser"
+    help="the directory containing the morphology dictionaries used by the parser (one per language)"
   ).default(null)
 
   /**
@@ -126,7 +126,7 @@ class CommandLineArguments(args: Array<String>) {
       dep = this.tokenizerModelsDir, depName = "tokenizer models directory")
 
     this.checkDependency(
-      arg = this.morphoDictionary, argName = "morphology dictionary",
+      arg = this.morphoDictionaryDir, argName = "morphology dictionary directory",
       dep = this.neuralParserModelsDir, depName = "neural parser models directory")
   }
 

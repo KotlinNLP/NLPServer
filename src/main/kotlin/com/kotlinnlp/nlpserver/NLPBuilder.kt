@@ -12,6 +12,7 @@ import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.languagedetector.LanguageDetectorModel
 import com.kotlinnlp.languagedetector.utils.FrequencyDictionary
 import com.kotlinnlp.languagedetector.utils.TextTokenizer
+import com.kotlinnlp.morphologicalanalyzer.dictionary.MorphologyDictionary
 import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.NeuralParserFactory
 import com.kotlinnlp.neuralparser.NeuralParserModel
@@ -62,11 +63,11 @@ object NLPBuilder {
   }
 
   /**
-   * Build the [Map] of languages iso-a2 codes to the related [NeuralTokenizer]s.
+   * Build the [Map] of languages ISO 639-1 codes to the related [NeuralTokenizer]s.
    *
    * @param tokenizerModelsDir the directory containing the tokenizers models
    *
-   * @return a [Map] of languages iso-a2 codes to the related [NeuralTokenizer]s
+   * @return a [Map] of languages ISO 639-1 codes to the related [NeuralTokenizer]s
    */
   fun buildTokenizers(tokenizerModelsDir: String): Map<String, NeuralTokenizer> {
 
@@ -85,11 +86,11 @@ object NLPBuilder {
   }
 
   /**
-   * Build the [Map] of languages iso-a2 codes to the related [NeuralParser]s.
+   * Build the [Map] of languages ISO 639-1 codes to the related [NeuralParser]s.
    *
    * @param neuralParserModelsDir the directory containing the neural parser models
    *
-   * @return a [Map] of languages iso-a2 codes to the related [NeuralParser]s
+   * @return a [Map] of languages ISO 639-1 codes to the related [NeuralParser]s
    */
   fun buildNeuralParsers(neuralParserModelsDir: String): Map<String, NeuralParser<*>> {
 
@@ -104,6 +105,29 @@ object NLPBuilder {
       val model: NeuralParserModel = NeuralParserModel.load(FileInputStream(modelFile))
 
       model.language.isoCode to NeuralParserFactory(model)
+    }
+  }
+
+  /**
+   * Build the [Map] of languages ISO 639-1 codes to the related [MorphologyDictionary]s.
+   *
+   * @param morphoDictionariesDir the directory containing the morphology dictionaries
+   *
+   * @return a [Map] of languages ISO 639-1 codes to the related [MorphologyDictionary]
+   */
+  fun buildMorphoDictionaries(morphoDictionariesDir: String): Map<String, MorphologyDictionary> {
+
+    this.logger.info("Loading morphology dictionaries from '$morphoDictionariesDir'")
+    val morphoDictDir = File(morphoDictionariesDir)
+
+    require(morphoDictDir.isDirectory) { "$morphoDictionariesDir is not a directory" }
+
+    return morphoDictDir.listFiles().associate { dictionaryFile ->
+
+      this.logger.info("Loading '${dictionaryFile.name}'...")
+      val dictionary: MorphologyDictionary = MorphologyDictionary.load(FileInputStream(dictionaryFile))
+
+      dictionary.language.isoCode to dictionary
     }
   }
 

@@ -16,22 +16,28 @@ import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSyntacticToken
 import com.kotlinnlp.linguisticdescription.sentence.token.RealToken
 import com.kotlinnlp.neuralparser.NeuralParser
-import com.kotlinnlp.neuralparser.language.ParsingSentence
-import com.kotlinnlp.neuralparser.language.ParsingToken
+import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
+import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
+import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
+import com.kotlinnlp.neuralparser.language.BaseSentence
+import com.kotlinnlp.neuralparser.language.BaseToken
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.Sentence
+import com.kotlinnlp.neuraltokenizer.Token
 import com.kotlinnlp.nlpserver.LanguageNotSupported
 
 /**
  * The command executed on the route '/parse'.
 
- * @param parsers a map of languages iso-a2 codes to the related [NeuralParser]s
- * @param tokenizers a map of languages iso-a2 codes to neural tokenizers
+ * @param parsers a map of languages ISO 639-1 codes to the related [NeuralParser]s
+ * @param tokenizers a map of languages ISO 639-1 codes to neural tokenizers
+ * @param morphoPreprocessors a map of languages ISO 639-1 codes to morpho-preprocessors
  * @param languageDetector a language detector (can be null)
  */
 class Parse(
   private val parsers: Map<String, NeuralParser<*>>,
   private val tokenizers: Map<String, NeuralTokenizer>,
+  private val morphoPreprocessors: Map<String, MorphoPreprocessor>,
   private val languageDetector: LanguageDetector?
 ) {
 
@@ -42,6 +48,11 @@ class Parse(
    * @property JSON the response will be written in JSON format
    */
   enum class ResponseFormat { CoNLL, JSON }
+
+  /**
+   * A base sentence preprocessor.
+   */
+  private val basePreprocessor = BasePreprocessor()
 
   /**
    * Parse the given [text], eventually forcing on the language [lang].
@@ -61,12 +72,17 @@ class Parse(
     val textLanguage: Language = this.getTextLanguage(text = text, forcedLang = lang)
     val sentences: List<Sentence> = this.tokenizers.getValue(textLanguage.isoCode).tokenize(text)
     val parser: NeuralParser<*> = this.parsers[textLanguage.isoCode] ?: throw LanguageNotSupported(textLanguage.isoCode)
+    val preprocessor: SentencePreprocessor = this.morphoPreprocessors[textLanguage.isoCode] ?: basePreprocessor
 
     return when (format) {
-      ResponseFormat.CoNLL -> this.parseToCoNLLFormat(parser = parser, sentences = sentences)
+      ResponseFormat.CoNLL -> this.parseToCoNLLFormat(
+        parser = parser,
+        sentences = sentences,
+        preprocessor = preprocessor)
       ResponseFormat.JSON -> this.parseToJSONFormat(
         parser = parser,
         sentences = sentences,
+        preprocessor = preprocessor,
         lang = textLanguage,
         prettyPrint = prettyPrint)
     } + "\n"
@@ -107,12 +123,18 @@ class Parse(
    *
    * @param parser the parser to use
    * @param sentences the list of sentences to parse
+   * @param preprocessor a sentence preprocessor
    *
    * @return the parsed sentences in CoNLL string format
    */
-  private fun parseToCoNLLFormat(parser: NeuralParser<*>, sentences: List<Sentence>): String =
-    sentences.joinToString(separator = "\n\n") { sentence ->
-      parser.parse(sentence.toParsingSentence()).toCoNLL().toCoNLLString(writeComments = false)
+  private fun parseToCoNLLFormat(parser: NeuralParser<*>,
+                                 preprocessor: SentencePreprocessor,
+                                 sentences: List<Sentence>): String =
+    sentences.joinToString (separator = "\n\n") {
+      parser
+        .parse(preprocessor.process(it.toBaseSentence()))
+        .toCoNLL()
+        .toCoNLLString(writeComments = false)
     }
 
   /**
@@ -120,6 +142,7 @@ class Parse(
    *
    * @param parser the parser to use
    * @param sentences the list of sentences to parse
+   * @param preprocessor a sentence preprocessor
    * @param lang the text language
    * @param prettyPrint pretty print (default = false)
    *
@@ -127,24 +150,31 @@ class Parse(
    */
   private fun parseToJSONFormat(parser: NeuralParser<*>,
                                 sentences: List<Sentence>,
+                                preprocessor: SentencePreprocessor,
                                 lang: Language,
                                 prettyPrint: Boolean = false): String = json {
-    obj (
+    obj(
       "lang" to lang.isoCode,
-      "sentences" to array(sentences.map { parser.parse(it.toParsingSentence()).toJSON() })
+      "sentences" to array(sentences.map {
+        parser.parse(preprocessor.process(it.toBaseSentence())).toJSON()
+      })
     )
   }.toJsonString(prettyPrint = prettyPrint)
 
   /**
-   * Convert this tokenizer Sentence object into the [ParsingSentence] object of the NeuralParser.
-   *
-   * @return a NeuralParser Parsing Sentence
+   * @return a new base sentence built from this tokenizer sentence
    */
-  private fun Sentence.toParsingSentence() = ParsingSentence(
-    tokens = this.tokens.mapIndexed { i, it ->
-      ParsingToken(id = i, form = it.form, position = it.position, morphologies = emptyList(), posTag = null)
-    }
+  private fun Sentence.toBaseSentence() = BaseSentence(
+    tokens = this.tokens.mapIndexed { i, it -> it.toBaseToken(id = i) },
+    position = this.position
   )
+
+  /**
+   * @param id the token ID
+   *
+   * @return a new base token built from this tokenizer token
+   */
+  private fun Token.toBaseToken(id: Int) = BaseToken(id = id, position = this.position, form = this.form)
 
   /**
    * Convert this [MorphoSyntacticSentence] to a CoNLL Sentence.
