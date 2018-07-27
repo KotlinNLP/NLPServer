@@ -114,11 +114,8 @@ class CommandLineArguments(args: Array<String>) {
 
     this.checkDependency(
       arg = this.langDetectorModel, argName = "language detector model",
-      dep = this.cjkTokenizerModel, depName = "cjk tokenizer model")
-
-    this.checkDependency(
-      arg = this.cjkTokenizerModel, argName = "cjk tokenizer model",
-      dep = this.langDetectorModel, depName = "language detector model")
+      dep = this.cjkTokenizerModel, depName = "cjk tokenizer model",
+      checkReverse = true)
 
     this.checkDependency(
       arg = this.neuralParserModelsDir, argName = "neural parser models directory",
@@ -128,14 +125,9 @@ class CommandLineArguments(args: Array<String>) {
       arg = this.locationsDictionary, argName = "locations dictionary",
       dep = this.tokenizerModelsDir, depName = "tokenizer models directory")
 
-//    TODO: uncomment in the future when building the parser with the morphology dictionary
-//    this.checkDependency(
-//      arg = this.morphoDictionary, argName = "morphology dictionary",
-//      dep = this.neuralParserModelsDir, depName = "neural parser models directory")
-//
-//    this.checkDependency(
-//      arg = this.neuralParserModelsDir, argName = "neural parser model",
-//      dep = this.morphoDictionary, depName = "morphology dictionary")
+    this.checkDependency(
+      arg = this.morphoDictionary, argName = "morphology dictionary",
+      dep = this.neuralParserModelsDir, depName = "neural parser models directory")
   }
 
   /**
@@ -145,12 +137,16 @@ class CommandLineArguments(args: Array<String>) {
    * @param argName the argument name
    * @param dep the dependency to check
    * @param depName the dependency name
+   * @param checkReverse whether to check the dependency in the reverse order
    *
    * @throws ArgumentDependencyNotSatisfied if at least one dependency of an argument is not satisfied
    */
-  private fun checkDependency(arg: Any?, argName: String, dep: Any?, depName: String) {
+  private fun checkDependency(arg: Any?, argName: String, dep: Any?, depName: String, checkReverse: Boolean = false) {
 
     if (arg != null && dep == null)
       throw ArgumentDependencyNotSatisfied(argName = argName, dependency = depName)
+
+    if (checkReverse && dep != null && arg == null)
+      throw ArgumentDependencyNotSatisfied(argName = depName, dependency = argName)
   }
 }
