@@ -10,6 +10,7 @@ package com.kotlinnlp.nlpserver.commands
 import com.beust.klaxon.JsonArray
 import com.beust.klaxon.JsonObject
 import com.kotlinnlp.languagedetector.LanguageDetector
+import com.kotlinnlp.linguisticdescription.Language
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.Sentence
 import com.kotlinnlp.neuraltokenizer.Token
@@ -32,35 +33,40 @@ class Tokenize(
    * choose the right tokenizer.
    *
    * @param text the text to tokenize
-   * @param language the isoA2-code of the language with which to force the tokenization (default = null)
+   * @param language the language with which to force the tokenization (default = unknown)
    *
    * @return the tokenized [text] in JSON format
    */
-  operator fun invoke(text: String, language: String? = null): String {
+  operator fun invoke(text: String, language: Language = Language.Unknown): String {
 
-    val tokenizerLang: String = this.getTokenizerLanguage(text = text, forcedLang = language)
+    val tokenizerLang: Language = this.getTokenizerLanguage(text = text, forcedLang = language)
 
-    if (tokenizerLang !in this.tokenizers) {
-      throw LanguageNotSupported(tokenizerLang)
+    if (tokenizerLang.isoCode !in this.tokenizers) {
+      throw LanguageNotSupported(tokenizerLang.isoCode)
     }
 
-    return this.tokenizers[tokenizerLang]!!.tokenize(text).toJsonSentences().toJsonString() + "\n"
+    return this.tokenizers.getValue(tokenizerLang.isoCode).tokenize(text).toJsonSentences().toJsonString() + "\n"
   }
 
   /**
    *
    */
-  private fun getTokenizerLanguage(text: String, forcedLang: String?): String {
+  private fun getTokenizerLanguage(text: String, forcedLang: Language?): Language{
 
     return if (this.languageDetector == null) {
-      if (forcedLang == null) throw RuntimeException("Cannot determine language automatically (missing language detector)")
-      if (forcedLang !in this.tokenizers) throw LanguageNotSupported(forcedLang)
+
+      if (forcedLang == null)
+        throw RuntimeException("Cannot determine language automatically (missing language detector)")
+
+      if (forcedLang.isoCode !in this.tokenizers) throw LanguageNotSupported(forcedLang.isoCode)
 
       forcedLang
 
     } else {
-      val tokenizerLang: String = forcedLang?.toLowerCase() ?: this.languageDetector.detectLanguage(text).isoCode
-      if (tokenizerLang !in this.tokenizers) throw LanguageNotSupported(tokenizerLang)
+
+      val tokenizerLang: Language = forcedLang ?: this.languageDetector.detectLanguage(text)
+
+      if (tokenizerLang.isoCode !in this.tokenizers) throw LanguageNotSupported(tokenizerLang.isoCode)
 
       tokenizerLang
     }

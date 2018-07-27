@@ -80,10 +80,9 @@ object NLPBuilder {
       this.logger.info("Loading '${modelFile.name}'...")
       val model = NeuralTokenizerModel.load(FileInputStream(modelFile))
 
-      model.language to NeuralTokenizer(model = model, useDropout = false)
+      model.language.isoCode to NeuralTokenizer(model = model, useDropout = false)
     }
   }
-
 
   /**
    * Build the [Map] of languages iso-a2 codes to the related [NeuralParser]s.
@@ -104,7 +103,7 @@ object NLPBuilder {
       this.logger.info("Loading '${modelFile.name}'...")
       val model: NeuralParserModel = NeuralParserModel.load(FileInputStream(modelFile))
 
-      model.langCode to NeuralParserFactory(model)
+      model.language.isoCode to NeuralParserFactory(model)
     }
   }
 

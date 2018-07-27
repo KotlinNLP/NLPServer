@@ -13,6 +13,7 @@ import com.kotlinnlp.geolocation.LocationsFinder
 import com.kotlinnlp.geolocation.dictionary.LocationsDictionary
 import com.kotlinnlp.geolocation.structures.CandidateEntity
 import com.kotlinnlp.geolocation.structures.Location
+import com.kotlinnlp.linguisticdescription.Language
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.nlpserver.LanguageNotSupported
 
@@ -31,22 +32,22 @@ class FindLocations(
    * Find locations in the given [text].
    *
    * @param text the input text
-   * @param lang the ISO 3166-1 alpha-2 code of the language to use to tokenize the [text]
+   * @param language the language to use to tokenize the [text]
    * @param candidates the list of candidate locations as pairs of <name, score>
    * @param prettyPrint pretty print (default = false)
    *
    * @return the parsed [text] in the given string [format]
    */
   operator fun invoke(text: String,
-                      lang: String,
+                      language: Language,
                       candidates: List<Pair<String, Double>>,
                       prettyPrint: Boolean = false): String {
 
-    if (lang !in this.tokenizers) throw LanguageNotSupported(lang)
+    val tokenizer: NeuralTokenizer = this.tokenizers[language.isoCode] ?: throw LanguageNotSupported(language.isoCode)
 
     val finder = LocationsFinder(
       dictionary = this.dictionary,
-      textTokens = this.tokenizers.getValue(lang).tokenize(text).flatMap { it.tokens.map { it.form } },
+      textTokens = tokenizer.tokenize(text).flatMap { it.tokens.map { it.form } },
       candidateEntities = candidates.map { CandidateEntity(name = it.first, score = it.second) }.toSet(),
       coordinateEntitiesGroups = listOf(),
       ambiguityGroups = listOf()

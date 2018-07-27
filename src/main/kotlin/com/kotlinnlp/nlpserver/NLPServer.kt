@@ -8,6 +8,8 @@
 package com.kotlinnlp.nlpserver
 
 import com.beust.klaxon.*
+import com.kotlinnlp.linguisticdescription.Language
+import com.kotlinnlp.linguisticdescription.getLanguageByIso
 import com.kotlinnlp.nlpserver.commands.DetectLanguage
 import com.kotlinnlp.nlpserver.commands.FindLocations
 import com.kotlinnlp.nlpserver.commands.Parse
@@ -120,7 +122,7 @@ class NLPServer(
 
       this.parse!!(
         text = request.queryParams("text"),
-        lang = request.queryParams("lang"),
+        lang = this.getLanguage(request.queryParams("lang")),
         format = this.getParsedFormat(request.queryParams("format") ?: "JSON"),
         prettyPrint = request.queryParams("pretty") != null)
     }
@@ -131,7 +133,7 @@ class NLPServer(
 
       this.parse!!(
         text = request.queryParams("text"),
-        lang = request.params("lang"),
+        lang = this.getLanguage(request.params("lang")),
         format = this.getParsedFormat(request.queryParams("format") ?: "JSON"),
         prettyPrint = request.queryParams("pretty") != null)
     }
@@ -146,7 +148,7 @@ class NLPServer(
     Spark.post("/:lang") { request, _ ->
       this.parse!!(
         text = request.body(),
-        lang = request.params("lang"),
+        lang = this.getLanguage(request.params("lang")),
         format = this.getParsedFormat(request.queryParams("format") ?: "JSON"),
         prettyPrint = request.queryParams("pretty") != null)
     }
@@ -179,7 +181,7 @@ class NLPServer(
 
       request.checkRequiredParams(requiredParams = listOf("text"))
 
-      this.tokenize!!(text = request.queryParams("text"), language = request.params("lang"))
+      this.tokenize!!(text = request.queryParams("text"), language = this.getLanguage(request.params("lang")))
     }
 
     Spark.post("") { request, _ ->
@@ -187,7 +189,7 @@ class NLPServer(
     }
 
     Spark.post("/:lang") { request, _ ->
-      this.tokenize!!(text = request.body(), language = request.params("lang"))
+      this.tokenize!!(text = request.body(), language = this.getLanguage(request.params("lang")))
     }
   }
 
@@ -236,7 +238,7 @@ class NLPServer(
 
       this.execFindLocations(
         jsonBody = jsonBody,
-        lang = jsonBody.string("lang")!!,
+        language = this.getLanguage(jsonBody.string("lang")!!),
         prettyPrint = request.queryParams("pretty") != null
       )
     }
@@ -247,7 +249,7 @@ class NLPServer(
 
       this.execFindLocations(
         jsonBody = jsonBody,
-        lang = request.params("lang"),
+        language = this.getLanguage(request.params("lang")),
         prettyPrint = request.queryParams("pretty") != null
       )
     }
@@ -257,22 +259,31 @@ class NLPServer(
    * Execute the command 'FindLocations'.
    *
    * @param jsonBody the JSON object containing the body of the request
-   * @param lang the ISO 3166-1 alpha-2 code of the language of the input text
+   * @param language the language of the input text
    * @param prettyPrint whether to pretty print the result
    *
    * @return the result of the command
    */
-  private fun execFindLocations(jsonBody: JsonObject, lang: String, prettyPrint: Boolean): String {
+  private fun execFindLocations(jsonBody: JsonObject, language: Language, prettyPrint: Boolean): String {
 
     return this.findLocations!!(
       text = jsonBody.string("text")!!,
-      lang = lang,
+      language = language,
       candidates = jsonBody.array<JsonArray<*>>("candidates")!!.map { jsonCandidate ->
         jsonCandidate.let { Pair(it[0] as String, it[1] as Double) }
       },
       prettyPrint = prettyPrint
     )
   }
+
+  /**
+   * @param langParam the language ISO 639-1 code passed as parameter in the request (can be null)
+   *
+   * @throws LanguageNotSupported when the language code passed as query parameter is not within the supported languages
+   *
+   * @return the language object that represents the code passed in the request
+   */
+  private fun getLanguage(langParam: String?): Language = langParam?.let { getLanguageByIso(it) } ?: Language.Unknown
 
   /**
    * Check if all [requiredParams] are present in this [Request].

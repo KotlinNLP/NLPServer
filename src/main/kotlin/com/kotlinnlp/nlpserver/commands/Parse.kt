@@ -11,6 +11,7 @@ import com.beust.klaxon.json
 import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.conllio.Token as CoNLLToken
 import com.kotlinnlp.languagedetector.LanguageDetector
+import com.kotlinnlp.linguisticdescription.Language
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSyntacticToken
 import com.kotlinnlp.linguisticdescription.sentence.token.RealToken
@@ -46,20 +47,20 @@ class Parse(
    * Parse the given [text], eventually forcing on the language [lang].
    *
    * @param text the text to parse
-   * @param lang the language to use to parse the [text] (default = null)
+   * @param lang the language to use to parse the [text] (default = unknown)
    * @param format the string format of the parsed sentences response (default = JSON)
    * @param prettyPrint pretty print, used for JSON format (default = false)
    *
    * @return the parsed [text] in the given string [format]
    */
   operator fun invoke(text: String,
-                      lang: String? = null,
+                      lang: Language = Language.Unknown,
                       format: ResponseFormat = ResponseFormat.JSON,
                       prettyPrint: Boolean = false): String {
 
-    val textLanguage: String = this.getTextLanguage(text = text, forcedLang = lang)
-    val sentences: List<Sentence> = this.tokenizers.getValue(textLanguage).tokenize(text)
-    val parser: NeuralParser<*> = this.parsers[textLanguage] ?: throw LanguageNotSupported(textLanguage)
+    val textLanguage: Language = this.getTextLanguage(text = text, forcedLang = lang)
+    val sentences: List<Sentence> = this.tokenizers.getValue(textLanguage.isoCode).tokenize(text)
+    val parser: NeuralParser<*> = this.parsers[textLanguage.isoCode] ?: throw LanguageNotSupported(textLanguage.isoCode)
 
     return when (format) {
       ResponseFormat.CoNLL -> this.parseToCoNLLFormat(parser = parser, sentences = sentences)
@@ -78,9 +79,9 @@ class Parse(
    * @throws LanguageNotSupported when the returning language is not supported
    * @throws RuntimeException when [forcedLang] is 'null' but the language detector is missing
    *
-   * @return the language ISO 639-1 code of the given [text]
+   * @return the language of the given [text]
    */
-  private fun getTextLanguage(text: String, forcedLang: String?): String {
+  private fun getTextLanguage(text: String, forcedLang: Language?): Language {
 
     return if (this.languageDetector == null) {
 
@@ -88,14 +89,14 @@ class Parse(
         throw RuntimeException("Cannot determine language automatically (missing language detector)")
 
       } else {
-        if (forcedLang !in this.tokenizers) throw LanguageNotSupported(forcedLang)
+        if (forcedLang.isoCode !in this.tokenizers) throw LanguageNotSupported(forcedLang.isoCode)
 
         forcedLang
       }
 
     } else {
-      val lang: String = forcedLang?.toLowerCase() ?: this.languageDetector.detectLanguage(text).isoCode
-      if (lang !in this.tokenizers) throw LanguageNotSupported(lang)
+      val lang: Language = forcedLang ?: this.languageDetector.detectLanguage(text)
+      if (lang.isoCode !in this.tokenizers) throw LanguageNotSupported(lang.isoCode)
 
       lang
     }
@@ -126,10 +127,10 @@ class Parse(
    */
   private fun parseToJSONFormat(parser: NeuralParser<*>,
                                 sentences: List<Sentence>,
-                                lang: String,
+                                lang: Language,
                                 prettyPrint: Boolean = false): String = json {
     obj (
-      "lang" to lang,
+      "lang" to lang.isoCode,
       "sentences" to array(sentences.map { parser.parse(it.toParsingSentence()).toJSON() })
     )
   }.toJsonString(prettyPrint = prettyPrint)
