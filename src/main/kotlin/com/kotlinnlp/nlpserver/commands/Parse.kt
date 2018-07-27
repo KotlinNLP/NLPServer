@@ -78,7 +78,7 @@ class Parse(
    * @throws LanguageNotSupported when the returning language is not supported
    * @throws RuntimeException when [forcedLang] is 'null' but the language detector is missing
    *
-   * @return the language iso-a2 code of the given [text]
+   * @return the language ISO 639-1 code of the given [text]
    */
   private fun getTextLanguage(text: String, forcedLang: String?): String {
 
