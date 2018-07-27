@@ -8,8 +8,8 @@
 package com.kotlinnlp.nlpserver
 
 import com.beust.klaxon.*
-import com.kotlinnlp.linguisticdescription.Language
-import com.kotlinnlp.linguisticdescription.getLanguageByIso
+import com.kotlinnlp.linguisticdescription.language.Language
+import com.kotlinnlp.linguisticdescription.language.getLanguageByIso
 import com.kotlinnlp.nlpserver.commands.DetectLanguage
 import com.kotlinnlp.nlpserver.commands.FindLocations
 import com.kotlinnlp.nlpserver.commands.Parse

@@ -10,7 +10,7 @@ package com.kotlinnlp.nlpserver.commands
 import com.beust.klaxon.JsonArray
 import com.beust.klaxon.JsonObject
 import com.kotlinnlp.languagedetector.LanguageDetector
-import com.kotlinnlp.linguisticdescription.Language
+import com.kotlinnlp.linguisticdescription.language.Language
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.Sentence
 import com.kotlinnlp.neuraltokenizer.Token
@@ -51,7 +51,7 @@ class Tokenize(
   /**
    *
    */
-  private fun getTokenizerLanguage(text: String, forcedLang: Language?): Language{
+  private fun getTokenizerLanguage(text: String, forcedLang: Language?): Language {
 
     return if (this.languageDetector == null) {
 

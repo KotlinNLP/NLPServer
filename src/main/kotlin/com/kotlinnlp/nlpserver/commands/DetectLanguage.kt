@@ -10,7 +10,7 @@ package com.kotlinnlp.nlpserver.commands
 import com.beust.klaxon.JsonArray
 import com.beust.klaxon.json
 import com.kotlinnlp.languagedetector.LanguageDetector
-import com.kotlinnlp.languagedetector.utils.Language
+import com.kotlinnlp.linguisticdescription.language.Language
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 
 /**
