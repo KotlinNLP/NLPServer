@@ -122,7 +122,7 @@ class NLPServer(
 
       this.parse!!(
         text = request.queryParams("text"),
-        lang = this.getLanguage(request.queryParams("lang")),
+        lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
         format = this.getParsedFormat(request.queryParams("format") ?: "JSON"),
         prettyPrint = request.queryParams("pretty") != null)
     }
@@ -133,7 +133,7 @@ class NLPServer(
 
       this.parse!!(
         text = request.queryParams("text"),
-        lang = this.getLanguage(request.params("lang")),
+        lang = request.params("lang")?.let { getLanguageByIso(it) },
         format = this.getParsedFormat(request.queryParams("format") ?: "JSON"),
         prettyPrint = request.queryParams("pretty") != null)
     }
@@ -148,7 +148,7 @@ class NLPServer(
     Spark.post("/:lang") { request, _ ->
       this.parse!!(
         text = request.body(),
-        lang = this.getLanguage(request.params("lang")),
+        lang = request.params("lang")?.let { getLanguageByIso(it) },
         format = this.getParsedFormat(request.queryParams("format") ?: "JSON"),
         prettyPrint = request.queryParams("pretty") != null)
     }
@@ -181,7 +181,9 @@ class NLPServer(
 
       request.checkRequiredParams(requiredParams = listOf("text"))
 
-      this.tokenize!!(text = request.queryParams("text"), language = this.getLanguage(request.params("lang")))
+      this.tokenize!!(
+        text = request.queryParams("text"),
+        language = request.params("lang")?.let { getLanguageByIso(it) })
     }
 
     Spark.post("") { request, _ ->
@@ -189,7 +191,7 @@ class NLPServer(
     }
 
     Spark.post("/:lang") { request, _ ->
-      this.tokenize!!(text = request.body(), language = this.getLanguage(request.params("lang")))
+      this.tokenize!!(text = request.body(), language = request.params("lang")?.let { getLanguageByIso(it) })
     }
   }
 
@@ -238,7 +240,7 @@ class NLPServer(
 
       this.execFindLocations(
         jsonBody = jsonBody,
-        language = this.getLanguage(jsonBody.string("lang")!!),
+        language = getLanguageByIso(jsonBody.string("lang")!!),
         prettyPrint = request.queryParams("pretty") != null
       )
     }
@@ -249,7 +251,7 @@ class NLPServer(
 
       this.execFindLocations(
         jsonBody = jsonBody,
-        language = this.getLanguage(request.params("lang")),
+        language = request.params("lang")!!.let { getLanguageByIso(it) },
         prettyPrint = request.queryParams("pretty") != null
       )
     }
@@ -275,15 +277,6 @@ class NLPServer(
       prettyPrint = prettyPrint
     )
   }
-
-  /**
-   * @param langParam the language ISO 639-1 code passed as parameter in the request (can be null)
-   *
-   * @throws LanguageNotSupported when the language code passed as query parameter is not within the supported languages
-   *
-   * @return the language object that represents the code passed in the request
-   */
-  private fun getLanguage(langParam: String?): Language = langParam?.let { getLanguageByIso(it) } ?: Language.Unknown
 
   /**
    * Check if all [requiredParams] are present in this [Request].
