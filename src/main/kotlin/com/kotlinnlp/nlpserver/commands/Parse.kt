@@ -65,7 +65,7 @@ class Parse(
    * @return the parsed [text] in the given string [format]
    */
   operator fun invoke(text: String,
-                      lang: Language = Language.Unknown,
+                      lang: Language? = null,
                       format: ResponseFormat = ResponseFormat.JSON,
                       prettyPrint: Boolean = false): String {
 

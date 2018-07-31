@@ -33,11 +33,11 @@ class Tokenize(
    * choose the right tokenizer.
    *
    * @param text the text to tokenize
-   * @param language the language with which to force the tokenization (default = unknown)
+   * @param language the language with which to force the tokenization (default = null)
    *
    * @return the tokenized [text] in JSON format
    */
-  operator fun invoke(text: String, language: Language = Language.Unknown): String {
+  operator fun invoke(text: String, language: Language? = null): String {
 
     val tokenizerLang: Language = this.getTokenizerLanguage(text = text, forcedLang = language)
 
