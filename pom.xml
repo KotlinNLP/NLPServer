@@ -65,11 +65,11 @@
         <argparser.version>2.0.3</argparser.version>
         <xenocom.version>0.0.5</xenocom.version>
         <klaxon.version>3.0.5</klaxon.version>
-        <linguisticdescription.version>0.9.0</linguisticdescription.version>
-        <morphologicalanalyzer.version>0.3.0</morphologicalanalyzer.version>
-        <neuraltokenizer.version>0.4.0</neuraltokenizer.version>
-        <languagedetector.version>0.4.2</languagedetector.version>
-        <neuralparser.version>0.4.0</neuralparser.version>
+        <linguisticdescription.version>0.9.1</linguisticdescription.version>
+        <morphologicalanalyzer.version>0.3.1</morphologicalanalyzer.version>
+        <neuraltokenizer.version>0.4.1</neuraltokenizer.version>
+        <languagedetector.version>0.4.3</languagedetector.version>
+        <neuralparser.version>0.4.1</neuralparser.version>
         <simplednn.version>0.11.0</simplednn.version>
         <geolocation.version>0.1.0</geolocation.version>
     </properties>
