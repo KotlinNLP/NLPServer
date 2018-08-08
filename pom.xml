@@ -69,7 +69,7 @@
         <morphologicalanalyzer.version>0.3.1</morphologicalanalyzer.version>
         <neuraltokenizer.version>0.4.1</neuraltokenizer.version>
         <languagedetector.version>0.4.3</languagedetector.version>
-        <neuralparser.version>0.4.1</neuralparser.version>
+        <neuralparser.version>0.4.2</neuralparser.version>
         <simplednn.version>0.11.0</simplednn.version>
         <geolocation.version>0.1.0</geolocation.version>
     </properties>
