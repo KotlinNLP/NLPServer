@@ -54,7 +54,7 @@ class NLPServer(
 
     Spark.exception(LanguageNotSupported::class.java) { exception, _, response ->
       response.status(400)
-      response.body("Language not supported: %s\n".format((exception as LanguageNotSupported).message))
+      response.body("Language not supported: %s\n".format((exception as LanguageNotSupported).langCode))
     }
 
     Spark.exception(RuntimeException::class.java) { exception, _, response ->
