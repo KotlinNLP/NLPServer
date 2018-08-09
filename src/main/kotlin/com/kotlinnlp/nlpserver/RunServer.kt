@@ -38,9 +38,9 @@ fun main(args: Array<String>) = mainBody {
     tokenize = tokenizers?.let { Tokenize(tokenizers = it, languageDetector = languageDetector) },
     parse = if (parsers != null && tokenizers != null)
       Parse(
-        parsers = parsers,
-        tokenizers = tokenizers,
         languageDetector = languageDetector,
+        tokenizers = tokenizers,
+        parsers = parsers,
         morphoPreprocessors = morphoPreprocessors)
     else
       null,
