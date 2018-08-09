@@ -72,7 +72,7 @@
         <neuralparser.version>0.4.2</neuralparser.version>
         <simplednn.version>0.11.0</simplednn.version>
         <geolocation.version>0.1.0</geolocation.version>
-        <frameextractor.version>0.2.1</frameextractor.version>
+        <frameextractor.version>0.3.0</frameextractor.version>
     </properties>
 
     <repositories>
