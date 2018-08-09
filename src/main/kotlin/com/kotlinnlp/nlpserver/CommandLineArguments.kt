@@ -77,12 +77,32 @@ class CommandLineArguments(args: Array<String>) {
   ).default(null)
 
   /**
+   * The file path of the pre-trained word embeddings, one per language (the file name must end with the ISO 639-1
+   * language code).
+   */
+  val embeddingsDir: String? by parser.storing(
+    "-e",
+    "--pre-trained-word-emb",
+    help="the directory containing the pre-trained word embeddings files, one per language (the file name must end " +
+      "with the ISO 639-1 language code)"
+  ).default(null)
+
+  /**
    * The directory containing the serialized models of the NeuralParser, one per language.
    */
   val neuralParserModelsDir: String? by parser.storing(
     "-n",
     "--neural-parser",
     help="the directory containing the serialized models of the neural parsers (one per language)"
+  ).default(null)
+
+  /**
+   * The directory containing the serialized models of the FrameExtractor, one per language.
+   */
+  val frameExtractorModelsDir: String? by parser.storing(
+    "-x",
+    "--frame-extractor",
+    help="the directory containing the serialized models of the frame extractors"
   ).default(null)
 
   /**
@@ -128,6 +148,18 @@ class CommandLineArguments(args: Array<String>) {
     this.checkDependency(
       arg = this.morphoDictionaryDir, argName = "morphology dictionary directory",
       dep = this.neuralParserModelsDir, depName = "neural parser models directory")
+
+    this.checkDependency(
+      arg = this.frameExtractorModelsDir, argName = "frame extractor models directory",
+      dep = this.neuralParserModelsDir, depName = "neural parser models directory")
+
+    this.checkDependency(
+      arg = this.frameExtractorModelsDir, argName = "frame extractor models directory",
+      dep = this.tokenizerModelsDir, depName = "tokenizer models directory")
+
+    this.checkDependency(
+      arg = this.frameExtractorModelsDir, argName = "frame extractor models directory",
+      dep = this.embeddingsDir, depName = "embeddings directory")
   }
 
   /**
