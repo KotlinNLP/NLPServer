@@ -7,16 +7,15 @@
 
 package com.kotlinnlp.nlpserver
 
+import com.kotlinnlp.frameextractor.FrameExtractor
 import com.kotlinnlp.geolocation.dictionary.LocationsDictionary
 import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.morphologicalanalyzer.MorphologicalAnalyzer
 import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
-import com.kotlinnlp.nlpserver.commands.DetectLanguage
-import com.kotlinnlp.nlpserver.commands.FindLocations
-import com.kotlinnlp.nlpserver.commands.Parse
-import com.kotlinnlp.nlpserver.commands.Tokenize
+import com.kotlinnlp.nlpserver.commands.*
+import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMapByDictionary
 import com.xenomachina.argparser.mainBody
 
 /**
@@ -31,6 +30,8 @@ fun main(args: Array<String>) = mainBody {
   val parsers: Map<String, NeuralParser<*>>? = buildParsers(parsedArgs)
   val morphoPreprocessors: Map<String, MorphoPreprocessor> = buildMorphoPreprocessors(parsedArgs)
   val locationsDictionary: LocationsDictionary? = buildLocationsDictionary(parsedArgs)
+  val embeddingsMap: Map<String, EmbeddingsMapByDictionary>? = buildEmbeddingsMaps(parsedArgs)
+  val frameExtractors: Map<String, FrameExtractor>? = buildFrameExtractors(parsedArgs)
 
   NLPServer(
     port = parsedArgs.port,
@@ -46,6 +47,16 @@ fun main(args: Array<String>) = mainBody {
       null,
     findLocations = if (locationsDictionary != null && tokenizers != null)
       FindLocations(dictionary = locationsDictionary, tokenizers = tokenizers)
+    else
+      null,
+    extractFrames = if (tokenizers != null && parsers != null && embeddingsMap != null && frameExtractors != null)
+      ExtractFrames(
+        languageDetector = languageDetector,
+        tokenizers = tokenizers,
+        parsers = parsers,
+        morphoPreprocessors = morphoPreprocessors,
+        wordEmbeddings = embeddingsMap,
+        frameExtractors = frameExtractors)
     else
       null
   ).start()
@@ -80,6 +91,22 @@ private fun buildTokenizers(parsedArgs: CommandLineArguments): Map<String, Neura
  */
 private fun buildParsers(parsedArgs: CommandLineArguments): Map<String, NeuralParser<*>>? =
   parsedArgs.neuralParserModelsDir?.let { NLPBuilder.buildNeuralParsers(it) }
+
+/**
+ * @param parsedArgs the parsed command line arguments
+ *
+ * @return a map of frame extractors associated by domain name or null if the required arguments are not present
+ */
+private fun buildFrameExtractors(parsedArgs: CommandLineArguments): Map<String, FrameExtractor>? =
+  parsedArgs.frameExtractorModelsDir?.let { NLPBuilder.buildFrameExtractorsMap(it) }
+
+/**
+ * @param parsedArgs the parsed command line arguments
+ *
+ * @return a map of embeddings maps associated by language ISO code or null if the required arguments are not present
+ */
+private fun buildEmbeddingsMaps(parsedArgs: CommandLineArguments): Map<String, EmbeddingsMapByDictionary>? =
+  parsedArgs.embeddingsDir?.let { NLPBuilder.buildEmbeddingsMaps(it) }
 
 /**
  * @param parsedArgs the parsed command line arguments
