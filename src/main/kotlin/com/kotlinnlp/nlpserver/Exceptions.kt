@@ -28,3 +28,17 @@ class LanguageNotSupported(val langCode: String) : RuntimeException(langCode)
  * @param params the list of missing parameters
  */
 class MissingParameters(params: List<String>) : RuntimeException(params.joinToString(","))
+
+/**
+ * Raised when an embeddings map of a given language is missing.
+ *
+ * @param langCode the ISO 639-1 language code of the missing embeddings map
+ */
+class MissingEmbeddingsMap(langCode: String): RuntimeException("Missing embeddings for language '$langCode'")
+
+/**
+ * Raised when there is no frame extractor associated to a given domain.
+ *
+ * @property domain the domain name
+ */
+class InvalidFrameExtractorDomain(val domain: String): RuntimeException(domain)
