@@ -7,17 +7,22 @@
 
 package com.kotlinnlp.nlpserver
 
+import com.kotlinnlp.frameextractor.FrameExtractor
+import com.kotlinnlp.frameextractor.FrameExtractorModel
 import com.kotlinnlp.geolocation.dictionary.LocationsDictionary
 import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.languagedetector.LanguageDetectorModel
 import com.kotlinnlp.languagedetector.utils.FrequencyDictionary
 import com.kotlinnlp.languagedetector.utils.TextTokenizer
+import com.kotlinnlp.linguisticdescription.language.getLanguageByIso
 import com.kotlinnlp.morphologicalanalyzer.dictionary.MorphologyDictionary
 import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.NeuralParserFactory
 import com.kotlinnlp.neuralparser.NeuralParserModel
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizerModel
+import com.kotlinnlp.simplednn.core.embeddings.EMBDLoader
+import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMapByDictionary
 import java.io.File
 import java.io.FileInputStream
 import java.util.logging.Logger
@@ -109,6 +114,29 @@ object NLPBuilder {
   }
 
   /**
+   * Build a list of [FrameExtractor]s.
+   *
+   * @param frameExtractorModelsDir the directory containing the frame extractors models
+   *
+   * @return a [Map] of frame extractors associated by domain name
+   */
+  fun buildFrameExtractorsMap(frameExtractorModelsDir: String): Map<String, FrameExtractor> {
+
+    this.logger.info("Loading frame extractor models from '$frameExtractorModelsDir'")
+    val frameExtractorsDir = File(frameExtractorModelsDir)
+
+    require(frameExtractorsDir.isDirectory) { "$frameExtractorModelsDir is not a directory" }
+
+    return frameExtractorsDir.listFiles().associate { modelFile ->
+
+      this.logger.info("Loading '${modelFile.name}'...")
+      val extractor = FrameExtractor(model = FrameExtractorModel.load(FileInputStream(modelFile)))
+
+      extractor.model.name to extractor
+    }
+  }
+
+  /**
    * Build the [Map] of languages ISO 639-1 codes to the related [MorphologyDictionary]s.
    *
    * @param morphoDictionariesDir the directory containing the morphology dictionaries
@@ -128,6 +156,33 @@ object NLPBuilder {
       val dictionary: MorphologyDictionary = MorphologyDictionary.load(FileInputStream(dictionaryFile))
 
       dictionary.language.isoCode to dictionary
+    }
+  }
+
+  /**
+   * Build the [Map] of languages ISO 639-1 codes to the related [MorphologyDictionary]s.
+   *
+   * @param embeddingsDirname the directory containing the embeddings vectors files, one per language
+   *
+   * @return a [Map] of languages ISO 639-1 codes to the related [MorphologyDictionary]
+   */
+  fun buildEmbeddingsMaps(embeddingsDirname: String): Map<String, EmbeddingsMapByDictionary> {
+
+    this.logger.info("Loading embeddings from '$embeddingsDirname'")
+    val embeddingsDir = File(embeddingsDirname)
+
+    require(embeddingsDir.isDirectory) { "$embeddingsDirname is not a directory" }
+
+    return embeddingsDir.listFiles().associate { embeddingsFile ->
+
+      this.logger.info("Loading '${embeddingsFile.name}'...")
+      val embeddings: EmbeddingsMapByDictionary =
+        EMBDLoader(verbose = false).load(embeddingsFile.absolutePath.toString())
+
+      val langCode: String =
+        getLanguageByIso(with (embeddingsFile.nameWithoutExtension) { substring(length - 2) }.toLowerCase()).isoCode
+
+      langCode to embeddings
     }
   }
 
