@@ -10,10 +10,7 @@ package com.kotlinnlp.nlpserver
 import com.beust.klaxon.*
 import com.kotlinnlp.linguisticdescription.language.Language
 import com.kotlinnlp.linguisticdescription.language.getLanguageByIso
-import com.kotlinnlp.nlpserver.commands.DetectLanguage
-import com.kotlinnlp.nlpserver.commands.FindLocations
-import com.kotlinnlp.nlpserver.commands.Parse
-import com.kotlinnlp.nlpserver.commands.Tokenize
+import com.kotlinnlp.nlpserver.commands.*
 import spark.Request
 import spark.Spark
 import java.util.logging.Logger
@@ -26,13 +23,15 @@ import java.util.logging.Logger
  * @param tokenize the handler of the 'Tokenize' command
  * @param parse the handler of the 'Parse' command
  * @param findLocations the handler of the 'FindLocations' command
+ * @param extractFrames the handler of the 'ExtractFrames' command
  */
 class NLPServer(
   port: Int,
   private val detectLanguage: DetectLanguage?,
   private val tokenize: Tokenize?,
   private val parse: Parse?,
-  private val findLocations: FindLocations?
+  private val findLocations: FindLocations?,
+  private val extractFrames: ExtractFrames?
 ) {
 
   /**
@@ -57,6 +56,11 @@ class NLPServer(
       response.body("Language not supported: %s\n".format((exception as LanguageNotSupported).langCode))
     }
 
+    Spark.exception(InvalidFrameExtractorDomain::class.java) { exception, _, response ->
+      response.status(400)
+      response.body("Invalid frame extractor domain: %s\n".format((exception as InvalidFrameExtractorDomain).domain))
+    }
+
     Spark.exception(RuntimeException::class.java) { exception, _, response ->
       response.status(500)
       response.body("500 Server error\n")
@@ -71,31 +75,27 @@ class NLPServer(
 
     this.enbaleCORS()
 
-    if (this.detectLanguage != null) {
-      Spark.path("/detect-language") {
-        this.detectLanguageRoute()
-      }
-      Spark.path("/classify-tokens-language") {
-        this.classifyTokensLanguageRoute()
-      }
+    this.detectLanguage?.let {
+      Spark.path("/detect-language") { this.detectLanguageRoute() }
+      Spark.path("/classify-tokens-language") { this.classifyTokensLanguageRoute() }
     }
 
-    if (this.tokenize != null) {
-      Spark.path("/tokenize") {
-        this.tokenizeRoute()
-      }
+    this.tokenize?.let {
 
-      if (this.parse != null) {
-        Spark.path("/parse") {
-          this.parseRoute()
+      Spark.path("/tokenize") { this.tokenizeRoute() }
+
+      this.parse?.let {
+
+        Spark.path("/parse") { this.parseRoute() }
+
+        this.extractFrames?.let {
+          Spark.path("/extract-frames") { this.extractFramesRoute() }
         }
       }
     }
 
     this.findLocations?.let {
-      Spark.path("/find-locations") {
-        this.findLocationsRoute()
-      }
+      Spark.path("/find-locations") { this.findLocationsRoute() }
     }
 
     this.logger.info("NLP Server running on 'localhost:%d'".format(Spark.port()))
@@ -254,6 +254,49 @@ class NLPServer(
         language = request.params("lang")!!.let { getLanguageByIso(it) },
         prettyPrint = request.queryParams("pretty") != null
       )
+    }
+  }
+
+  /**
+   * Define the '/extract-frames' route.
+   */
+  private fun extractFramesRoute() {
+
+    Spark.get("") { request, _ ->
+
+      request.checkRequiredParams(requiredParams = listOf("text"))
+
+      this.extractFrames!!(
+        text = request.queryParams("text"),
+        lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
+        domain = request.queryParams("domain"),
+        prettyPrint = request.queryParams("pretty") != null)
+    }
+
+    Spark.get("/:domain") { request, _ ->
+
+      request.checkRequiredParams(requiredParams = listOf("text"))
+
+      this.extractFrames!!(
+        text = request.queryParams("text"),
+        lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
+        domain = request.params("domain"),
+        prettyPrint = request.queryParams("pretty") != null)
+    }
+
+    Spark.post("") { request, _ ->
+      this.extractFrames!!(
+        text = request.body(),
+        lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
+        prettyPrint = request.queryParams("pretty") != null)
+    }
+
+    Spark.post("/:domain") { request, _ ->
+      this.extractFrames!!(
+        text = request.body(),
+        lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
+        domain = request.params("domain"),
+        prettyPrint = request.queryParams("pretty") != null)
     }
   }
 
