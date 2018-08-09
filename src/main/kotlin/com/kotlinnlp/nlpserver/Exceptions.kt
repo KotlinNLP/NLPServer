@@ -18,7 +18,7 @@ class ArgumentDependencyNotSatisfied(argName: String, dependency: String)
 /**
  * Exception raised when the given language is not supported.
  *
- * @param langCode the ISO code of the language
+ * @param langCode the ISO 639-1 code of the language
  */
 class LanguageNotSupported(langCode: String) : RuntimeException(langCode)
 
