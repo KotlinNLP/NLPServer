@@ -28,17 +28,17 @@ import com.kotlinnlp.nlpserver.LanguageNotSupported
 
 /**
  * The command executed on the route '/parse'.
-
- * @param parsers a map of languages ISO 639-1 codes to the related [NeuralParser]s
- * @param tokenizers a map of languages ISO 639-1 codes to neural tokenizers
- * @param morphoPreprocessors a map of languages ISO 639-1 codes to morpho-preprocessors
+ *
  * @param languageDetector a language detector (can be null)
+ * @param tokenizers a map of languages ISO 639-1 codes to neural tokenizers
+ * @param parsers a map of languages ISO 639-1 codes to the related [NeuralParser]s
+ * @param morphoPreprocessors a map of languages ISO 639-1 codes to morpho-preprocessors
  */
 class Parse(
-  private val parsers: Map<String, NeuralParser<*>>,
+  private val languageDetector: LanguageDetector?,
   private val tokenizers: Map<String, NeuralTokenizer>,
-  private val morphoPreprocessors: Map<String, MorphoPreprocessor>,
-  private val languageDetector: LanguageDetector?
+  private val parsers: Map<String, NeuralParser<*>>,
+  private val morphoPreprocessors: Map<String, MorphoPreprocessor>
 ) {
 
   /**
