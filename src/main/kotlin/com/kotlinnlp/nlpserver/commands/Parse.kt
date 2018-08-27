@@ -165,6 +165,7 @@ class Parse(
    * @return a new base sentence built from this tokenizer sentence
    */
   private fun Sentence.toBaseSentence() = BaseSentence(
+    id = this.position.index, // the index is unique within the list of tokenized sentences
     tokens = this.tokens.mapIndexed { i, it -> it.toBaseToken(id = i) },
     position = this.position
   )
