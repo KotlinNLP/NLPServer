@@ -184,7 +184,11 @@ class Parse(
   private fun MorphoSyntacticSentence.toCoNLL(): CoNLLSentence = CoNLLSentence(
     sentenceId = this.id.toString(),
     text = this.buildText(),
-    tokens = this.tokens.map { it.toCoNLL() }
+    tokens = this.tokens.mapIndexed { i, it ->
+      it.toCoNLL(
+        id = i + 1,
+        headId = it.dependencyRelation.governor?.let { id -> this.tokens.indexOfFirst { it.id == id } + 1 } ?: 0)
+    }
   )
 
   /**
@@ -195,8 +199,8 @@ class Parse(
    *
    * @return the CoNLL object that represents this token
    */
-  private fun MorphoSyntacticToken.toCoNLL() = CoNLLToken(
-    id = this.id + 1,
+  private fun MorphoSyntacticToken.toCoNLL(id: Int, headId: Int) = CoNLLToken(
+    id = id,
     form = (this as? RealToken)?.form ?: CoNLLToken.emptyFiller,
     lemma = CoNLLToken.emptyFiller,
     pos = if (this.morphologies.isNotEmpty())
@@ -205,7 +209,7 @@ class Parse(
       CoNLLToken.emptyFiller,
     pos2 = CoNLLToken.emptyFiller,
     feats = emptyMap(),
-    head = this.dependencyRelation.governor?.plus(1) ?: 0,
+    head = headId,
     deprel = this.dependencyRelation.deprel,
     multiWord = null
   )
