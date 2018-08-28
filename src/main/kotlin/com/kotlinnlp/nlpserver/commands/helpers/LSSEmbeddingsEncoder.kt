@@ -33,13 +33,6 @@ class LSSEmbeddingsEncoder(
 ) : SentenceEncoder {
 
   /**
-   * The size of the tokens encodings (word embedding + context vectors + latent head representation).
-   * Note: the context vectors size is equal to the latent head representations size.
-   */
-  val encodingSize: Int =
-    this.wordEmbeddingsEncoder.model.tokenEncodingSize + 2 * lssEncoder.contextEncoder.model.contextEncodingSize
-
-  /**
    * Encode the token forms concatenating word embeddings, latent head representations and context vectors.
    *
    * @param tokensForms the list of the tokens forms of a sentence
@@ -54,11 +47,9 @@ class LSSEmbeddingsEncoder(
     @Suppress("UNCHECKED_CAST")
     val wordEncodings: List<DenseNDArray> = wordEmbeddingsEncoder.forward(sentence as Sentence<Token>)
 
-    val lssEncodings: List<DenseNDArray> = lss.latentHeads.zip(lss.contextVectors) {
-      latentHead, contextVector -> latentHead.concatV(contextVector)
+    return lss.latentSyntacticEncodings.zip(wordEncodings) { lsEncoding, wordEncoding ->
+      lsEncoding.concatV(wordEncoding)
     }
-
-    return lssEncodings.zip(wordEncodings) { lssEncoding, wordEncoding -> lssEncoding.concatV(wordEncoding) }
   }
 
   /**
