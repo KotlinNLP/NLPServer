@@ -17,8 +17,9 @@ import com.kotlinnlp.languagedetector.utils.TextTokenizer
 import com.kotlinnlp.linguisticdescription.language.getLanguageByIso
 import com.kotlinnlp.morphologicalanalyzer.dictionary.MorphologyDictionary
 import com.kotlinnlp.neuralparser.NeuralParser
-import com.kotlinnlp.neuralparser.NeuralParserFactory
 import com.kotlinnlp.neuralparser.NeuralParserModel
+import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
+import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRParser
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizerModel
 import com.kotlinnlp.simplednn.core.embeddings.EMBDLoader
@@ -107,9 +108,9 @@ object NLPBuilder {
     return modelsDirectory.listFiles().associate { modelFile ->
 
       this.logger.info("Loading '${modelFile.name}'...")
-      val model: NeuralParserModel = NeuralParserModel.load(FileInputStream(modelFile))
+      val model: LHRModel = NeuralParserModel.load(FileInputStream(modelFile)) as LHRModel
 
-      model.language.isoCode to NeuralParserFactory(model)
+      model.language.isoCode to LHRParser(model)
     }
   }
 
