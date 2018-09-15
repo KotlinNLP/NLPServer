@@ -205,7 +205,7 @@ class Parse(
     form = (this as? RealToken)?.form ?: CoNLLToken.emptyFiller,
     lemma = CoNLLToken.emptyFiller,
     pos = if (this.morphologies.isNotEmpty())
-      this.morphologies.first().list.joinToString("-") { it.pos.annotation }
+      this.morphologies.first().list.joinToString("+") { it.pos.annotation }
     else
       CoNLLToken.emptyFiller,
     pos2 = CoNLLToken.emptyFiller,
