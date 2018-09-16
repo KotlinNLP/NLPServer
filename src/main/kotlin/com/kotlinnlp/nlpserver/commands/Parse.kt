@@ -11,6 +11,7 @@ import com.beust.klaxon.json
 import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.conllio.Token as CoNLLToken
 import com.kotlinnlp.languagedetector.LanguageDetector
+import com.kotlinnlp.linguisticdescription.POSTag
 import com.kotlinnlp.linguisticdescription.language.Language
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSyntacticToken
@@ -106,7 +107,6 @@ class Parse(
 
       } else {
         if (forcedLang.isoCode !in this.tokenizers) throw LanguageNotSupported(forcedLang.isoCode)
-
         forcedLang
       }
 
@@ -188,30 +188,25 @@ class Parse(
     tokens = this.tokens.mapIndexed { i, it ->
       it.toCoNLL(
         id = i + 1,
-        headId = it.dependencyRelation.governor?.let { id -> this.tokens.indexOfFirst { it.id == id } + 1 } ?: 0)
+        headId = it.syntacticRelation.governor?.let { id -> this.tokens.indexOfFirst { it.id == id } + 1 } ?: 0)
     }
   )
 
   /**
-   * Note:
-   * This extension is specific for MorphoSyntacticTokens that come from the Neural Parser and they are built from
-   * ParsingTokens.
-   * ParsingTokens ids are sequential and start from 0. They start from 1 in the CoNLL format instead.
-   *
    * @return the CoNLL object that represents this token
    */
   private fun MorphoSyntacticToken.toCoNLL(id: Int, headId: Int) = CoNLLToken(
     id = id,
     form = (this as? RealToken)?.form ?: CoNLLToken.emptyFiller,
     lemma = CoNLLToken.emptyFiller,
-    pos = if (this.morphologies.isNotEmpty())
-      this.morphologies.first().list.joinToString("+") { it.pos.annotation }
+    pos = POSTag(labels = if (this.morphologies.isNotEmpty())
+      this.morphologies.first().list.map { it.pos.annotation }
     else
-      CoNLLToken.emptyFiller,
-    pos2 = CoNLLToken.emptyFiller,
+      listOf(CoNLLToken.emptyFiller)),
+    pos2 = POSTag(labels = listOf(CoNLLToken.emptyFiller)),
     feats = emptyMap(),
     head = headId,
-    deprel = this.dependencyRelation.deprel,
+    deprel = this.syntacticRelation.dependencyRelation.deprel,
     multiWord = null
   )
 }
