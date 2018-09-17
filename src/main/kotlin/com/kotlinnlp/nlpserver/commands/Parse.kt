@@ -206,7 +206,7 @@ class Parse(
     pos2 = POSTag(labels = listOf(CoNLLToken.emptyFiller)),
     feats = emptyMap(),
     head = headId,
-    deprel = this.syntacticRelation.grammaticalConfiguration.deprel,
+    deprel = this.syntacticRelation.dependency,
     multiWord = null
   )
 }
