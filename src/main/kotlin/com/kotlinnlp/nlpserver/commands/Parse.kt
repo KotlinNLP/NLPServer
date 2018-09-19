@@ -16,6 +16,7 @@ import com.kotlinnlp.linguisticdescription.language.Language
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSyntacticToken
 import com.kotlinnlp.linguisticdescription.sentence.token.RealToken
+import com.kotlinnlp.linguisticdescription.sentence.token.WordComposite
 import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
 import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
@@ -197,16 +198,14 @@ class Parse(
    */
   private fun MorphoSyntacticToken.toCoNLL(id: Int, headId: Int) = CoNLLToken(
     id = id,
-    form = (this as? RealToken)?.form ?: CoNLLToken.emptyFiller,
-    lemma = CoNLLToken.emptyFiller,
-    pos = POSTag(labels = if (this.morphologies.isNotEmpty())
-      this.morphologies.first().list.map { it.pos.annotation }
-    else
-      listOf(CoNLLToken.emptyFiller)),
-    pos2 = POSTag(labels = listOf(CoNLLToken.emptyFiller)),
+    form = (this as? RealToken)?.form ?: CoNLLToken.EMPTY_FILLER,
+    lemma = CoNLLToken.EMPTY_FILLER,
+    posList = listOf(this.pos ?: POSTag(CoNLLToken.EMPTY_FILLER)),
+    pos2List = listOf(POSTag(CoNLLToken.EMPTY_FILLER)),
     feats = emptyMap(),
     head = headId,
-    deprel = this.syntacticRelation.dependency,
+    syntacticDependencies = (this as? WordComposite)?.components?.map { it.syntacticRelation.dependency }
+      ?: listOf(this.syntacticRelation.dependency),
     multiWord = null
   )
 }
