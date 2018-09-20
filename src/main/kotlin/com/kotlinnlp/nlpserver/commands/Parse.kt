@@ -14,7 +14,7 @@ import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.linguisticdescription.POSTag
 import com.kotlinnlp.linguisticdescription.language.Language
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
-import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSyntacticToken
+import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 import com.kotlinnlp.linguisticdescription.sentence.token.RealToken
 import com.kotlinnlp.linguisticdescription.sentence.token.WordComposite
 import com.kotlinnlp.neuralparser.NeuralParser
@@ -196,7 +196,7 @@ class Parse(
   /**
    * @return the CoNLL object that represents this token
    */
-  private fun MorphoSyntacticToken.toCoNLL(id: Int, headId: Int) = CoNLLToken(
+  private fun MorphoSynToken.toCoNLL(id: Int, headId: Int) = CoNLLToken(
     id = id,
     form = (this as? RealToken)?.form ?: CoNLLToken.EMPTY_FILLER,
     lemma = CoNLLToken.EMPTY_FILLER,
