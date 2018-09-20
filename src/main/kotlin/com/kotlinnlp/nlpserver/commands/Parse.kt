@@ -16,7 +16,6 @@ import com.kotlinnlp.linguisticdescription.language.Language
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSynSentence
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 import com.kotlinnlp.linguisticdescription.sentence.token.RealToken
-import com.kotlinnlp.linguisticdescription.sentence.token.WordComposite
 import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
 import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
@@ -200,12 +199,11 @@ class Parse(
     id = id,
     form = (this as? RealToken)?.form ?: CoNLLToken.EMPTY_FILLER,
     lemma = CoNLLToken.EMPTY_FILLER,
-    posList = listOf(this.pos ?: POSTag(CoNLLToken.EMPTY_FILLER)),
+    posList = this.flatPOS.let { if (it.isNotEmpty()) it else listOf(POSTag(CoNLLToken.EMPTY_FILLER)) },
     pos2List = listOf(POSTag(CoNLLToken.EMPTY_FILLER)),
     feats = emptyMap(),
     head = headId,
-    syntacticDependencies = (this as? WordComposite)?.components?.map { it.syntacticRelation.dependency }
-      ?: listOf(this.syntacticRelation.dependency),
+    syntacticDependencies = this.flatSyntacticRelations.map { it.dependency },
     multiWord = null
   )
 }
