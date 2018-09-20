@@ -13,7 +13,7 @@ import com.kotlinnlp.conllio.Token as CoNLLToken
 import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.linguisticdescription.POSTag
 import com.kotlinnlp.linguisticdescription.language.Language
-import com.kotlinnlp.linguisticdescription.sentence.MorphoSyntacticSentence
+import com.kotlinnlp.linguisticdescription.sentence.MorphoSynSentence
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 import com.kotlinnlp.linguisticdescription.sentence.token.RealToken
 import com.kotlinnlp.linguisticdescription.sentence.token.WordComposite
@@ -179,11 +179,11 @@ class Parse(
   private fun Token.toBaseToken(id: Int) = BaseToken(id = id, position = this.position, form = this.form)
 
   /**
-   * Convert this [MorphoSyntacticSentence] to a CoNLL Sentence.
+   * Convert this [MorphoSynSentence] to a CoNLL Sentence.
    *
    * @return a CoNLL Sentence
    */
-  private fun MorphoSyntacticSentence.toCoNLL(): CoNLLSentence = CoNLLSentence(
+  private fun MorphoSynSentence.toCoNLL(): CoNLLSentence = CoNLLSentence(
     sentenceId = this.id.toString(),
     text = this.buildText(),
     tokens = this.tokens.mapIndexed { i, it ->
