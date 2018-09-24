@@ -174,7 +174,7 @@ class NLPServer(
 
       request.checkRequiredParams(requiredParams = listOf("text"))
 
-      this.tokenize!!(text = request.queryParams("text"))
+      this.tokenize!!(text = request.queryParams("text"), prettyPrint = request.queryParams("pretty") != null)
     }
 
     Spark.get("/:lang") { request, _ ->
@@ -183,15 +183,19 @@ class NLPServer(
 
       this.tokenize!!(
         text = request.queryParams("text"),
-        language = request.params("lang")?.let { getLanguageByIso(it) })
+        language = request.params("lang")?.let { getLanguageByIso(it) },
+        prettyPrint = request.queryParams("pretty") != null)
     }
 
     Spark.post("") { request, _ ->
-      this.tokenize!!(text = request.body())
+      this.tokenize!!(text = request.body(), prettyPrint = request.queryParams("pretty") != null)
     }
 
     Spark.post("/:lang") { request, _ ->
-      this.tokenize!!(text = request.body(), language = request.params("lang")?.let { getLanguageByIso(it) })
+      this.tokenize!!(
+        text = request.body(),
+        language = request.params("lang")?.let { getLanguageByIso(it) },
+        prettyPrint = request.queryParams("pretty") != null)
     }
   }
 
@@ -204,11 +208,11 @@ class NLPServer(
 
       request.checkRequiredParams(requiredParams = listOf("text"))
 
-      this.detectLanguage!!(text = request.queryParams("text"))
+      this.detectLanguage!!(text = request.queryParams("text"), prettyPrint = request.queryParams("pretty") != null)
     }
 
     Spark.post("") { request, _ ->
-      this.detectLanguage!!(text = request.body())
+      this.detectLanguage!!(text = request.body(), prettyPrint = request.queryParams("pretty") != null)
     }
   }
 
@@ -221,11 +225,13 @@ class NLPServer(
 
       request.checkRequiredParams(requiredParams = listOf("text"))
 
-      this.detectLanguage!!.perToken(text = request.queryParams("text"))
+      this.detectLanguage!!.perToken(
+        text = request.queryParams("text"),
+        prettyPrint = request.queryParams("pretty") != null)
     }
 
     Spark.post("") { request, _ ->
-      this.detectLanguage!!.perToken(text = request.body())
+      this.detectLanguage!!.perToken(text = request.body(), prettyPrint = request.queryParams("pretty") != null)
     }
   }
 
@@ -241,8 +247,7 @@ class NLPServer(
       this.execFindLocations(
         jsonBody = jsonBody,
         language = getLanguageByIso(jsonBody.string("lang")!!),
-        prettyPrint = request.queryParams("pretty") != null
-      )
+        prettyPrint = request.queryParams("pretty") != null)
     }
 
     Spark.post("/:lang") { request, _ ->
@@ -252,8 +257,7 @@ class NLPServer(
       this.execFindLocations(
         jsonBody = jsonBody,
         language = request.params("lang")!!.let { getLanguageByIso(it) },
-        prettyPrint = request.queryParams("pretty") != null
-      )
+        prettyPrint = request.queryParams("pretty") != null)
     }
   }
 

@@ -34,10 +34,11 @@ class Tokenize(
    *
    * @param text the text to tokenize
    * @param language the language with which to force the tokenization (default = null)
+   * @param prettyPrint pretty print, used for JSON format (default = false)
    *
    * @return the tokenized [text] in JSON format
    */
-  operator fun invoke(text: String, language: Language? = null): String {
+  operator fun invoke(text: String, language: Language? = null, prettyPrint: Boolean = false): String {
 
     val tokenizerLang: Language = this.getTokenizerLanguage(text = text, forcedLang = language)
 
@@ -45,7 +46,8 @@ class Tokenize(
       throw LanguageNotSupported(tokenizerLang.isoCode)
     }
 
-    return this.tokenizers.getValue(tokenizerLang.isoCode).tokenize(text).toJsonSentences().toJsonString() + "\n"
+    return this.tokenizers.getValue(tokenizerLang.isoCode).tokenize(text)
+      .toJsonSentences().toJsonString(prettyPrint) + "\n"
   }
 
   /**

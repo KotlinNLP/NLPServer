@@ -35,10 +35,11 @@ class DetectLanguage(private val languageDetector: LanguageDetector) {
    *  }
    *
    * @param text the input text
+   * @param prettyPrint pretty print, used for JSON format (default = false)
    *
    * @return a [String] with a JSON object containing the detected language iso-a2 code and the complete classification
    */
-  operator fun invoke(text: String): String {
+  operator fun invoke(text: String, prettyPrint: Boolean = false): String {
 
     val prediction: DenseNDArray = this.languageDetector.predict(text)
     val language: Language = this.languageDetector.getLanguage(prediction)
@@ -48,7 +49,7 @@ class DetectLanguage(private val languageDetector: LanguageDetector) {
         "language" to language.isoCode,
         "classification" to obj(*prediction.toLanguageScorePairs())
       )
-    }.toJsonString()
+    }.toJsonString(prettyPrint)
   }
 
   /**
@@ -73,10 +74,11 @@ class DetectLanguage(private val languageDetector: LanguageDetector) {
    *  }
    *
    * @param text the input text
+   * @param prettyPrint pretty print, used for JSON format (default = false)
    *
    * @return a [String] with a JSON list containing the language classification of each token
    */
-  fun perToken(text: String): String {
+  fun perToken(text: String, prettyPrint: Boolean = false): String {
 
     val tokensClassifications: List<Pair<String, LanguageDetector.TokenClassification>>
       = this.languageDetector.classifyTokens(text)
@@ -91,7 +93,7 @@ class DetectLanguage(private val languageDetector: LanguageDetector) {
           )
         )
       })
-    }.toJsonString()
+    }.toJsonString(prettyPrint)
   }
 
   /**
