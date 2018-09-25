@@ -54,7 +54,7 @@ class DetectLanguage(private val languageDetector: LanguageDetector) {
 
       jsonObj
 
-    }.toJsonString(prettyPrint)
+    }.toJsonString(prettyPrint) + "\n"
   }
 
   /**
@@ -102,7 +102,7 @@ class DetectLanguage(private val languageDetector: LanguageDetector) {
 
         jsonObj
       })
-    }.toJsonString(prettyPrint)
+    }.toJsonString(prettyPrint) + "\n"
   }
 
   /**
