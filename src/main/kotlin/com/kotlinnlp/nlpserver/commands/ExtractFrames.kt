@@ -83,6 +83,7 @@ class ExtractFrames(
    * @param text the text from which to extract frames
    * @param lang the language to use to analyze the [text] (default = unknown)
    * @param domain force to use the frame extractors associated to the given domain
+   * @param distribution whether to include the distribution in the response (default = true)
    * @param prettyPrint pretty print, used for JSON format (default = false)
    *
    * @throws InvalidLanguageCode when the requested (or detected) language is not compatible
@@ -93,6 +94,7 @@ class ExtractFrames(
   operator fun invoke(text: String,
                       lang: Language? = null,
                       domain: String? = null,
+                      distribution: Boolean = true,
                       prettyPrint: Boolean = false): String {
 
     val textLanguage: Language = this.getTextLanguage(text = text, forcedLang = lang)
@@ -112,14 +114,14 @@ class ExtractFrames(
         val output: FrameExtractor.Output = extractor.forward(tokenEncodings)
 
         json {
-          obj(
-            "intent" to output.buildIntent().toJSON(tokensForms),
-            "distribution" to array(
-              output.buildDistribution().map.entries
-                .sortedByDescending { it.value }
-                .map { obj("intent" to it.key, "score" to it.value) }
-            )
-          )
+          val jsonObj: JsonObject = obj("intent" to output.buildIntent().toJSON(tokensForms))
+
+          if (distribution) jsonObj["distribution"] = array(
+            output.buildDistribution().map.entries
+              .sortedByDescending { it.value }
+              .map { obj("intent" to it.key, "score" to it.value) })
+
+          jsonObj
         }
       })
     })
