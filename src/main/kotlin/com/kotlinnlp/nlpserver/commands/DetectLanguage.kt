@@ -124,10 +124,10 @@ class DetectLanguage(private val languageDetector: LanguageDetector) {
       "Invalid this (length %d, supported languages %d)".format(self.length, languages.size)
     }
 
-    array(self.toDoubleArray().withIndex().sortedByDescending { it.value }.mapIndexed { i, score ->
+    array(self.toDoubleArray().withIndex().sortedByDescending { it.value }.map {
       obj(
-        "lang" to languages[i].isoCode,
-        "score" to score
+        "lang" to languages[it.index].isoCode,
+        "score" to it.value
       )
     })
   }
