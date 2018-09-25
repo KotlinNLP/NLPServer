@@ -210,14 +210,14 @@ class NLPServer(
 
       this.detectLanguage!!(
         text = request.queryParams("text"),
-        distribution = request.queryParams("distribution") == null,
+        distribution = request.queryParams("distribution") != null,
         prettyPrint = request.queryParams("pretty") != null)
     }
 
     Spark.post("") { request, _ ->
       this.detectLanguage!!(
         text = request.body(),
-        distribution = request.queryParams("distribution") == null,
+        distribution = request.queryParams("distribution") != null,
         prettyPrint = request.queryParams("pretty") != null)
     }
   }
@@ -233,14 +233,14 @@ class NLPServer(
 
       this.detectLanguage!!.perToken(
         text = request.queryParams("text"),
-        distribution = request.queryParams("distribution") == null,
+        distribution = request.queryParams("distribution") != null,
         prettyPrint = request.queryParams("pretty") != null)
     }
 
     Spark.post("") { request, _ ->
       this.detectLanguage!!.perToken(
         text = request.body(),
-        distribution = request.queryParams("distribution") == null,
+        distribution = request.queryParams("distribution") != null,
         prettyPrint = request.queryParams("pretty") != null)
     }
   }
@@ -284,7 +284,7 @@ class NLPServer(
         text = request.queryParams("text"),
         lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
         domain = request.queryParams("domain"),
-        distribution = request.queryParams("distribution") == null,
+        distribution = request.queryParams("distribution") != null,
         prettyPrint = request.queryParams("pretty") != null)
     }
 
@@ -296,7 +296,7 @@ class NLPServer(
         text = request.queryParams("text"),
         lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
         domain = request.params("domain"),
-        distribution = request.queryParams("distribution") == null,
+        distribution = request.queryParams("distribution") != null,
         prettyPrint = request.queryParams("pretty") != null)
     }
 
@@ -304,7 +304,7 @@ class NLPServer(
       this.extractFrames!!(
         text = request.body(),
         lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
-        distribution = request.queryParams("distribution") == null,
+        distribution = request.queryParams("distribution") != null,
         prettyPrint = request.queryParams("pretty") != null)
     }
 
@@ -313,7 +313,7 @@ class NLPServer(
         text = request.body(),
         lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
         domain = request.params("domain"),
-        distribution = request.queryParams("distribution") == null,
+        distribution = request.queryParams("distribution") != null,
         prettyPrint = request.queryParams("pretty") != null)
     }
   }
