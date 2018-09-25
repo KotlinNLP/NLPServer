@@ -28,11 +28,13 @@ class DetectLanguage(private val languageDetector: LanguageDetector) {
    * The template of the JSON object:
    *  {
    *    "language": <STRING>, // iso-a2 code
-   *    "classification": {
-   *      "en": <DOUBLE>,
-   *      "ar": <DOUBLE>,
+   *    "classification": [
+   *      {
+   *        "language": <STRING>, // iso-a2 code,
+   *        "score": <DOUBLE>
+   *      }
    *      ...
-   *    }
+   *    ]
    *  }
    *
    * @param text the input text
@@ -68,12 +70,15 @@ class DetectLanguage(private val languageDetector: LanguageDetector) {
    * The template of the JSON object:
    *  {
    *    "word": <STRING>,
+   *    "language": <STRING>, // iso-a2 code
    *    "distribution": {
-   *      "languages": {
-   *        "en": <DOUBLE>,
-   *        "ar": <DOUBLE>,
+   *      "languages": [
+   *        {
+   *          "language": <STRING>, // iso-a2 code,
+   *          "score": <DOUBLE>
+   *        }
    *        ...
-   *      },
+   *      ],
    *      "charsImportance": [<DOUBLE>, <DOUBLE>, ...] // same length of the token
    *    }
    *  }
@@ -86,6 +91,7 @@ class DetectLanguage(private val languageDetector: LanguageDetector) {
    */
   fun perToken(text: String, distribution: Boolean = true, prettyPrint: Boolean = false): String {
 
+    val languages: List<Language> = this@DetectLanguage.languageDetector.model.supportedLanguages
     val tokensClassifications: List<Pair<String, LanguageDetector.TokenClassification>> =
       this.languageDetector.classifyTokens(text)
 
@@ -93,7 +99,10 @@ class DetectLanguage(private val languageDetector: LanguageDetector) {
 
       array(tokensClassifications.map {
 
-        val jsonObj: JsonObject = obj("word" to it.first)
+        val jsonObj: JsonObject = obj(
+          "word" to it.first,
+          "language" to languages[it.second.languages.argMaxIndex()].isoCode
+        )
 
         if (distribution) jsonObj["distribution"] = obj(
           "languages" to it.second.languages.toJSONScoredLanguages(),
@@ -126,7 +135,7 @@ class DetectLanguage(private val languageDetector: LanguageDetector) {
 
     array(self.toDoubleArray().withIndex().sortedByDescending { it.value }.map {
       obj(
-        "lang" to languages[it.index].isoCode,
+        "language" to languages[it.index].isoCode,
         "score" to it.value
       )
     })
