@@ -266,7 +266,7 @@ class NLPServer(
 
       this.execFindLocations(
         jsonBody = jsonBody,
-        language = request.params("lang")!!.let { getLanguageByIso(it) },
+        language = getLanguageByIso(request.params("lang")!!),
         prettyPrint = request.queryParams("pretty") != null)
     }
   }
