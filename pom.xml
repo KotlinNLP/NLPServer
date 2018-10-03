@@ -70,6 +70,7 @@
         <neuraltokenizer.version>0.4.2</neuraltokenizer.version>
         <languagedetector.version>0.4.4</languagedetector.version>
         <neuralparser.version>0.5.0</neuralparser.version>
+        <lssencoder.version>0.1.0</lssencoder.version>
         <simplednn.version>0.11.0</simplednn.version>
         <geolocation.version>0.1.0</geolocation.version>
         <frameextractor.version>0.4.0</frameextractor.version>
@@ -312,6 +313,12 @@
             <groupId>com.kotlinnlp</groupId>
             <artifactId>neuralparser</artifactId>
             <version>${neuralparser.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.kotlinnlp</groupId>
+            <artifactId>lssencoder</artifactId>
+            <version>${lssencoder.version}</version>
         </dependency>
 
         <dependency>
