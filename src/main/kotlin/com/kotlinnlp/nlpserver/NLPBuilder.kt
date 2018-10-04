@@ -206,6 +206,6 @@ object NLPBuilder {
    * @return the list of files contained in this directory if it is not empty, otherwise an exception is raised
    */
   private fun File.listFilesOrRaise(): Array<File> = this.listFiles().let {
-    if (it.isNotEmpty()) it else throw RuntimeException("Empty dir")
+    if (it.isNotEmpty()) it else throw RuntimeException("Empty directory.")
   }
 }
