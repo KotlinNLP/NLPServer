@@ -24,6 +24,7 @@ import com.kotlinnlp.simplednn.core.embeddings.EMBDLoader
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMapByDictionary
 import java.io.File
 import java.io.FileInputStream
+import java.lang.RuntimeException
 import java.util.logging.Logger
 
 /**
@@ -80,7 +81,7 @@ object NLPBuilder {
 
     require(modelsDirectory.isDirectory) { "$tokenizerModelsDir is not a directory" }
 
-    return modelsDirectory.listFiles().associate { modelFile ->
+    return modelsDirectory.listFilesOrRaise().associate { modelFile ->
 
       this.logger.info("Loading '${modelFile.name}'...")
       val model = NeuralTokenizerModel.load(FileInputStream(modelFile))
@@ -149,7 +150,7 @@ object NLPBuilder {
 
     require(morphoDictDir.isDirectory) { "$morphoDictionariesDir is not a directory" }
 
-    return morphoDictDir.listFiles().associate { dictionaryFile ->
+    return morphoDictDir.listFilesOrRaise().associate { dictionaryFile ->
 
       this.logger.info("Loading '${dictionaryFile.name}'...")
       val dictionary: MorphologyDictionary = MorphologyDictionary.load(FileInputStream(dictionaryFile))
@@ -172,7 +173,7 @@ object NLPBuilder {
 
     require(embeddingsDir.isDirectory) { "$embeddingsDirname is not a directory" }
 
-    return embeddingsDir.listFiles().associate { embeddingsFile ->
+    return embeddingsDir.listFilesOrRaise().associate { embeddingsFile ->
 
       this.logger.info("Loading '${embeddingsFile.name}'...")
       val embeddings: EmbeddingsMapByDictionary =
@@ -197,5 +198,14 @@ object NLPBuilder {
     this.logger.info("Loading locations dictionary from '$locationsDictionaryFilename'")
 
     return LocationsDictionary.load(FileInputStream(File(locationsDictionaryFilename)))
+  }
+
+  /**
+   * @throws RuntimeException if the file of this directory is empty
+   *
+   * @return the list of files contained in this directory if it is not empty, otherwise an exception is raised
+   */
+  private fun File.listFilesOrRaise(): Array<File> = this.listFiles().let {
+    if (it.isNotEmpty()) it else throw RuntimeException("Empty dir")
   }
 }
