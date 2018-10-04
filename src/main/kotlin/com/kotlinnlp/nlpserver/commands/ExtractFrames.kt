@@ -16,25 +16,22 @@ import com.kotlinnlp.conllio.Token as CoNLLToken
 import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.linguisticdescription.InvalidLanguageCode
 import com.kotlinnlp.linguisticdescription.language.Language
-import com.kotlinnlp.neuralparser.NeuralParser
+import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
+import com.kotlinnlp.linguisticdescription.sentence.Sentence
+import com.kotlinnlp.lssencoder.LSSModel
 import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
 import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
-import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
-import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRParser
-import com.kotlinnlp.neuralparser.parsers.lhrparser.LSSEncoder
-import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.contextencoder.ContextEncoder
-import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.headsencoder.HeadsEncoder
-import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.keyextractors.WordKeyExtractor
+import com.kotlinnlp.neuralparser.language.ParsingSentence
+import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
-import com.kotlinnlp.neuraltokenizer.Sentence
+import com.kotlinnlp.neuraltokenizer.Sentence as TokenizerSentence
 import com.kotlinnlp.nlpserver.InvalidFrameExtractorDomain
 import com.kotlinnlp.nlpserver.LanguageNotSupported
 import com.kotlinnlp.nlpserver.MissingEmbeddingsMap
-import com.kotlinnlp.nlpserver.commands.helpers.LSSEmbeddingsEncoder
+import com.kotlinnlp.nlpserver.commands.utils.buildTokensEncoder
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMapByDictionary
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
-import com.kotlinnlp.tokensencoder.embeddings.EmbeddingsEncoder
-import com.kotlinnlp.tokensencoder.embeddings.EmbeddingsEncoderModel
+import com.kotlinnlp.tokensencoder.TokensEncoder
 
 /**
  * The command executed on the route '/extract-frames'.
@@ -42,7 +39,7 @@ import com.kotlinnlp.tokensencoder.embeddings.EmbeddingsEncoderModel
  * @param languageDetector a language detector (can be null)
  * @param tokenizers a map of neural tokenizers associated by language ISO 639-1 code
  * @param morphoPreprocessors a map of morpho-preprocessors associated by language ISO 639-1 code
- * @param parsers a map of neural parsers associated by language ISO 639-1 code
+ * @param lssModels a map of LSS encoders models associated by language ISO 639-1 code
  * @param wordEmbeddings a map of pre-trained word embeddings maps associated by language ISO 639-1 code
  * @param frameExtractors a map of frame extractors associated by domain name
  */
@@ -50,10 +47,24 @@ class ExtractFrames(
   private val languageDetector: LanguageDetector?,
   private val tokenizers: Map<String, NeuralTokenizer>,
   private val morphoPreprocessors: Map<String, MorphoPreprocessor>,
-  private val parsers: Map<String, NeuralParser<*>>,
+  private val lssModels: Map<String, LSSModel<ParsingToken, ParsingSentence>>,
   private val wordEmbeddings: Map<String, EmbeddingsMapByDictionary>,
   private val frameExtractors: Map<String, FrameExtractor>
 ) {
+
+  /**
+   * A token with a form.
+   *
+   * @property form the form of the token
+   */
+  private class Token(override val form: String) : FormToken
+
+  /**
+   * A sentence of form tokens.
+   *
+   * @property tokens the list of tokens that compose the sentence
+   */
+  private class FormSentence(override val tokens: List<FormToken>) : Sentence<FormToken>
 
   /**
    * A base sentence preprocessor.
@@ -63,18 +74,13 @@ class ExtractFrames(
   /**
    * A map of LSS sentence encoders associated by ISO 639-1 language code.
    */
-  private val sentenceEncoders: Map<String, LSSEmbeddingsEncoder> =
-    this.parsers
-      .filterValues { it is LHRParser }
-      .mapValues { (langCode, parser) ->
-        LSSEmbeddingsEncoder(
+  private val tokensEncoders: Map<String, TokensEncoder<FormToken, Sentence<FormToken>>> =
+    this.lssModels
+      .mapValues { (langCode, lssModel) ->
+        buildTokensEncoder(
           preprocessor = this.morphoPreprocessors[langCode] ?: this.basePreprocessor,
-          lssEncoder = (parser as LHRParser).model.buildLSSEncoder(),
-          wordEmbeddingsEncoder = EmbeddingsEncoder(
-            model = EmbeddingsEncoderModel(
-              embeddingsMap = this.wordEmbeddings[langCode] ?: throw MissingEmbeddingsMap(langCode),
-              embeddingKeyExtractor = WordKeyExtractor),
-            useDropout = false))
+          embeddingsMap = this.wordEmbeddings[langCode] ?: throw MissingEmbeddingsMap(langCode),
+          lssModel = lssModel)
       }
 
   /**
@@ -98,19 +104,19 @@ class ExtractFrames(
                       prettyPrint: Boolean = false): String {
 
     val textLanguage: Language = this.getTextLanguage(text = text, forcedLang = lang)
-    val sentences: List<Sentence> = this.tokenizers.getValue(textLanguage.isoCode).tokenize(text)
-    val sentenceEncoder: LSSEmbeddingsEncoder =
-      this.sentenceEncoders[textLanguage.isoCode] ?: throw InvalidLanguageCode(textLanguage.isoCode)
+    val sentences: List<TokenizerSentence> = this.tokenizers.getValue(textLanguage.isoCode).tokenize(text)
+    val tokensEncoder: TokensEncoder<FormToken, Sentence<FormToken>> =
+      this.tokensEncoders[textLanguage.isoCode] ?: throw InvalidLanguageCode(textLanguage.isoCode)
     val extractors: List<FrameExtractor> = domain?.let {
       listOf(this.frameExtractors[it] ?: throw InvalidFrameExtractorDomain(domain))
     } ?: this.frameExtractors.values.toList()
 
     val jsonFrames = JsonObject(extractors.associate { extractor ->
 
-      extractor.model.name to JsonArray(sentences.map {
+      extractor.model.name to JsonArray(sentences.map { sentence ->
 
-        val tokensForms: List<String> = it.tokens.map { it.form }
-        val tokenEncodings: List<DenseNDArray> = sentenceEncoder.encode(tokensForms)
+        val tokensForms: List<String> = sentence.tokens.map { it.form }
+        val tokenEncodings: List<DenseNDArray> = tokensEncoder.forward(this.buildSentence(tokensForms))
         val output: FrameExtractor.Output = extractor.forward(tokenEncodings)
 
         json {
@@ -118,8 +124,10 @@ class ExtractFrames(
 
           if (distribution) jsonObj["distribution"] = array(
             output.buildDistribution().map.entries
+              .asSequence()
               .sortedByDescending { it.value }
-              .map { obj("intent" to it.key, "score" to it.value) })
+              .map { obj("intent" to it.key, "score" to it.value) }
+              .toList())
 
           jsonObj
         }
@@ -160,13 +168,9 @@ class ExtractFrames(
   }
 
   /**
-   * Build an [LSSEncoder] from this LHRModel.
+   * @param forms a list of tokens forms
    *
-   * @return an encoder of Latent Syntactic Structures
+   * @return a new form sentence with the given forms
    */
-  private fun LHRModel.buildLSSEncoder() = LSSEncoder(
-    tokensEncoderWrapper = this.tokensEncoderWrapperModel.buildWrapper(useDropout = false),
-    contextEncoder = ContextEncoder(this.contextEncoderModel, useDropout = false),
-    headsEncoder = HeadsEncoder(this.headsEncoderModel, useDropout = false),
-    virtualRoot = this.rootEmbedding.array.values)
+  private fun buildSentence(forms: List<String>) = FormSentence(tokens = forms.map { Token(it) })
 }
