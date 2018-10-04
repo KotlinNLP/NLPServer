@@ -26,6 +26,7 @@ import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.Sentence
 import com.kotlinnlp.neuraltokenizer.Token
 import com.kotlinnlp.nlpserver.LanguageNotSupported
+import com.kotlinnlp.nlpserver.commands.utils.TokenizingCommand
 
 /**
  * The command executed on the route '/parse'.
@@ -36,11 +37,11 @@ import com.kotlinnlp.nlpserver.LanguageNotSupported
  * @param morphoPreprocessors a map of languages ISO 639-1 codes to morpho-preprocessors
  */
 class Parse(
-  private val languageDetector: LanguageDetector?,
-  private val tokenizers: Map<String, NeuralTokenizer>,
+  override val languageDetector: LanguageDetector?,
+  override val tokenizers: Map<String, NeuralTokenizer>,
   private val parsers: Map<String, NeuralParser<*>>,
   private val morphoPreprocessors: Map<String, MorphoPreprocessor>
-) {
+) : TokenizingCommand {
 
   /**
    * The format of the parsing response.
@@ -87,35 +88,6 @@ class Parse(
         lang = textLanguage,
         prettyPrint = prettyPrint)
     } + "\n"
-  }
-
-  /**
-   * @param text the text to parse (of which to detect the language if [forcedLang] is null)
-   * @param forcedLang force this language to be returned (if it is supported)
-   *
-   * @throws LanguageNotSupported when the returning language is not supported
-   * @throws RuntimeException when [forcedLang] is 'null' but the language detector is missing
-   *
-   * @return the language of the given [text]
-   */
-  private fun getTextLanguage(text: String, forcedLang: Language?): Language {
-
-    return if (this.languageDetector == null) {
-
-      if (forcedLang == null) {
-        throw RuntimeException("Cannot determine language automatically (missing language detector)")
-
-      } else {
-        if (forcedLang.isoCode !in this.tokenizers) throw LanguageNotSupported(forcedLang.isoCode)
-        forcedLang
-      }
-
-    } else {
-      val lang: Language = forcedLang ?: this.languageDetector.detectLanguage(text)
-      if (lang.isoCode !in this.tokenizers) throw LanguageNotSupported(lang.isoCode)
-
-      lang
-    }
   }
 
   /**

@@ -24,8 +24,8 @@ import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.Sentence as TokenizerSentence
 import com.kotlinnlp.nlpserver.InvalidDomain
-import com.kotlinnlp.nlpserver.LanguageNotSupported
 import com.kotlinnlp.nlpserver.MissingEmbeddingsMapByLanguage
+import com.kotlinnlp.nlpserver.commands.utils.TokenizingCommand
 import com.kotlinnlp.nlpserver.commands.utils.buildSentence
 import com.kotlinnlp.nlpserver.commands.utils.buildTokensEncoder
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMapByDictionary
@@ -43,13 +43,13 @@ import com.kotlinnlp.tokensencoder.TokensEncoder
  * @param frameExtractors a map of frame extractors associated by domain name
  */
 class ExtractFrames(
-  private val languageDetector: LanguageDetector?,
-  private val tokenizers: Map<String, NeuralTokenizer>,
+  override val languageDetector: LanguageDetector?,
+  override val tokenizers: Map<String, NeuralTokenizer>,
   private val morphoPreprocessors: Map<String, MorphoPreprocessor>,
   private val lssModels: Map<String, LSSModel<ParsingToken, ParsingSentence>>,
   private val wordEmbeddings: Map<String, EmbeddingsMapByDictionary>,
   private val frameExtractors: Map<String, FrameExtractor>
-) {
+) : TokenizingCommand {
 
   /**
    * A base sentence preprocessor.
@@ -120,35 +120,5 @@ class ExtractFrames(
     })
 
     return jsonFrames.toJsonString(prettyPrint) + "\n"
-  }
-
-  /**
-   * @param text the text to analyze (of which to detect the language if [forcedLang] is null)
-   * @param forcedLang force this language to be returned (if it is supported)
-   *
-   * @throws LanguageNotSupported when the returning language is not supported
-   * @throws RuntimeException when [forcedLang] is 'null' but the language detector is missing
-   *
-   * @return the language of the given [text]
-   */
-  private fun getTextLanguage(text: String, forcedLang: Language?): Language {
-
-    return if (this.languageDetector == null) {
-
-      if (forcedLang == null) {
-        throw RuntimeException("Cannot determine language automatically (missing language detector)")
-
-      } else {
-        if (forcedLang.isoCode !in this.tokenizers) throw LanguageNotSupported(forcedLang.isoCode)
-
-        forcedLang
-      }
-
-    } else {
-      val lang: Language = forcedLang ?: this.languageDetector.detectLanguage(text)
-      if (lang.isoCode !in this.tokenizers) throw LanguageNotSupported(lang.isoCode)
-
-      lang
-    }
   }
 }

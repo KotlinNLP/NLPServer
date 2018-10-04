@@ -15,6 +15,7 @@ import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.Sentence
 import com.kotlinnlp.neuraltokenizer.Token
 import com.kotlinnlp.nlpserver.LanguageNotSupported
+import com.kotlinnlp.nlpserver.commands.utils.TokenizingCommand
 
 /**
  * The command executed on the route '/tokenize'.
@@ -23,9 +24,9 @@ import com.kotlinnlp.nlpserver.LanguageNotSupported
  * @property languageDetector a [LanguageDetector] (can be null)
  */
 class Tokenize(
-  private val tokenizers: Map<String, NeuralTokenizer>,
-  private val languageDetector: LanguageDetector?
-) {
+  override val tokenizers: Map<String, NeuralTokenizer>,
+  override val languageDetector: LanguageDetector?
+) : TokenizingCommand {
 
   /**
    * Tokenize the given [text].
@@ -40,7 +41,7 @@ class Tokenize(
    */
   operator fun invoke(text: String, language: Language? = null, prettyPrint: Boolean = false): String {
 
-    val tokenizerLang: Language = this.getTokenizerLanguage(text = text, forcedLang = language)
+    val tokenizerLang: Language = this.getTextLanguage(text = text, forcedLang = language)
 
     if (tokenizerLang.isoCode !in this.tokenizers) {
       throw LanguageNotSupported(tokenizerLang.isoCode)
@@ -48,30 +49,6 @@ class Tokenize(
 
     return this.tokenizers.getValue(tokenizerLang.isoCode).tokenize(text)
       .toJsonSentences().toJsonString(prettyPrint) + "\n"
-  }
-
-  /**
-   *
-   */
-  private fun getTokenizerLanguage(text: String, forcedLang: Language?): Language {
-
-    return if (this.languageDetector == null) {
-
-      if (forcedLang == null)
-        throw RuntimeException("Cannot determine language automatically (missing language detector)")
-
-      if (forcedLang.isoCode !in this.tokenizers) throw LanguageNotSupported(forcedLang.isoCode)
-
-      forcedLang
-
-    } else {
-
-      val tokenizerLang: Language = forcedLang ?: this.languageDetector.detectLanguage(text)
-
-      if (tokenizerLang.isoCode !in this.tokenizers) throw LanguageNotSupported(tokenizerLang.isoCode)
-
-      tokenizerLang
-    }
   }
 
   /**
