@@ -132,7 +132,7 @@ class Parse(
                                  sentences: List<Sentence>): String =
     sentences.joinToString (separator = "\n\n") {
       parser
-        .parse(preprocessor.process(it.toBaseSentence()))
+        .parse(preprocessor.convert(it.toBaseSentence()))
         .toCoNLL()
         .toCoNLLString(writeComments = false)
     }
@@ -156,7 +156,7 @@ class Parse(
     obj(
       "lang" to lang.isoCode,
       "sentences" to array(sentences.map {
-        parser.parse(preprocessor.process(it.toBaseSentence())).toJSON()
+        parser.parse(preprocessor.convert(it.toBaseSentence())).toJSON()
       })
     )
   }.toJsonString(prettyPrint = prettyPrint)
