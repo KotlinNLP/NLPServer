@@ -67,11 +67,11 @@ object NLPBuilder {
   }
 
   /**
-   * Build the [Map] of languages ISO 639-1 codes to the related [NeuralTokenizer]s.
+   * Build the map of languages ISO 639-1 codes to the related [NeuralTokenizer]s.
    *
    * @param tokenizerModelsDir the directory containing the tokenizers models
    *
-   * @return a [Map] of languages ISO 639-1 codes to the related [NeuralTokenizer]s
+   * @return a map of languages ISO 639-1 codes to the related [NeuralTokenizer]s
    */
   fun buildTokenizers(tokenizerModelsDir: String): Map<String, NeuralTokenizer> {
 
@@ -117,7 +117,7 @@ object NLPBuilder {
    *
    * @param frameExtractorModelsDir the directory containing the frame extractors models
    *
-   * @return a [Map] of frame extractors associated by domain name
+   * @return a map of frame extractors associated by domain name
    */
   fun buildFrameExtractorsMap(frameExtractorModelsDir: String): Map<String, FrameExtractor> {
 
@@ -136,11 +136,11 @@ object NLPBuilder {
   }
 
   /**
-   * Build the [Map] of languages ISO 639-1 codes to the related [MorphologyDictionary]s.
+   * Build the map of languages ISO 639-1 codes to the related [MorphologyDictionary]s.
    *
    * @param morphoDictionariesDir the directory containing the morphology dictionaries
    *
-   * @return a [Map] of languages ISO 639-1 codes to the related [MorphologyDictionary]
+   * @return a map of languages ISO 639-1 codes to the related [MorphologyDictionary]
    */
   fun buildMorphoDictionaries(morphoDictionariesDir: String): Map<String, MorphologyDictionary> {
 
@@ -159,11 +159,11 @@ object NLPBuilder {
   }
 
   /**
-   * Build the [Map] of languages ISO 639-1 codes to the related [MorphologyDictionary]s.
+   * Build the map of languages ISO 639-1 codes to the related [MorphologyDictionary]s.
    *
    * @param embeddingsDirname the directory containing the embeddings vectors files, one per language
    *
-   * @return a [Map] of languages ISO 639-1 codes to the related [MorphologyDictionary]
+   * @return a map of languages ISO 639-1 codes to the related [MorphologyDictionary]
    */
   fun buildEmbeddingsMaps(embeddingsDirname: String): Map<String, EmbeddingsMapByDictionary> {
 
