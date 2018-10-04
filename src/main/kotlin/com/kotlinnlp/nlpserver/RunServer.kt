@@ -27,7 +27,7 @@ fun main(args: Array<String>) = mainBody {
 
   val languageDetector: LanguageDetector? = buildLanguageDetector(parsedArgs)
   val tokenizers: Map<String, NeuralTokenizer>? = buildTokenizers(parsedArgs)
-  val parsers: Map<String, NeuralParser<*>>? = buildParsers(parsedArgs)
+  val parsers: Map<String, LHRParser>? = buildParsers(parsedArgs)
   val morphoPreprocessors: Map<String, MorphoPreprocessor> = buildMorphoPreprocessors(parsedArgs)
   val locationsDictionary: LocationsDictionary? = buildLocationsDictionary(parsedArgs)
   val embeddingsMap: Map<String, EmbeddingsMapByDictionary>? = buildEmbeddingsMaps(parsedArgs)

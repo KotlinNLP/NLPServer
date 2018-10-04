@@ -16,8 +16,6 @@ import com.kotlinnlp.languagedetector.utils.FrequencyDictionary
 import com.kotlinnlp.languagedetector.utils.TextTokenizer
 import com.kotlinnlp.linguisticdescription.language.getLanguageByIso
 import com.kotlinnlp.morphologicalanalyzer.dictionary.MorphologyDictionary
-import com.kotlinnlp.neuralparser.NeuralParser
-import com.kotlinnlp.neuralparser.NeuralParserModel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRParser
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
@@ -92,23 +90,23 @@ object NLPBuilder {
   }
 
   /**
-   * Build the [Map] of languages ISO 639-1 codes to the related [NeuralParser]s.
+   * Build the map of languages ISO 639-1 codes to the related [LHRParser]s.
    *
-   * @param neuralParserModelsDir the directory containing the neural parser models
+   * @param lhrModelsDir the directory containing the LHR models
    *
-   * @return a [Map] of languages ISO 639-1 codes to the related [NeuralParser]s
+   * @return a map of languages ISO 639-1 codes to the related [LHRParser]s
    */
-  fun buildNeuralParsers(neuralParserModelsDir: String): Map<String, NeuralParser<*>> {
+  fun buildLHRParsers(lhrModelsDir: String): Map<String, LHRParser> {
 
-    this.logger.info("Loading neural parser models from '$neuralParserModelsDir'")
-    val modelsDirectory = File(neuralParserModelsDir)
+    this.logger.info("Loading LHR models from '$lhrModelsDir'")
+    val modelsDirectory = File(lhrModelsDir)
 
-    require(modelsDirectory.isDirectory) { "$neuralParserModelsDir is not a directory" }
+    require(modelsDirectory.isDirectory) { "$lhrModelsDir is not a directory" }
 
     return modelsDirectory.listFiles().associate { modelFile ->
 
       this.logger.info("Loading '${modelFile.name}'...")
-      val model: LHRModel = NeuralParserModel.load(FileInputStream(modelFile)) as LHRModel
+      val model: LHRModel = LHRModel.load(FileInputStream(modelFile))
 
       model.language.isoCode to LHRParser(model)
     }

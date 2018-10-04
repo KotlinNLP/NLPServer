@@ -88,9 +88,9 @@ class CommandLineArguments(args: Array<String>) {
   ).default(null)
 
   /**
-   * The directory containing the serialized models of the NeuralParser, one per language.
+   * The directory containing the serialized models of the LHRParser, one per language.
    */
-  val neuralParserModelsDir: String? by parser.storing(
+  val lhrParserModelsDir: String? by parser.storing(
     "-n",
     "--neural-parser",
     help="the directory containing the serialized models of the neural parsers (one per language)"
@@ -138,7 +138,7 @@ class CommandLineArguments(args: Array<String>) {
       checkReverse = true)
 
     this.checkDependency(
-      arg = this.neuralParserModelsDir, argName = "neural parser models directory",
+      arg = this.lhrParserModelsDir, argName = "neural parser models directory",
       dep = this.tokenizerModelsDir, depName = "tokenizer models directory")
 
     this.checkDependency(
@@ -147,11 +147,11 @@ class CommandLineArguments(args: Array<String>) {
 
     this.checkDependency(
       arg = this.morphoDictionaryDir, argName = "morphology dictionary directory",
-      dep = this.neuralParserModelsDir, depName = "neural parser models directory")
+      dep = this.lhrParserModelsDir, depName = "neural parser models directory")
 
     this.checkDependency(
       arg = this.frameExtractorModelsDir, argName = "frame extractor models directory",
-      dep = this.neuralParserModelsDir, depName = "neural parser models directory")
+      dep = this.lhrParserModelsDir, depName = "neural parser models directory")
 
     this.checkDependency(
       arg = this.frameExtractorModelsDir, argName = "frame extractor models directory",
