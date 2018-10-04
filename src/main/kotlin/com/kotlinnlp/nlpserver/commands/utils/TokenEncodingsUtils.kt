@@ -26,6 +26,28 @@ import com.kotlinnlp.tokensencoder.wrapper.SentenceConverter
 import com.kotlinnlp.tokensencoder.wrapper.TokensEncoderWrapperModel
 
 /**
+ * A token with a form.
+ *
+ * @property form the form of the token
+ */
+private class BaseToken(override val form: String) : FormToken
+
+/**
+ * A sentence of form tokens.
+ *
+ * @property tokens the list of tokens that compose the sentence
+ */
+private class BaseSentence(override val tokens: List<FormToken>) : Sentence<FormToken>
+
+/**
+ * @param forms a list of tokens forms
+ *
+ * @return a new form sentence with the given forms
+ */
+internal fun buildSentence(forms: List<String>): Sentence<FormToken> =
+  BaseSentence(tokens = forms.map { BaseToken(it) })
+
+/**
  * Build an [EnsembleTokensEncoder] composed by an embeddings encoder and an LSS encoder.
  *
  * @param preprocessor a sentence preprocessor

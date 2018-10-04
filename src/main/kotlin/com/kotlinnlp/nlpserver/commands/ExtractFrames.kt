@@ -11,8 +11,6 @@ import com.beust.klaxon.JsonArray
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.json
 import com.kotlinnlp.frameextractor.FrameExtractor
-import com.kotlinnlp.conllio.Sentence as CoNLLSentence
-import com.kotlinnlp.conllio.Token as CoNLLToken
 import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.linguisticdescription.InvalidLanguageCode
 import com.kotlinnlp.linguisticdescription.language.Language
@@ -28,6 +26,7 @@ import com.kotlinnlp.neuraltokenizer.Sentence as TokenizerSentence
 import com.kotlinnlp.nlpserver.InvalidFrameExtractorDomain
 import com.kotlinnlp.nlpserver.LanguageNotSupported
 import com.kotlinnlp.nlpserver.MissingEmbeddingsMap
+import com.kotlinnlp.nlpserver.commands.utils.buildSentence
 import com.kotlinnlp.nlpserver.commands.utils.buildTokensEncoder
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMapByDictionary
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
@@ -51,20 +50,6 @@ class ExtractFrames(
   private val wordEmbeddings: Map<String, EmbeddingsMapByDictionary>,
   private val frameExtractors: Map<String, FrameExtractor>
 ) {
-
-  /**
-   * A token with a form.
-   *
-   * @property form the form of the token
-   */
-  private class Token(override val form: String) : FormToken
-
-  /**
-   * A sentence of form tokens.
-   *
-   * @property tokens the list of tokens that compose the sentence
-   */
-  private class FormSentence(override val tokens: List<FormToken>) : Sentence<FormToken>
 
   /**
    * A base sentence preprocessor.
@@ -116,7 +101,7 @@ class ExtractFrames(
       extractor.model.name to JsonArray(sentences.map { sentence ->
 
         val tokensForms: List<String> = sentence.tokens.map { it.form }
-        val tokenEncodings: List<DenseNDArray> = tokensEncoder.forward(this.buildSentence(tokensForms))
+        val tokenEncodings: List<DenseNDArray> = tokensEncoder.forward(buildSentence(tokensForms))
         val output: FrameExtractor.Output = extractor.forward(tokenEncodings)
 
         json {
@@ -166,11 +151,4 @@ class ExtractFrames(
       lang
     }
   }
-
-  /**
-   * @param forms a list of tokens forms
-   *
-   * @return a new form sentence with the given forms
-   */
-  private fun buildSentence(forms: List<String>) = FormSentence(tokens = forms.map { Token(it) })
 }
