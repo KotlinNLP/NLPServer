@@ -23,9 +23,9 @@ import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.Sentence as TokenizerSentence
-import com.kotlinnlp.nlpserver.InvalidFrameExtractorDomain
+import com.kotlinnlp.nlpserver.InvalidDomain
 import com.kotlinnlp.nlpserver.LanguageNotSupported
-import com.kotlinnlp.nlpserver.MissingEmbeddingsMap
+import com.kotlinnlp.nlpserver.MissingEmbeddingsMapByLanguage
 import com.kotlinnlp.nlpserver.commands.utils.buildSentence
 import com.kotlinnlp.nlpserver.commands.utils.buildTokensEncoder
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMapByDictionary
@@ -64,7 +64,7 @@ class ExtractFrames(
       .mapValues { (langCode, lssModel) ->
         buildTokensEncoder(
           preprocessor = this.morphoPreprocessors[langCode] ?: this.basePreprocessor,
-          embeddingsMap = this.wordEmbeddings[langCode] ?: throw MissingEmbeddingsMap(langCode),
+          embeddingsMap = this.wordEmbeddings[langCode] ?: throw MissingEmbeddingsMapByLanguage(langCode),
           lssModel = lssModel)
       }
 
@@ -78,7 +78,7 @@ class ExtractFrames(
    * @param prettyPrint pretty print, used for JSON format (default = false)
    *
    * @throws InvalidLanguageCode when the requested (or detected) language is not compatible
-   * @throws InvalidFrameExtractorDomain when the given domain is not valid
+   * @throws InvalidDomain when the given domain is not valid
    *
    * @return the list of frames extracted, in a JSON string
    */
@@ -93,7 +93,7 @@ class ExtractFrames(
     val tokensEncoder: TokensEncoder<FormToken, Sentence<FormToken>> =
       this.tokensEncoders[textLanguage.isoCode] ?: throw InvalidLanguageCode(textLanguage.isoCode)
     val extractors: List<FrameExtractor> = domain?.let {
-      listOf(this.frameExtractors[it] ?: throw InvalidFrameExtractorDomain(domain))
+      listOf(this.frameExtractors[it] ?: throw InvalidDomain(domain))
     } ?: this.frameExtractors.values.toList()
 
     val jsonFrames = JsonObject(extractors.associate { extractor ->

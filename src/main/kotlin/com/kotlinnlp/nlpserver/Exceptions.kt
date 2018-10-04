@@ -34,11 +34,18 @@ class MissingParameters(params: List<String>) : RuntimeException(params.joinToSt
  *
  * @param langCode the ISO 639-1 language code of the missing embeddings map
  */
-class MissingEmbeddingsMap(langCode: String): RuntimeException("Missing embeddings for language '$langCode'")
+class MissingEmbeddingsMapByLanguage(langCode: String): RuntimeException("Missing embeddings for language '$langCode'")
 
 /**
- * Raised when there is no frame extractor associated to a given domain.
+ * Raised when an embeddings map of a given domain is missing.
+ *
+ * @param domain the domain of the missing embeddings map
+ */
+class MissingEmbeddingsMapByDomain(domain: String): RuntimeException("Missing embeddings for domain '$domain'")
+
+/**
+ * Raised when there is no model associated to a given domain.
  *
  * @property domain the domain name
  */
-class InvalidFrameExtractorDomain(val domain: String): RuntimeException(domain)
+class InvalidDomain(val domain: String): RuntimeException(domain)

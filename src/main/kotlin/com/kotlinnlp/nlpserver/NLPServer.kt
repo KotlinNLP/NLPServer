@@ -56,9 +56,9 @@ class NLPServer(
       response.body("Language not supported: %s\n".format((exception as LanguageNotSupported).langCode))
     }
 
-    Spark.exception(InvalidFrameExtractorDomain::class.java) { exception, _, response ->
+    Spark.exception(InvalidDomain::class.java) { exception, _, response ->
       response.status(400)
-      response.body("Invalid frame extractor domain: %s\n".format((exception as InvalidFrameExtractorDomain).domain))
+      response.body("Invalid domain: %s\n".format((exception as InvalidDomain).domain))
     }
 
     Spark.exception(RuntimeException::class.java) { exception, _, response ->
