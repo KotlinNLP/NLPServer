@@ -11,8 +11,8 @@ import com.kotlinnlp.frameextractor.FrameExtractor
 import com.kotlinnlp.geolocation.dictionary.LocationsDictionary
 import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.morphologicalanalyzer.MorphologicalAnalyzer
-import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
+import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRParser
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.nlpserver.commands.*
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMapByDictionary
@@ -20,6 +20,8 @@ import com.xenomachina.argparser.mainBody
 
 /**
  * Run the NLP Server.
+ *
+ * Launch with the '-h' option for help about the command line arguments.
  */
 fun main(args: Array<String>) = mainBody {
 
@@ -53,7 +55,7 @@ fun main(args: Array<String>) = mainBody {
       ExtractFrames(
         languageDetector = languageDetector,
         tokenizers = tokenizers,
-        parsers = parsers,
+        lssModels = parsers.mapValues { it.value.model.lssModel },
         morphoPreprocessors = morphoPreprocessors,
         wordEmbeddings = embeddingsMap,
         frameExtractors = frameExtractors)
@@ -87,10 +89,10 @@ private fun buildTokenizers(parsedArgs: CommandLineArguments): Map<String, Neura
 /**
  * @param parsedArgs the parsed command line arguments
  *
- * @return a map of neural parsers associated by language ISO code or null if the required arguments are not present
+ * @return a map of LHR parsers associated by language ISO code or null if the required arguments are not present
  */
-private fun buildParsers(parsedArgs: CommandLineArguments): Map<String, NeuralParser<*>>? =
-  parsedArgs.neuralParserModelsDir?.let { NLPBuilder.buildNeuralParsers(it) }
+private fun buildParsers(parsedArgs: CommandLineArguments): Map<String, LHRParser>? =
+  parsedArgs.lhrParserModelsDir?.let { NLPBuilder.buildLHRParsers(it) }
 
 /**
  * @param parsedArgs the parsed command line arguments
