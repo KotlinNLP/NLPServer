@@ -77,8 +77,8 @@ class CommandLineArguments(args: Array<String>) {
   ).default(null)
 
   /**
-   * The file path of the pre-trained word embeddings, one per language (the file name must end with the ISO 639-1
-   * language code).
+   * The directory containing the pre-trained word embeddings files, one per language (the file name must end with the
+   * ISO 639-1 language code).
    */
   val embeddingsDir: String? by parser.storing(
     "-e",
@@ -88,8 +88,8 @@ class CommandLineArguments(args: Array<String>) {
   ).default(null)
 
   /**
-   * The file path of the domain-specific word embeddings, one per domain (the file name must be in the format
-   * 'embeddings_DOMAIN_NAME.xxx' - the extension is not considered).
+   * The directory containing the domain-specific word embeddings files, one per domain (the file name must be in the
+   * format 'embeddings_DOMAIN_NAME.xxx' - the extension is not considered).
    */
   val domainEmbeddingsDir: String? by parser.storing(
     "-w",
