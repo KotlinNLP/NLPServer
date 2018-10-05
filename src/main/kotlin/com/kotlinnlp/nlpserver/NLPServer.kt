@@ -24,6 +24,7 @@ import java.util.logging.Logger
  * @param parse the handler of the 'Parse' command
  * @param findLocations the handler of the 'FindLocations' command
  * @param extractFrames the handler of the 'ExtractFrames' command
+ * @param categorize the handler of the 'Categorize' command
  */
 class NLPServer(
   port: Int,
@@ -31,7 +32,8 @@ class NLPServer(
   private val tokenize: Tokenize?,
   private val parse: Parse?,
   private val findLocations: FindLocations?,
-  private val extractFrames: ExtractFrames?
+  private val extractFrames: ExtractFrames?,
+  private val categorize: Categorize?
 ) {
 
   /**
@@ -91,6 +93,10 @@ class NLPServer(
         this.extractFrames?.let {
           Spark.path("/extract-frames") { this.extractFramesRoute() }
         }
+      }
+
+      this.categorize?.let {
+        Spark.path("/categorize") { this.categorizeRoute() }
       }
     }
 
@@ -310,6 +316,53 @@ class NLPServer(
 
     Spark.post("/:domain") { request, _ ->
       this.extractFrames!!(
+        text = request.body(),
+        lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
+        domain = request.params("domain"),
+        distribution = request.queryParams("distribution") != null,
+        prettyPrint = request.queryParams("pretty") != null)
+    }
+  }
+
+  /**
+   * Define the '/categorize' route.
+   */
+  private fun categorizeRoute() {
+
+    Spark.get("") { request, _ ->
+
+      request.checkRequiredParams(requiredParams = listOf("text"))
+
+      this.categorize!!(
+        text = request.queryParams("text"),
+        lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
+        domain = request.queryParams("domain"),
+        distribution = request.queryParams("distribution") != null,
+        prettyPrint = request.queryParams("pretty") != null)
+    }
+
+    Spark.get("/:domain") { request, _ ->
+
+      request.checkRequiredParams(requiredParams = listOf("text"))
+
+      this.categorize!!(
+        text = request.queryParams("text"),
+        lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
+        domain = request.params("domain"),
+        distribution = request.queryParams("distribution") != null,
+        prettyPrint = request.queryParams("pretty") != null)
+    }
+
+    Spark.post("") { request, _ ->
+      this.categorize!!(
+        text = request.body(),
+        lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
+        distribution = request.queryParams("distribution") != null,
+        prettyPrint = request.queryParams("pretty") != null)
+    }
+
+    Spark.post("/:domain") { request, _ ->
+      this.categorize!!(
         text = request.body(),
         lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
         domain = request.params("domain"),
