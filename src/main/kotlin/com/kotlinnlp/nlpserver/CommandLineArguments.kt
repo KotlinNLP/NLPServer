@@ -88,6 +88,17 @@ class CommandLineArguments(args: Array<String>) {
   ).default(null)
 
   /**
+   * The file path of the domain-specific word embeddings, one per domain (the file name must be in the format
+   * 'embeddings_DOMAIN_NAME.xxx' - the extension is not considered).
+   */
+  val domainEmbeddingsDir: String? by parser.storing(
+    "-w",
+    "--domain-word-emb",
+    help="the file path of the domain-specific word embeddings, one per domain (the file name must be in the format " +
+      "'embeddings_DOMAIN_NAME.xxx' - the extension is not considered)"
+  ).default(null)
+
+  /**
    * The directory containing the serialized models of the LHRParser, one per language.
    */
   val lhrParserModelsDir: String? by parser.storing(
@@ -97,12 +108,21 @@ class CommandLineArguments(args: Array<String>) {
   ).default(null)
 
   /**
-   * The directory containing the serialized models of the FrameExtractor, one per language.
+   * The directory containing the serialized models of the frame extractors, one per domain.
    */
   val frameExtractorModelsDir: String? by parser.storing(
     "-x",
     "--frame-extractor",
-    help="the directory containing the serialized models of the frame extractors"
+    help="the directory containing the serialized models of the frame extractors, one per domain"
+  ).default(null)
+
+  /**
+   * The directory containing the serialized models of the HAN classifier, one per domain.
+   */
+  val hanClassifierModelsDir: String? by parser.storing(
+    "-s",
+    "--han-classifier",
+    help="the directory containing the serialized models of the HAN classifier, one per domain"
   ).default(null)
 
   /**
@@ -160,6 +180,10 @@ class CommandLineArguments(args: Array<String>) {
     this.checkDependency(
       arg = this.frameExtractorModelsDir, argName = "frame extractor models directory",
       dep = this.embeddingsDir, depName = "embeddings directory")
+
+    this.checkDependency(
+      arg = this.hanClassifierModelsDir, argName = "HAN classifier models directory",
+      dep = this.domainEmbeddingsDir, depName = "domains specific embeddings directory")
   }
 
   /**
