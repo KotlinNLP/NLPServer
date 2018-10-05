@@ -191,7 +191,7 @@ object NLPBuilder {
    *
    * @return a map of languages ISO 639-1 codes to the related [MorphologyDictionary]
    */
-  fun buildEmbeddingsMaps(embeddingsDirname: String): Map<String, EmbeddingsMapByDictionary> {
+  fun buildEmbeddingsMapsByLanguage(embeddingsDirname: String): Map<String, EmbeddingsMapByDictionary> {
 
     this.logger.info("Loading embeddings from '$embeddingsDirname'")
     val embeddingsDir = File(embeddingsDirname)
