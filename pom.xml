@@ -72,7 +72,7 @@
         <neuralparser.version>0.5.0</neuralparser.version>
         <lssencoder.version>0.1.0</lssencoder.version>
         <simplednn.version>0.11.1</simplednn.version>
-        <geolocation.version>0.1.0</geolocation.version>
+        <geolocation.version>0.2.0</geolocation.version>
         <frameextractor.version>0.4.0</frameextractor.version>
         <hanclassifier.version>0.4.0</hanclassifier.version>
     </properties>
