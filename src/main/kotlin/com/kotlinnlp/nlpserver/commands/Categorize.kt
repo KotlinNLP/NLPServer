@@ -119,6 +119,8 @@ class Categorize(
           val jsonCat: JsonObject = obj("category" to it.argMaxIndex())
 
           if (distribution) jsonCat["distribution"] = array(it.toDoubleArray().toList())
+
+          jsonCat
         })
       }
     })
