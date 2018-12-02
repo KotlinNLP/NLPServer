@@ -25,10 +25,12 @@ import com.kotlinnlp.nlpserver.MissingEmbeddingsMapByDomain
 import com.kotlinnlp.nlpserver.commands.utils.TokenizingCommand
 import com.kotlinnlp.nlpserver.commands.utils.buildSentence
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMapByDictionary
+import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
-import com.kotlinnlp.tokensencoder.embeddings.EmbeddingsEncoder
 import com.kotlinnlp.tokensencoder.embeddings.EmbeddingsEncoderModel
 import com.kotlinnlp.tokensencoder.embeddings.keyextractor.NormWordKeyExtractor
+import com.kotlinnlp.tokensencoder.reduction.ReductionEncoder
+import com.kotlinnlp.tokensencoder.reduction.ReductionEncoderModel
 
 /**
  * The command executed on the route '/categorize'.
@@ -49,11 +51,11 @@ class Categorize(
    * A HAN classifier associated to the related tokens encoder.
    *
    * @property classifier a HAN classifier of a certain domain
-   * @property encoder the tokens encoder for the same domain
+   * @property encoder the reduction tokens encoder for the same domain
    */
   private data class ClassifierEncoder(
     val classifier: HANClassifier,
-    val encoder: EmbeddingsEncoder<FormToken, Sentence<FormToken>>
+    val encoder: ReductionEncoder<FormToken, Sentence<FormToken>>
   )
 
   /**
@@ -63,9 +65,15 @@ class Categorize(
     this.hanClassifiers.mapValues { (domain, classifier) ->
 
       val embeddingsMap = this.domainEmbeddings[domain] ?: throw MissingEmbeddingsMapByDomain(domain)
-      val tokensEncoder = EmbeddingsEncoder<FormToken, Sentence<FormToken>>(
-        model = EmbeddingsEncoderModel(embeddingsMap = embeddingsMap, embeddingKeyExtractor = NormWordKeyExtractor()),
+      val tokensEncoder = ReductionEncoder<FormToken, Sentence<FormToken>>(
+        model = ReductionEncoderModel(
+          inputEncoderModel = EmbeddingsEncoderModel(
+            embeddingsMap = embeddingsMap,
+            embeddingKeyExtractor = NormWordKeyExtractor()),
+          tokenEncodingSize = 50,
+          activationFunction = Tanh()),
         useDropout = false)
+
 
       ClassifierEncoder(classifier = classifier, encoder = tokensEncoder)
     }
