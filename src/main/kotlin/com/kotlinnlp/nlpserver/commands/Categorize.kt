@@ -104,13 +104,14 @@ class Categorize(
           EncodedSentence(
             tokens = classifierEncoder.encoder.forward(buildSentence(forms = sentence.tokens.map { it.form })))
         }
-        val output: DenseNDArray = classifierEncoder.classifier.forward(textEncodings)
+        val predictions: List<DenseNDArray> = classifierEncoder.classifier.classify(textEncodings)
 
-        val jsonObject = obj("category" to output.argMaxIndex())
+        array(predictions.map {
 
-        if (distribution) jsonObject["distribution"] = array(output.toDoubleArray().toList())
+          val jsonCat: JsonObject = obj("category" to it.argMaxIndex())
 
-        jsonObject
+          if (distribution) jsonCat["distribution"] = array(it.toDoubleArray().toList())
+        })
       }
     })
 
