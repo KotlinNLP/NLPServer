@@ -212,34 +212,6 @@ object NLPBuilder {
   }
 
   /**
-   * Build the map of domain names to the related [MorphologyDictionary]s.
-   * Each embeddings file must be named with the format 'embeddings_DOMAIN_NAME' (excluding the extension, that is not
-   * considered).
-   *
-   * @param embeddingsDirname the directory containing the embeddings vectors files, one per domain
-   *
-   * @return a map of domain names to the related [MorphologyDictionary]
-   */
-  fun buildEmbeddingsMapsByDomain(embeddingsDirname: String): Map<String, EmbeddingsMapByDictionary> {
-
-    this.logger.info("Loading domain-specific embeddings from '$embeddingsDirname'")
-    val embeddingsDir = File(embeddingsDirname)
-
-    require(embeddingsDir.isDirectory) { "$embeddingsDirname is not a directory" }
-
-    return embeddingsDir.listFilesOrRaise().associate { embeddingsFile ->
-
-      this.logger.info("Loading '${embeddingsFile.name}'...")
-      val embeddings: EmbeddingsMapByDictionary =
-        EMBDLoader(verbose = false).load(embeddingsFile.absolutePath.toString())
-
-      val domainName: String = embeddingsFile.nameWithoutExtension.substringAfter("embeddings_")
-
-      domainName to embeddings
-    }
-  }
-
-  /**
    * Load a serialized [LocationsDictionary] from file.
    *
    * @param locationsDictionaryFilename the filename of the serialized locations dictionary
