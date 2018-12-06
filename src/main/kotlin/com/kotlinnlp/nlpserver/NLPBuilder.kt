@@ -148,11 +148,11 @@ object NLPBuilder {
   fun buildHANClassifiersMap(hanClassifierModelsDir: String): Map<String, HANClassifier> {
 
     this.logger.info("Loading classifiers models from '$hanClassifierModelsDir'")
-    val frameExtractorsDir = File(hanClassifierModelsDir)
+    val hanClassifiersDir = File(hanClassifierModelsDir)
 
-    require(frameExtractorsDir.isDirectory) { "$hanClassifierModelsDir is not a directory" }
+    require(hanClassifiersDir.isDirectory) { "$hanClassifierModelsDir is not a directory" }
 
-    return frameExtractorsDir.listFiles().associate { modelFile ->
+    return hanClassifiersDir.listFiles().associate { modelFile ->
 
       this.logger.info("Loading '${modelFile.name}'...")
       val classifier = HANClassifier(model = HANClassifierModel.load(FileInputStream(modelFile)))
