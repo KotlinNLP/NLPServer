@@ -36,7 +36,6 @@ fun main(args: Array<String>) = mainBody {
   val frameExtractors: Map<String, FrameExtractor>? = buildFrameExtractors(parsedArgs)
   val hanClassifiers: Map<String, HANClassifier>? = buildHANClassifiers(parsedArgs)
   val embeddingsMapByLang: Map<String, EmbeddingsMapByDictionary>? = buildEmbeddingsMapsByLanguage(parsedArgs)
-  val embeddingsMapByDomain: Map<String, EmbeddingsMapByDictionary>? = buildEmbeddingsMapsByDomain(parsedArgs)
 
   NLPServer(
     port = parsedArgs.port,
@@ -64,12 +63,8 @@ fun main(args: Array<String>) = mainBody {
         frameExtractors = frameExtractors)
     else
       null,
-    categorize = if (tokenizers != null && embeddingsMapByDomain != null && hanClassifiers != null)
-      Categorize(
-        languageDetector = languageDetector,
-        tokenizers = tokenizers,
-        domainEmbeddings = embeddingsMapByDomain,
-        hanClassifiers = hanClassifiers)
+    categorize = if (tokenizers != null && hanClassifiers != null)
+      Categorize(languageDetector = languageDetector, tokenizers = tokenizers, hanClassifiers = hanClassifiers)
     else
       null
   ).start()
@@ -128,14 +123,6 @@ private fun buildHANClassifiers(parsedArgs: CommandLineArguments): Map<String, H
  */
 private fun buildEmbeddingsMapsByLanguage(parsedArgs: CommandLineArguments): Map<String, EmbeddingsMapByDictionary>? =
   parsedArgs.embeddingsDir?.let { NLPBuilder.buildEmbeddingsMapsByLanguage(it) }
-
-/**
- * @param parsedArgs the parsed command line arguments
- *
- * @return a map of embeddings maps associated by domain name or null if the required arguments are not present
- */
-private fun buildEmbeddingsMapsByDomain(parsedArgs: CommandLineArguments): Map<String, EmbeddingsMapByDictionary>? =
-  parsedArgs.domainEmbeddingsDir?.let { NLPBuilder.buildEmbeddingsMapsByDomain(it) }
 
 /**
  * @param parsedArgs the parsed command line arguments
