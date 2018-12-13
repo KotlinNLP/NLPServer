@@ -12,6 +12,7 @@ import com.beust.klaxon.JsonObject
 import com.beust.klaxon.json
 import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.linguisticdescription.language.Language
+import com.kotlinnlp.nlpserver.commands.utils.Command
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 
 /**
@@ -19,7 +20,7 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
  *
  * @property languageDetector a [LanguageDetector]
  */
-class DetectLanguage(private val languageDetector: LanguageDetector) {
+class DetectLanguage(private val languageDetector: LanguageDetector) : Command {
 
   /**
    * Detect the language of the given [text].
@@ -44,6 +45,8 @@ class DetectLanguage(private val languageDetector: LanguageDetector) {
    * @return a JSON string containing the ISO 639-1 code of the detected language (and the probability distribution)
    */
   operator fun invoke(text: String, distribution: Boolean = true, prettyPrint: Boolean = false): String {
+
+    this.checkText(text)
 
     val prediction: DenseNDArray = this.languageDetector.predict(text)
     val language: Language = this.languageDetector.getLanguage(prediction)

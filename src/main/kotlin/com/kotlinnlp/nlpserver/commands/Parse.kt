@@ -71,6 +71,8 @@ class Parse(
                       format: ResponseFormat = ResponseFormat.JSON,
                       prettyPrint: Boolean = false): String {
 
+    this.checkText(text)
+
     val textLanguage: Language = this.getTextLanguage(text = text, forcedLang = lang)
     val sentences: List<Sentence> = this.tokenizers.getValue(textLanguage.isoCode).tokenize(text)
     val parser: NeuralParser<*> = this.parsers[textLanguage.isoCode] ?: throw LanguageNotSupported(textLanguage.isoCode)

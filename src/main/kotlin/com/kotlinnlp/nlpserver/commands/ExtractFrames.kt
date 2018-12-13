@@ -88,6 +88,8 @@ class ExtractFrames(
                       distribution: Boolean = true,
                       prettyPrint: Boolean = false): String {
 
+    this.checkText(text)
+
     val textLanguage: Language = this.getTextLanguage(text = text, forcedLang = lang)
     val sentences: List<TokenizerSentence> = this.tokenizers.getValue(textLanguage.isoCode).tokenize(text)
     val tokensEncoder: TokensEncoder<FormToken, Sentence<FormToken>> =

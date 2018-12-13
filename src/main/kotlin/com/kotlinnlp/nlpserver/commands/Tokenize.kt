@@ -41,6 +41,8 @@ class Tokenize(
    */
   operator fun invoke(text: String, language: Language? = null, prettyPrint: Boolean = false): String {
 
+    this.checkText(text)
+
     val tokenizerLang: Language = this.getTextLanguage(text = text, forcedLang = language)
 
     if (tokenizerLang.isoCode !in this.tokenizers) {
