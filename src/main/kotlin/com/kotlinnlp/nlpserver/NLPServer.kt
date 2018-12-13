@@ -53,6 +53,11 @@ class NLPServer(
       response.body("Missing required parameters: %s\n".format((exception as MissingParameters).message))
     }
 
+    Spark.exception(EmptyText::class.java) { _, _, response ->
+      response.status(400)
+      response.body("Text is empty\n")
+    }
+
     Spark.exception(LanguageNotSupported::class.java) { exception, _, response ->
       response.status(400)
       response.body("Language not supported: %s\n".format((exception as LanguageNotSupported).langCode))
