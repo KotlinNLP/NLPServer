@@ -50,7 +50,7 @@ class FindLocations(
 
     val finder = LocationsFinder(
       dictionary = this.dictionary,
-      textTokens = tokenizer.tokenize(text).flatMap { it.tokens.map { it.form } },
+      textTokens = tokenizer.tokenize(text).flatMap { sentence -> sentence.tokens.map { it.form } },
       candidateEntities = candidates.map { CandidateEntity(name = it.first, score = it.second) }.toSet(),
       coordinateEntitiesGroups = listOf(),
       ambiguityGroups = listOf()
