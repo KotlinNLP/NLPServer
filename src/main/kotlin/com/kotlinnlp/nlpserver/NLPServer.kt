@@ -8,6 +8,7 @@
 package com.kotlinnlp.nlpserver
 
 import com.beust.klaxon.*
+import com.kotlinnlp.geolocation.structures.CandidateEntity
 import com.kotlinnlp.linguisticdescription.language.Language
 import com.kotlinnlp.linguisticdescription.language.getLanguageByIso
 import com.kotlinnlp.nlpserver.commands.*
@@ -390,8 +391,8 @@ class NLPServer(
     return this.findLocations!!(
       text = jsonBody.string("text")!!,
       language = language,
-      candidates = jsonBody.array<JsonArray<*>>("candidates")!!.map { jsonCandidate ->
-        jsonCandidate.let { Pair(it[0] as String, it[1] as Double) }
+      candidates = jsonBody.array<JsonArray<*>>("candidates")!!.map {
+        CandidateEntity(name = it[0] as String, score = it[1] as Double)
       },
       prettyPrint = prettyPrint
     )

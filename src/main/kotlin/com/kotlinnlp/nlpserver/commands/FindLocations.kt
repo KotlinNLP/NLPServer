@@ -34,14 +34,14 @@ class FindLocations(
    *
    * @param text the input text
    * @param language the language to use to tokenize the [text]
-   * @param candidates the list of candidate locations as pairs of <name, score>
+   * @param candidates the list of candidate locations
    * @param prettyPrint pretty print (default = false)
    *
    * @return the parsed [text] in the given string [format]
    */
   operator fun invoke(text: String,
                       language: Language,
-                      candidates: List<Pair<String, Double>>,
+                      candidates: List<CandidateEntity>,
                       prettyPrint: Boolean = false): String {
 
     this.checkText(text)
@@ -51,7 +51,7 @@ class FindLocations(
     val finder = LocationsFinder(
       dictionary = this.dictionary,
       textTokens = tokenizer.tokenize(text).flatMap { sentence -> sentence.tokens.map { it.form } },
-      candidateEntities = candidates.map { CandidateEntity(name = it.first, score = it.second) }.toSet(),
+      candidateEntities = candidates.toSet(),
       coordinateEntitiesGroups = listOf(),
       ambiguityGroups = listOf()
     )
