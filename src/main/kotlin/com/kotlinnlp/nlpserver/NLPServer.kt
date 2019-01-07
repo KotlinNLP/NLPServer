@@ -391,8 +391,13 @@ class NLPServer(
     return this.findLocations!!(
       text = jsonBody.string("text")!!,
       language = language,
-      candidates = jsonBody.array<JsonArray<*>>("candidates")!!.map {
-        CandidateEntity(name = it[0] as String, score = it[1] as Double)
+      candidates = jsonBody.array<JsonObject>("candidates")!!.map { candidate ->
+        CandidateEntity(
+          name = candidate.string("name")!!,
+          score = candidate.double("score")!!,
+          occurrences = candidate.array<JsonArray<Int>>("occurrences")?.map { range -> IntRange(range[0], range[1]) }
+            ?: listOf()
+        )
       },
       prettyPrint = prettyPrint
     )
