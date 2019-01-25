@@ -52,7 +52,7 @@ components:
     AnalyzeRequest:
       type: "object"
       required:
-      - text
+      - "text"
       properties:
         text:
           type: "string"
