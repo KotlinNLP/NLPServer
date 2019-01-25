@@ -12,23 +12,23 @@ externalDocs:
   description: "Visit the full KotlinNLP library"
   url: "https://github.com/KotlinNLP"
 servers:
-- url: "http://localhost"
-  variables:
-    port:
-      default: "3000"
-    basePath:
-      default: "/"
+  - url: "http://localhost"
+    variables:
+      port:
+        default: "3000"
+      basePath:
+        default: "/"
 tags:
-- name: "analyze"
-  description: "Get the complete analysis of a text"
-  externalDocs:
-    description: "Find out more"
-    url: "https://github.com/KotlinNLP/NLPServer"
+  - name: "analyze"
+    description: "Get the complete analysis of a text"
+    externalDocs:
+      description: "Find out more"
+      url: "https://github.com/KotlinNLP/NLPServer"
 paths:
   /analyze:
     post:
       tags:
-      - "analyze"
+        - "analyze"
       summary: "Get the complete analysis of a text"
       operationId: "analyzeText"
       requestBody:
@@ -52,7 +52,7 @@ components:
     AnalyzeRequest:
       type: "object"
       required:
-      - "text"
+        - "text"
       properties:
         text:
           type: "string"
@@ -67,11 +67,11 @@ components:
     AnalyzeResponse:
       type: "object"
       required:
-      - "linguisticAnalysis"
-      - "categories"
-      - "locations"
-      - "dateTimes"
-      - "entities"
+        - "linguisticAnalysis"
+        - "categories"
+        - "locations"
+        - "dateTimes"
+        - "entities"
       properties:
         linguisticAnalysis:
           $ref: "#/components/schemas/LinguisticAnalysis"
@@ -96,8 +96,8 @@ components:
       type: "object"
       description: "the linguistic analysis of the text, including syntactic, morphological and semantic information"
       required:
-      - "sentences"
-      - "language"
+        - "sentences"
+        - "language"
       properties:
         sentences:
           type: "array"
@@ -109,10 +109,10 @@ components:
       type: "object"
       description: "the linguistic analysis of a sentence, including syntactic, morphological and semantic information"
       required:
-      - "id"
-      - "score"
-      - "position"
-      - "tokens"
+        - "id"
+        - "score"
+        - "position"
+        - "tokens"
       properties:
         id:
           type: "number"
@@ -128,10 +128,10 @@ components:
             $ref: "#/components/schemas/LinguisticToken"
     LinguisticToken:
       oneOf:
-      - $ref: "#/components/schemas/TokenWord"
-      - $ref: "#/components/schemas/TokenTrace"
-      - $ref: "#/components/schemas/TokenWordTrace"
-      - $ref: "#/components/schemas/TokenComposite"
+        - $ref: "#/components/schemas/TokenWord"
+        - $ref: "#/components/schemas/TokenTrace"
+        - $ref: "#/components/schemas/TokenWordTrace"
+        - $ref: "#/components/schemas/TokenComposite"
       discriminator:
         propertyName: "type"
         mapping:
@@ -156,121 +156,121 @@ components:
           type: "string"
     TokenComposite:
       allOf:
-      - $ref: "#/components/schemas/TokenBase"
-      - type: "object"
-        required:
-        - "components"
-        properties:
-          components:
-            type: "array"
-            items:
-              oneOf:
-              - $ref: "#/components/schemas/TokenWord"
-              - $ref: "#/components/schemas/TokenTrace"
-              - $ref: "#/components/schemas/TokenWordTrace"
+        - $ref: "#/components/schemas/TokenBase"
+        - type: "object"
+          required:
+            - "components"
+          properties:
+            components:
+              type: "array"
+              items:
+                oneOf:
+                  - $ref: "#/components/schemas/TokenWord"
+                  - $ref: "#/components/schemas/TokenTrace"
+                  - $ref: "#/components/schemas/TokenWordTrace"
     TokenSingle:
       allOf:
-      - $ref: "#/components/schemas/TokenBase"
-      - type: "object"
-        required:
-        - "posBase"
-        - "dependency"
-        - "coReferences"
-        - "semanticRelations"
-        properties:
-          posBase:
-            $ref: "#/components/schemas/POSBase"
-          dependency:
-            type: "object"
-            required:
-            - "head"
-            - "relation"
-            - "attachmentScore"
-            - "relationScore"
-            properties:
-              head:
-                type: "number"
-                format: "int32"
-                example: "-1"
-              relation:
-                $ref: "#/components/schemas/SyntacticRelation"
-              attachmentScore:
-                $ref: "#/components/schemas/Score"
-              relationScore:
-                $ref: "#/components/schemas/Score"
-          coReferences:
-            type: "array"
-            items:
+        - $ref: "#/components/schemas/TokenBase"
+        - type: "object"
+          required:
+            - "posBase"
+            - "dependency"
+            - "coReferences"
+            - "semanticRelations"
+          properties:
+            posBase:
+              $ref: "#/components/schemas/POSBase"
+            dependency:
               type: "object"
               required:
-              - "sentenceId"
-              - "tokenId"
-              - "score"
+                - "head"
+                - "relation"
+                - "attachmentScore"
+                - "relationScore"
               properties:
-                sentenceId:
+                head:
                   type: "number"
                   format: "int32"
-                  example: 1
-                tokenId:
-                  type: "number"
-                  format: "int32"
-                  example: 5
-                score:
+                  example: "-1"
+                relation:
+                  $ref: "#/components/schemas/SyntacticRelation"
+                attachmentScore:
                   $ref: "#/components/schemas/Score"
-          semanticRelations:
-            type: "array"
-            items:
-              $ref: "#/components/schemas/SemanticRelation"
+                relationScore:
+                  $ref: "#/components/schemas/Score"
+            coReferences:
+              type: "array"
+              items:
+                type: "object"
+                required:
+                  - "sentenceId"
+                  - "tokenId"
+                  - "score"
+                properties:
+                  sentenceId:
+                    type: "number"
+                    format: "int32"
+                    example: 1
+                  tokenId:
+                    type: "number"
+                    format: "int32"
+                    example: 5
+                  score:
+                    $ref: "#/components/schemas/Score"
+            semanticRelations:
+              type: "array"
+              items:
+                $ref: "#/components/schemas/SemanticRelation"
     TokenWord:
       allOf:
-      - $ref: "#/components/schemas/TokenBase"
-      - type: "object"
-        required:
-          - "type"
-          - "position"
-          - "morphology"
-          - "contextMorphology"
-        properties:
-          type:
-            type: "string"
-            enum:
-            - "WORD"
-          position:
-            $ref: "#/components/schemas/Position"
-          morphology:
-            type: "array"
-            items:
-              oneOf:
-              - $ref: "#/components/schemas/Morphology"
-              - $ref: "#/components/schemas/NumberMorphology"
-          contextMorphology:
-            type: "array"
-            items:
-              oneOf:
-              - $ref: "#/components/schemas/Morphology"
-              - $ref: "#/components/schemas/NumberMorphology"
+        - $ref: "#/components/schemas/TokenBase"
+        - type: "object"
+          required:
+            - "type"
+            - "position"
+            - "morphology"
+            - "contextMorphology"
+          properties:
+            type:
+              type: "string"
+              enum:
+                - "WORD"
+            position:
+              $ref: "#/components/schemas/Position"
+            morphology:
+              type: "array"
+              items:
+                oneOf:
+                  - $ref: "#/components/schemas/Morphology"
+                  - $ref: "#/components/schemas/NumberMorphology"
+            contextMorphology:
+              type: "array"
+              items:
+                oneOf:
+                  - $ref: "#/components/schemas/Morphology"
+                  - $ref: "#/components/schemas/NumberMorphology"
     TokenTrace:
       allOf:
-      - $ref: "#/components/schemas/TokenSingle"
-      - type: "object"
-        required:
-        - "type"
-        properties:
-          type:
-            type: "string"
-            enum:
-            - "TRACE"
+        - $ref: "#/components/schemas/TokenSingle"
+        - type: "object"
+          required:
+            - "type"
+          properties:
+            type:
+              type: "string"
+              enum:
+                - "TRACE"
     TokenWordTrace:
       allOf:
-      - $ref: "#/components/schemas/TokenSingle"
-      - type: "object"
-        required:
-        - "type"
-        properties:
-          type:
-            type: "string"
-            enum:
-            - "WORD-TRACE"
+        - $ref: "#/components/schemas/TokenSingle"
+        - type: "object"
+          required:
+            - "type"
+          properties:
+            type:
+              type: "string"
+              enum:
+                - "WORD-TRACE"
     Language:
       allOf:
         - $ref: "#/components/schemas/LanguageObject"
@@ -281,17 +281,17 @@ components:
               description: "the distribution of the score among the languages"
               items:
                 allOf:
-                - $ref: "#/components/schemas/LanguageObject"
-                - required:
-                  - "score"
-                  properties:
-                    score:
-                      $ref: "#/components/schemas/Score"
+                  - $ref: "#/components/schemas/LanguageObject"
+                  - required:
+                      - "score"
+                    properties:
+                      score:
+                        $ref: "#/components/schemas/Score"
     LanguageObject:
       type: "object"
       required:
-      - "id"
-      - "name"
+        - "id"
+        - "name"
       properties:
         id:
           $ref: "#/components/schemas/LanguageISO"
@@ -308,10 +308,10 @@ components:
       type: "object"
       description: "a category that indicates the content of the text"
       required:
-      - "id"
-      - "score"
-      - "sentences"
-      - "sublevel"
+        - "id"
+        - "score"
+        - "sentences"
+        - "sublevel"
       properties:
         id:
           type: "string"
@@ -323,9 +323,9 @@ components:
           items:
             type: "object"
             required:
-            - "id"
-            - "score"
-            - "tokens"
+              - "id"
+              - "score"
+              - "tokens"
             properties:
               id:
                 type: "number"
@@ -338,8 +338,8 @@ components:
                 items:
                   type: "object"
                   required:
-                  - "id"
-                  - "score"
+                    - "id"
+                    - "score"
                   properties:
                     id:
                       type: "number"
@@ -351,19 +351,19 @@ components:
           $ref: "#/components/schemas/SubCategory"
     SubCategory:
       allOf:
-      - $ref: "#/components/schemas/Category"
-      - nullable: true
-        description: "a nested category that can be null"
-        example: null
+        - $ref: "#/components/schemas/Category"
+        - nullable: true
+          description: "a nested category that can be null"
+          example: null
     Location:
       type: "object"
       description: "a location recognized in the text"
       required:
-      - "id"
-      - "type"
-      - "name"
-      - "nameTranslations"
-      - "sentences"
+        - "id"
+        - "type"
+        - "name"
+        - "nameTranslations"
+        - "sentences"
       properties:
         id:
           type: "string"
@@ -372,11 +372,11 @@ components:
           type: "string"
           example: "City"
           enum:
-          - "City"
-          - "AdminArea"
-          - "Country"
-          - "Continent"
-          - "Region"
+            - "City"
+            - "AdminArea"
+            - "Country"
+            - "Continent"
+            - "Region"
         name:
           type: "string"
           example: "London"
@@ -407,9 +407,9 @@ components:
             $ref: "#/components/schemas/Sentence"
     DateTime:
       oneOf:
-      - $ref: "#/components/schemas/DateTimeSimple"
-      - $ref: "#/components/schemas/Offset"
-      - $ref: "#/components/schemas/Interval"
+        - $ref: "#/components/schemas/DateTimeSimple"
+        - $ref: "#/components/schemas/Offset"
+        - $ref: "#/components/schemas/Interval"
       discriminator:
         propertyName: "type"
         mapping:
@@ -420,14 +420,14 @@ components:
       type: "object"
       description: "a specific date-time"
       required:
-      - "type"
-      - "sentences"
-      - "isoFormat"
+        - "type"
+        - "sentences"
+        - "isoFormat"
       properties:
         type:
           type: "string"
           enum:
-          - "dateTime"
+            - "dateTime"
         sentences:
           type: "array"
           items:
@@ -441,15 +441,15 @@ components:
       type: "object"
       description: "an offset of date or time"
       required:
-      - "type"
-      - "sentences"
-      - "isoFormat"
-      - "seconds"
+        - "type"
+        - "sentences"
+        - "isoFormat"
+        - "seconds"
       properties:
         type:
           type: "string"
           enum:
-          - "offset"
+            - "offset"
         sentences:
           type: "array"
           items:
@@ -466,13 +466,13 @@ components:
       type: "object"
       description: "an interval of date-times (can be open)"
       required:
-      - "type"
-      - "sentences"
+        - "type"
+        - "sentences"
       properties:
         type:
           type: "string"
           enum:
-          - "interval"
+            - "interval"
         sentences:
           type: "array"
           items:
@@ -491,10 +491,10 @@ components:
       type: "object"
       description: "an entity recognized in the text"
       required:
-      - "name"
-      - "type"
-      - "score"
-      - "sentences"
+        - "name"
+        - "type"
+        - "score"
+        - "sentences"
       properties:
         name:
           type: "string"
@@ -517,8 +517,8 @@ components:
       type: "object"
       description: "a sentence with ranges of tokens that represent specific information"
       required:
-      - "id"
-      - "tokens"
+        - "id"
+        - "tokens"
       properties:
         id:
           type: "number"
@@ -532,8 +532,8 @@ components:
       type: "object"
       description: "a sentence with ranges of tokens that represent specific information, with the related system score"
       required:
-      - "id"
-      - "tokens"
+        - "id"
+        - "tokens"
       properties:
         id:
           type: "number"
@@ -547,8 +547,8 @@ components:
       type: "object"
       description: "a range of tokens that represent an information extracted from the text"
       required:
-      - "startIndex"
-      - "endIndex"
+        - "startIndex"
+        - "endIndex"
       properties:
         startIndex:
           type: "number"
@@ -562,16 +562,16 @@ components:
           example: 4
     ScoredTokensRange:
       allOf:
-      - $ref: "#/components/schemas/TokensRange"
-      - type: "object"
-        description: "a range of tokens that represent an information extracted from the text, with the related confidence of the system"
-        required:
-        - "score"
-        properties:
-          score:
-            type: "number"
-            format: "double"
-            description: "the confidence of the system for this element"
+        - $ref: "#/components/schemas/TokensRange"
+        - type: "object"
+          description: "a range of tokens that represent an information extracted from the text, with the related confidence of the system"
+          required:
+            - "score"
+          properties:
+            score:
+              type: "number"
+              format: "double"
+              description: "the confidence of the system for this element"
     Score:
       type: "number"
       format: "double"
@@ -580,9 +580,9 @@ components:
       type: "object"
       description: "the position in the text"
       required:
-      - "index"
-      - "start"
-      - "end"
+        - "index"
+        - "start"
+        - "end"
       properties:
         index:
           type: "number"
@@ -631,271 +631,271 @@ components:
           $ref: "#/components/schemas/Diathesis"
     NumberMorphology:
       allOf:
-      - $ref: "#/components/schemas/Morphology"
-      - type: "object"
-        required:
-        - "lemma"
-        - "pos"
-        - "numericalForm"
-        properties:
-          lemma:
-            type: "string"
-            example: "123.5"
-          pos:
-            type: "string"
-            enum:
-            - "Number"
-          numericalForm:
-            type: "number"
-            description: "the number expressed in digits"
-            example: 123.5
+        - $ref: "#/components/schemas/Morphology"
+        - type: "object"
+          required:
+            - "lemma"
+            - "pos"
+            - "numericalForm"
+          properties:
+            lemma:
+              type: "string"
+              example: "123.5"
+            pos:
+              type: "string"
+              enum:
+                - "Number"
+            numericalForm:
+              type: "number"
+              description: "the number expressed in digits"
+              example: 123.5
     POSBase:
       type: "string"
       enum:
-      - "Adj"
-      - "AdvModal"
-      - "Art"
-      - "Conj"
-      - "Noun"
-      - "Pron"
-      - "Prep"
-      - "Postpos"
-      - "Interj"
-      - "PhrasAff"
-      - "Punct"
-      - "Verb"
-      - "Date"
-      - "Hour"
-      - "Num"
-      - "Predet"
+        - "Adj"
+        - "AdvModal"
+        - "Art"
+        - "Conj"
+        - "Noun"
+        - "Pron"
+        - "Prep"
+        - "Postpos"
+        - "Interj"
+        - "PhrasAff"
+        - "Punct"
+        - "Verb"
+        - "Date"
+        - "Hour"
+        - "Num"
+        - "Predet"
     POS:
       allOf:
-      - $ref: "#/components/schemas/POSBase"
-      - type: "string"
-        enum:
-        - "AdjCompar"
-        - "AdjDeict"
-        - "AdjDemons"
-        - "AdjDemonsAntec"
-        - "AdjDemonsSucc"
-        - "AdjExclam"
-        - "AdjIndef"
-        - "AdjIndefSubord"
-        - "AdjIndefDistr"
-        - "AdjIndefQuant"
-        - "AdjInterr"
-        - "AdjPoss"
-        - "AdjOrdin"
-        - "AdjQualif"
-        - "AdjQualifPost"
-        - "AdjRelat"
-        - "AdvAdvers"
-        - "AdvCompar"
-        - "AdvConcess"
-        - "AdvDeict"
-        - "AdvIndef"
-        - "AdvIndefSubord"
-        - "AdvInterr"
-        - "AdvLimit"
-        - "AdvLoc"
-        - "AdvNeg"
-        - "AdvPhras"
-        - "AdvQuant"
-        - "AdvStreng"
-        - "AdvStrengNeg"
-        - "AdvTime"
-        - "ArtDef"
-        - "ArtIndef"
-        - "ArtIndefPart"
-        - "ConjCompar"
-        - "ConjComparAntec"
-        - "ConjComparSucc"
-        - "ConjConcess"
-        - "ConjCoord"
-        - "ConjCoordAdvers"
-        - "ConjCoordDisj"
-        - "ConjCoordExplic"
-        - "ConjCoordNeg"
-        - "ConjCorrel"
-        - "ConjCorrelAntec"
-        - "ConjCorrelSucc"
-        - "ConjSubord"
-        - "ConjSubordAdvers"
-        - "ConjSubordInterr"
-        - "NounCommon"
-        - "NounCommonGerund"
-        - "NounCommonQuant"
-        - "NounProper"
-        - "NounProperLoc"
-        - "NounProperOrg"
-        - "NounProperPer"
-        - "PronDemons"
-        - "PronExclam"
-        - "PronIndef"
-        - "PronIndefDistr"
-        - "PronIndefQuant"
-        - "PronIndefSubord"
-        - "PronInterr"
-        - "PronOrdin"
-        - "PronPers"
-        - "PronPersEnclit"
-        - "PronPersProclit"
-        - "PronPersProclitRefl"
-        - "PronPersProclitVariant"
-        - "PronPersRefl"
-        - "PronPersVariant"
-        - "PronPoss"
-        - "PronRelat"
-        - "PronRelatDouble"
-        - "PrepArt"
-        - "PrepPoss"
-        - "PostposPoss"
-        - "PhrasExclam"
-        - "PhrasInterr"
-        - "PhrasNeg"
-        - "VerbModal"
-        - "VerbAux"
+        - $ref: "#/components/schemas/POSBase"
+        - type: "string"
+          enum:
+            - "AdjCompar"
+            - "AdjDeict"
+            - "AdjDemons"
+            - "AdjDemonsAntec"
+            - "AdjDemonsSucc"
+            - "AdjExclam"
+            - "AdjIndef"
+            - "AdjIndefSubord"
+            - "AdjIndefDistr"
+            - "AdjIndefQuant"
+            - "AdjInterr"
+            - "AdjPoss"
+            - "AdjOrdin"
+            - "AdjQualif"
+            - "AdjQualifPost"
+            - "AdjRelat"
+            - "AdvAdvers"
+            - "AdvCompar"
+            - "AdvConcess"
+            - "AdvDeict"
+            - "AdvIndef"
+            - "AdvIndefSubord"
+            - "AdvInterr"
+            - "AdvLimit"
+            - "AdvLoc"
+            - "AdvNeg"
+            - "AdvPhras"
+            - "AdvQuant"
+            - "AdvStreng"
+            - "AdvStrengNeg"
+            - "AdvTime"
+            - "ArtDef"
+            - "ArtIndef"
+            - "ArtIndefPart"
+            - "ConjCompar"
+            - "ConjComparAntec"
+            - "ConjComparSucc"
+            - "ConjConcess"
+            - "ConjCoord"
+            - "ConjCoordAdvers"
+            - "ConjCoordDisj"
+            - "ConjCoordExplic"
+            - "ConjCoordNeg"
+            - "ConjCorrel"
+            - "ConjCorrelAntec"
+            - "ConjCorrelSucc"
+            - "ConjSubord"
+            - "ConjSubordAdvers"
+            - "ConjSubordInterr"
+            - "NounCommon"
+            - "NounCommonGerund"
+            - "NounCommonQuant"
+            - "NounProper"
+            - "NounProperLoc"
+            - "NounProperOrg"
+            - "NounProperPer"
+            - "PronDemons"
+            - "PronExclam"
+            - "PronIndef"
+            - "PronIndefDistr"
+            - "PronIndefQuant"
+            - "PronIndefSubord"
+            - "PronInterr"
+            - "PronOrdin"
+            - "PronPers"
+            - "PronPersEnclit"
+            - "PronPersProclit"
+            - "PronPersProclitRefl"
+            - "PronPersProclitVariant"
+            - "PronPersRefl"
+            - "PronPersVariant"
+            - "PronPoss"
+            - "PronRelat"
+            - "PronRelatDouble"
+            - "PrepArt"
+            - "PrepPoss"
+            - "PostposPoss"
+            - "PhrasExclam"
+            - "PhrasInterr"
+            - "PhrasNeg"
+            - "VerbModal"
+            - "VerbAux"
     SyntacticRelation:
       type: "string"
       enum:
-      - "Top"
-      - "Initiator"
-      - "Subject"
-      - "InterrogativeSubject"
-      - "PassiveSubject"
-      - "Object"
-      - "InterrogativeObject"
-      - "IndirectObject"
-      - "InterrogativeIndirectObject"
-      - "IndirectComplement"
-      - "PredCompl"
-      - "PredComplSubj"
-      - "PredComplObj"
-      - "PredComplSubjInterr"
-      - "PredComplObjInterr"
-      - "PredComplInterr"
-      - "RMod"
-      - "RModExclamative"
-      - "RModInterr"
-      - "RModNeg"
-      - "RModPoss"
-      - "RModCompar"
-      - "RModQuant"
-      - "RMod2ND"
-      - "RMod2NDNeg"
-      - "ExtraObject"
-      - "ExtraSubject"
-      - "EmptyCompl"
-      - "Locative"
-      - "Partitive"
-      - "Vocative"
-      - "Determiner"
-      - "Apposition"
-      - "RelativeClause"
-      - "ReducedRelativeClause"
-      - "Aux"
-      - "AuxTense"
-      - "AuxPassive"
-      - "AuxProgressive"
-      - "Coord"
-      - "CoordAntecedent"
-      - "CoordNegative"
-      - "Coord2Nd"
-      - "Coord2NdNegative"
-      - "Coord2NdAdvers"
-      - "Coord2NdCompar"
-      - "Coord2NdCorrelat"
-      - "Coord2NdExplic"
-      - "Coord2NdNeg"
-      - "Coord2NdSymmetric"
-      - "Separator"
-      - "SeparatorOpen"
-      - "SeparatorClose"
-      - "Quotes"
-      - "QuotesOpen"
-      - "QuotesClose"
-      - "Connector"
-      - "Contin"
-      - "ContinDenom"
-      - "ContinLocut"
-      - "ContinNumber"
-      - "ContinCoord"
-      - "End"
-      - "EndInterrogative"
-      - "EndAssertive"
-      - "EndImperative"
-      - "Interj"
-      - "Undefined"
-      - "Unknown"
-      - "Wrong"
+        - "Top"
+        - "Initiator"
+        - "Subject"
+        - "InterrogativeSubject"
+        - "PassiveSubject"
+        - "Object"
+        - "InterrogativeObject"
+        - "IndirectObject"
+        - "InterrogativeIndirectObject"
+        - "IndirectComplement"
+        - "PredCompl"
+        - "PredComplSubj"
+        - "PredComplObj"
+        - "PredComplSubjInterr"
+        - "PredComplObjInterr"
+        - "PredComplInterr"
+        - "RMod"
+        - "RModExclamative"
+        - "RModInterr"
+        - "RModNeg"
+        - "RModPoss"
+        - "RModCompar"
+        - "RModQuant"
+        - "RMod2ND"
+        - "RMod2NDNeg"
+        - "ExtraObject"
+        - "ExtraSubject"
+        - "EmptyCompl"
+        - "Locative"
+        - "Partitive"
+        - "Vocative"
+        - "Determiner"
+        - "Apposition"
+        - "RelativeClause"
+        - "ReducedRelativeClause"
+        - "Aux"
+        - "AuxTense"
+        - "AuxPassive"
+        - "AuxProgressive"
+        - "Coord"
+        - "CoordAntecedent"
+        - "CoordNegative"
+        - "Coord2Nd"
+        - "Coord2NdNegative"
+        - "Coord2NdAdvers"
+        - "Coord2NdCompar"
+        - "Coord2NdCorrelat"
+        - "Coord2NdExplic"
+        - "Coord2NdNeg"
+        - "Coord2NdSymmetric"
+        - "Separator"
+        - "SeparatorOpen"
+        - "SeparatorClose"
+        - "Quotes"
+        - "QuotesOpen"
+        - "QuotesClose"
+        - "Connector"
+        - "Contin"
+        - "ContinDenom"
+        - "ContinLocut"
+        - "ContinNumber"
+        - "ContinCoord"
+        - "End"
+        - "EndInterrogative"
+        - "EndAssertive"
+        - "EndImperative"
+        - "Interj"
+        - "Undefined"
+        - "Unknown"
+        - "Wrong"
     SemanticRelation:
       type: "string"
       enum:
-      - "SpaceTime"
-      - "SpaceTimeInterval"
-      - "SpaceTimeStart"
-      - "SpaceTimeEnd"
-      - "Temporal"
-      - "TemporalStart"
-      - "TemporalEnd"
-      - "TemporalPrev"
-      - "TemporalPost"
-      - "TemporalProximity"
-      - "Location"
-      - "LocationInside"
-      - "LocationDestination"
-      - "LocationDistant"
-      - "LocationUp"
-      - "LocationDown"
-      - "LocationAround"
-      - "LocationSource"
-      - "LocationProximity"
-      - "LocationContact"
-      - "LocationSide"
-      - "LocationSideRight"
-      - "LocationSideLeft"
-      - "Mov"
-      - "MovIn"
-      - "MovFrom"
-      - "MovTo"
-      - "MovTrough"
-      - "Comparative"
-      - "ComparativeLimitative"
-      - "ComparativeAccrescitive"
-      - "ComparativeEqual"
-      - "ComparativeEqualNegation"
-      - "Manner"
-      - "MannerEqual"
-      - "MannerUnequal"
-      - "Modal"
-      - "Conditional"
-      - "Concessive"
-      - "Causal"
-      - "Reason"
-      - "Reasoncause"
-      - "Advers"
-      - "Limitative"
-      - "Goal"
-      - "Exceptive"
-      - "Explicative"
-      - "Theme"
-      - "Progress"
-      - "Union"
-      - "Disunion"
-      - "Concerns"
-      - "Partitive"
-      - "Specification"
-      - "SpecificationDenominative"
-      - "Companionship"
-      - "CompanionshipFigurative"
-      - "Beneficiary"
-      - "BeneficiaryDisvantage"
-      - "Means"
-      - "Instrument"
-      - "Material"
-      - "Fault"
-      - "Penalty"
-      - "Replacement"
+        - "SpaceTime"
+        - "SpaceTimeInterval"
+        - "SpaceTimeStart"
+        - "SpaceTimeEnd"
+        - "Temporal"
+        - "TemporalStart"
+        - "TemporalEnd"
+        - "TemporalPrev"
+        - "TemporalPost"
+        - "TemporalProximity"
+        - "Location"
+        - "LocationInside"
+        - "LocationDestination"
+        - "LocationDistant"
+        - "LocationUp"
+        - "LocationDown"
+        - "LocationAround"
+        - "LocationSource"
+        - "LocationProximity"
+        - "LocationContact"
+        - "LocationSide"
+        - "LocationSideRight"
+        - "LocationSideLeft"
+        - "Mov"
+        - "MovIn"
+        - "MovFrom"
+        - "MovTo"
+        - "MovTrough"
+        - "Comparative"
+        - "ComparativeLimitative"
+        - "ComparativeAccrescitive"
+        - "ComparativeEqual"
+        - "ComparativeEqualNegation"
+        - "Manner"
+        - "MannerEqual"
+        - "MannerUnequal"
+        - "Modal"
+        - "Conditional"
+        - "Concessive"
+        - "Causal"
+        - "Reason"
+        - "Reasoncause"
+        - "Advers"
+        - "Limitative"
+        - "Goal"
+        - "Exceptive"
+        - "Explicative"
+        - "Theme"
+        - "Progress"
+        - "Union"
+        - "Disunion"
+        - "Concerns"
+        - "Partitive"
+        - "Specification"
+        - "SpecificationDenominative"
+        - "Companionship"
+        - "CompanionshipFigurative"
+        - "Beneficiary"
+        - "BeneficiaryDisvantage"
+        - "Means"
+        - "Instrument"
+        - "Material"
+        - "Fault"
+        - "Penalty"
+        - "Replacement"
     Gender:
       type: "string"
       enum:
@@ -906,62 +906,62 @@ components:
     Number:
       type: "string"
       enum:
-      - "Undefined"
-      - "Singular"
-      - "Plural"
-      - "Dual"
+        - "Undefined"
+        - "Singular"
+        - "Plural"
+        - "Dual"
     Person:
       type: "string"
       enum:
-      - "Undefined"
-      - "First"
-      - "Second"
-      - "Third"
+        - "Undefined"
+        - "First"
+        - "Second"
+        - "Third"
     Mood:
       type: "string"
       enum:
-      - "Base"
-      - "Indicative"
-      - "Conditional"
-      - "Subjunctive"
-      - "Participle"
-      - "Gerund"
-      - "Infinite"
-      - "Imperative"
+        - "Base"
+        - "Indicative"
+        - "Conditional"
+        - "Subjunctive"
+        - "Participle"
+        - "Gerund"
+        - "Infinite"
+        - "Imperative"
     Tense:
       type: "string"
       enum:
-      - "Base"
-      - "Present"
-      - "Imperfect"
-      - "Past"
-      - "Future"
+        - "Base"
+        - "Present"
+        - "Imperfect"
+        - "Past"
+        - "Future"
     Case:
       type: "string"
       enum:
-      - "Undefined"
-      - "Unknown"
-      - "Nominative"
-      - "Accusative"
-      - "Dative"
-      - "Vocative"
-      - "Partitive"
-      - "Locative"
-      - "Neuter"
-      - "Empty"
+        - "Undefined"
+        - "Unknown"
+        - "Nominative"
+        - "Accusative"
+        - "Dative"
+        - "Vocative"
+        - "Partitive"
+        - "Locative"
+        - "Neuter"
+        - "Empty"
     Degree:
       type: "string"
       enum:
-      - "Base"
-      - "Positive"
-      - "Superlative"
-      - "Comparative"
-      - "Diminutive"
-      - "Augmentative"
-      - "Endearment"
-      - "Pejorative"
+        - "Base"
+        - "Positive"
+        - "Superlative"
+        - "Comparative"
+        - "Diminutive"
+        - "Augmentative"
+        - "Endearment"
+        - "Pejorative"
     Diathesis:
       type: "string"
       enum:
-      - "Active"
-      - "Passive"
+        - "Active"
+        - "Passive"
