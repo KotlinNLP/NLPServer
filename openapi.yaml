@@ -139,29 +139,34 @@ components:
           TRACE: "TokenTrace"
           WORD-TRACE: "TokenWordTrace"
           WORD-COMPOSITE: "TokenComposite"
-    TokenBase:
+    FormToken:
       type: "object"
       required:
-        - "id"
         - "form"
         - "translitForm"
       properties:
-        id:
-          type: "number"
-          format: "int32"
-          example: 0
         form:
           type: "string"
         translitForm:
           type: "string"
     TokenComposite:
       allOf:
-        - $ref: "#/components/schemas/TokenBase"
+        - $ref: "#/components/schemas/FormToken"
         - type: "object"
           required:
+            - "id"
+            - "type"
             - "position"
             - "components"
           properties:
+            id:
+              type: "number"
+              format: "int32"
+              example: 0
+            type:
+              type: "string"
+              enum:
+                - "WORD-COMPOSITE"
             position:
               $ref: "#/components/schemas/Position"
             components:
@@ -169,67 +174,83 @@ components:
               items:
                 $ref: "#/components/schemas/TokenWord"
     TokenSingle:
-      allOf:
-        - $ref: "#/components/schemas/TokenBase"
-        - type: "object"
+      type: "object"
+      required:
+        - "id"
+        - "posBase"
+        - "dependency"
+        - "coReferences"
+        - "semanticRelations"
+        - "morphology"
+        - "contextMorphology"
+      properties:
+        id:
+          type: "number"
+          format: "int32"
+          example: 0
+        posBase:
+          $ref: "#/components/schemas/POSBase"
+        dependency:
+          type: "object"
           required:
-            - "posBase"
-            - "dependency"
-            - "coReferences"
-            - "semanticRelations"
+            - "head"
+            - "relation"
+            - "attachmentScore"
+            - "relationScore"
           properties:
-            posBase:
-              $ref: "#/components/schemas/POSBase"
-            dependency:
-              type: "object"
-              required:
-                - "head"
-                - "relation"
-                - "attachmentScore"
-                - "relationScore"
-              properties:
-                head:
-                  type: "number"
-                  format: "int32"
-                  example: "-1"
-                relation:
-                  $ref: "#/components/schemas/SyntacticRelation"
-                attachmentScore:
-                  $ref: "#/components/schemas/Score"
-                relationScore:
-                  $ref: "#/components/schemas/Score"
-            coReferences:
-              type: "array"
-              items:
-                type: "object"
-                required:
-                  - "sentenceId"
-                  - "tokenId"
-                  - "score"
-                properties:
-                  sentenceId:
-                    type: "number"
-                    format: "int32"
-                    example: 1
-                  tokenId:
-                    type: "number"
-                    format: "int32"
-                    example: 5
-                  score:
-                    $ref: "#/components/schemas/Score"
-            semanticRelations:
-              type: "array"
-              items:
-                $ref: "#/components/schemas/SemanticRelation"
+            head:
+              type: "number"
+              format: "int32"
+              example: "-1"
+            relation:
+              $ref: "#/components/schemas/SyntacticRelation"
+            attachmentScore:
+              $ref: "#/components/schemas/Score"
+            relationScore:
+              $ref: "#/components/schemas/Score"
+        coReferences:
+          type: "array"
+          items:
+            type: "object"
+            required:
+              - "sentenceId"
+              - "tokenId"
+              - "score"
+            properties:
+              sentenceId:
+                type: "number"
+                format: "int32"
+                example: 1
+              tokenId:
+                type: "number"
+                format: "int32"
+                example: 5
+              score:
+                $ref: "#/components/schemas/Score"
+        semanticRelations:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/SemanticRelation"
+        morphology:
+          type: "array"
+          items:
+            oneOf:
+              - $ref: "#/components/schemas/Morphology"
+              - $ref: "#/components/schemas/NumberMorphology"
+        contextMorphology:
+          type: "array"
+          items:
+            oneOf:
+              - $ref: "#/components/schemas/Morphology"
+              - $ref: "#/components/schemas/NumberMorphology"
     TokenWord:
       allOf:
-        - $ref: "#/components/schemas/TokenBase"
+        - $ref: "#/components/schemas/TokenSingle"
+        - $ref: "#/components/schemas/FormToken"
         - type: "object"
           required:
             - "type"
             - "position"
-            - "morphology"
-            - "contextMorphology"
           properties:
             type:
               type: "string"
@@ -237,18 +258,6 @@ components:
                 - "WORD"
             position:
               $ref: "#/components/schemas/Position"
-            morphology:
-              type: "array"
-              items:
-                oneOf:
-                  - $ref: "#/components/schemas/Morphology"
-                  - $ref: "#/components/schemas/NumberMorphology"
-            contextMorphology:
-              type: "array"
-              items:
-                oneOf:
-                  - $ref: "#/components/schemas/Morphology"
-                  - $ref: "#/components/schemas/NumberMorphology"
     TokenTrace:
       allOf:
         - $ref: "#/components/schemas/TokenSingle"
@@ -263,6 +272,7 @@ components:
     TokenWordTrace:
       allOf:
         - $ref: "#/components/schemas/TokenSingle"
+        - $ref: "#/components/schemas/FormToken"
         - type: "object"
           required:
             - "type"
