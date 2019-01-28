@@ -637,8 +637,8 @@ components:
           $ref: "#/components/schemas/Case"
         degree:
           $ref: "#/components/schemas/Degree"
-        diathesis:
-          $ref: "#/components/schemas/Diathesis"
+        voice:
+          $ref: "#/components/schemas/Voice"
     NumberMorphology:
       allOf:
         - $ref: "#/components/schemas/Morphology"
@@ -970,7 +970,7 @@ components:
         - "Augmentative"
         - "Endearment"
         - "Pejorative"
-    Diathesis:
+    Voice:
       type: "string"
       enum:
         - "Active"
