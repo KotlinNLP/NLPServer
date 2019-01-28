@@ -159,15 +159,15 @@ components:
         - $ref: "#/components/schemas/TokenBase"
         - type: "object"
           required:
+            - "position"
             - "components"
           properties:
+            position:
+              $ref: "#/components/schemas/Position"
             components:
               type: "array"
               items:
-                oneOf:
-                  - $ref: "#/components/schemas/TokenWord"
-                  - $ref: "#/components/schemas/TokenTrace"
-                  - $ref: "#/components/schemas/TokenWordTrace"
+                $ref: "#/components/schemas/TokenWord"
     TokenSingle:
       allOf:
         - $ref: "#/components/schemas/TokenBase"
