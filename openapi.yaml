@@ -664,7 +664,6 @@ components:
       enum:
         - "ADJ"
         - "ADV"
-        - "ADJ-COMPAR"
         - "ART"
         - "CONJ"
         - "NOUN"
@@ -679,11 +678,13 @@ components:
         - "HOUR"
         - "NUM"
         - "PREDET"
+        - "UNKNOWN"
     POS:
       allOf:
         - $ref: "#/components/schemas/POSBase"
         - type: "string"
           enum:
+            - "ADJ-COMPAR"
             - "ADJ-DEITT"
             - "ADJ-DEMONS"
             - "ADJ-DEMONS-ANTEC"
@@ -759,6 +760,7 @@ components:
             - "PRON-RELAT-DOUBLE"
             - "PREP-ART"
             - "PREP-POSS"
+            - "PREP-COMPAR"
             - "POSTPOS-POSS"
             - "PHRASE-EXCLAM"
             - "PHRASE-INTERR"
@@ -972,5 +974,6 @@ components:
     Voice:
       type: "string"
       enum:
+        - "_"
         - "ACTIVE"
         - "PASSIVE"
