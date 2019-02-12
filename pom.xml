@@ -69,12 +69,12 @@
         <morphologicalanalyzer.version>0.4.1</morphologicalanalyzer.version>
         <neuraltokenizer.version>0.4.3</neuraltokenizer.version>
         <languagedetector.version>0.4.5</languagedetector.version>
-        <neuralparser.version>0.6.0</neuralparser.version>
-        <lssencoder.version>0.1.1</lssencoder.version>
+        <neuralparser.version>0.6.1</neuralparser.version>
+        <lssencoder.version>0.1.2</lssencoder.version>
         <simplednn.version>0.11.2</simplednn.version>
         <geolocation.version>0.2.1</geolocation.version>
-        <frameextractor.version>0.4.1</frameextractor.version>
-        <hanclassifier.version>0.6.0</hanclassifier.version>
+        <frameextractor.version>0.4.2</frameextractor.version>
+        <hanclassifier.version>0.6.1</hanclassifier.version>
     </properties>
 
     <repositories>
