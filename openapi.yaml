@@ -232,35 +232,10 @@ components:
           items:
             $ref: "#/components/schemas/LinguisticToken"
     LinguisticToken:
-      oneOf:
-        - $ref: "#/components/schemas/TokenWord"
-        - $ref: "#/components/schemas/TokenTrace"
-        - $ref: "#/components/schemas/TokenWordTrace"
-        - $ref: "#/components/schemas/TokenComposite"
-      discriminator:
-        propertyName: "type"
-        mapping:
-          WORD: "#/components/schemas/TokenWord"
-          TRACE: "#/components/schemas/TokenTrace"
-          WORD-TRACE: "#/components/schemas/TokenWordTrace"
-          WORD-COMPOSITE: "#/components/schemas/TokenComposite"
-    FormToken:
-      type: "object"
-      required:
-        - "form"
-        - "translitForm"
-      properties:
-        form:
-          type: "string"
-        translitForm:
-          type: "string"
-    TokenCompositeExt:
       type: "object"
       required:
         - "id"
         - "type"
-        - "position"
-        - "components"
       properties:
         id:
           type: "number"
@@ -270,20 +245,47 @@ components:
           type: "string"
           enum:
             - "WORD-COMPOSITE"
+            - "WORD"
+            - "TRACE"
+            - "WORD-TRACE"
+        form:
+          type: "string"
+        translitForm:
+          type: "string"
         position:
           $ref: "#/components/schemas/Position"
         components:
           type: "array"
           items:
             $ref: "#/components/schemas/TokenWord"
-    TokenComposite:
-      allOf:
-        - $ref: "#/components/schemas/FormToken"
-        - $ref: "#/components/schemas/TokenCompositeExt"
-    TokenSingle:
+        posBase:
+          $ref: "#/components/schemas/POSBase"
+        dependency:
+          $ref: "#/components/schemas/Dependency"
+        coReferences:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/CoReference"
+        semanticRelations:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/SemanticRelation"
+        morphology:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Morphology"
+        contextMorphology:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Morphology"
+    TokenWord:
       type: "object"
       required:
         - "id"
+        - "type"
+        - "position"
+        - "form"
+        - "translitForm"
         - "posBase"
         - "dependency"
         - "coReferences"
@@ -295,45 +297,24 @@ components:
           type: "number"
           format: "int32"
           example: 0
+        type:
+          type: "string"
+          enum:
+            - "WORD"
+        position:
+          $ref: "#/components/schemas/Position"
+        form:
+          type: "string"
+        translitForm:
+          type: "string"
         posBase:
           $ref: "#/components/schemas/POSBase"
         dependency:
-          type: "object"
-          required:
-            - "head"
-            - "relation"
-            - "attachmentScore"
-            - "relationScore"
-          properties:
-            head:
-              type: "number"
-              format: "int32"
-              example: "-1"
-            relation:
-              $ref: "#/components/schemas/SyntacticRelation"
-            attachmentScore:
-              $ref: "#/components/schemas/Score"
-            relationScore:
-              $ref: "#/components/schemas/Score"
+          $ref: "#/components/schemas/Dependency"
         coReferences:
           type: "array"
           items:
-            type: "object"
-            required:
-              - "sentenceId"
-              - "tokenId"
-              - "score"
-            properties:
-              sentenceId:
-                type: "number"
-                format: "int32"
-                example: 1
-              tokenId:
-                type: "number"
-                format: "int32"
-                example: 5
-              score:
-                $ref: "#/components/schemas/Score"
+            $ref: "#/components/schemas/CoReference"
         semanticRelations:
           type: "array"
           items:
@@ -341,61 +322,34 @@ components:
         morphology:
           type: "array"
           items:
-            oneOf:
-              - $ref: "#/components/schemas/Morphology"
-              - $ref: "#/components/schemas/NumberMorphology"
+            $ref: "#/components/schemas/Morphology"
         contextMorphology:
           type: "array"
           items:
-            oneOf:
-              - $ref: "#/components/schemas/Morphology"
-              - $ref: "#/components/schemas/NumberMorphology"
-    TokenWordExt:
+            $ref: "#/components/schemas/Morphology"
+    LanguageISO:
+      type: "string"
+      example: "en"
+      pattern: "^[a-z][a-z]$"
+      description: "the ISO 639-1 code of the language (2 chars)"
+    ScoredLanguage:
       type: "object"
       required:
-        - "type"
-        - "position"
+        - "id"
+        - "name"
+        - "score"
       properties:
-        type:
+        id:
+          $ref: "#/components/schemas/LanguageISO"
+        name:
           type: "string"
-          enum:
-            - "WORD"
-        position:
-          $ref: "#/components/schemas/Position"
-    TokenWord:
-      allOf:
-        - $ref: "#/components/schemas/FormToken"
-        - $ref: "#/components/schemas/TokenSingle"
-        - $ref: "#/components/schemas/TokenWordExt"
-    TokenTraceExt:
+          description: "the standard English name"
+          example: "English"
+        score:
+          $ref: "#/components/schemas/Score"
+    Language:
       type: "object"
-      required:
-        - "type"
-      properties:
-        type:
-          type: "string"
-          enum:
-            - "TRACE"
-    TokenTrace:
-      allOf:
-        - $ref: "#/components/schemas/TokenSingle"
-        - $ref: "#/components/schemas/TokenTraceExt"
-    TokenWordTraceExt:
-      type: "object"
-      required:
-        - "type"
-      properties:
-        type:
-          type: "string"
-          enum:
-            - "WORD-TRACE"
-    TokenWordTrace:
-      allOf:
-        - $ref: "#/components/schemas/FormToken"
-        - $ref: "#/components/schemas/TokenSingle"
-        - $ref: "#/components/schemas/TokenWordTraceExt"
-    LanguageObject:
-      type: "object"
+      description: "the language in which the text has been written"
       required:
         - "id"
         - "name"
@@ -406,27 +360,11 @@ components:
           type: "string"
           description: "the standard English name"
           example: "English"
-    LanguageISO:
-      type: "string"
-      example: "en"
-      pattern: "^[a-z][a-z]$"
-      description: "the ISO 639-1 code of the language (2 chars)"
-    ScoredLanguage:
-      allOf:
-        - $ref: "#/components/schemas/LanguageObject"
-        - $ref: "#/components/schemas/ScoredElement"
-    LanguageExt:
-      description: "the language in which the text has been written"
-      properties:
         distribution:
           type: "array"
           description: "the distribution of the score among the languages"
           items:
             $ref: "#/components/schemas/ScoredLanguage"
-    Language:
-      allOf:
-        - $ref: "#/components/schemas/LanguageObject"
-        - $ref: "#/components/schemas/LanguageExt"
     Category:
       type: "object"
       description: "a category that indicates the content of the text"
@@ -472,14 +410,53 @@ components:
                       $ref: "#/components/schemas/Score"
         sublevel:
           $ref: "#/components/schemas/SubCategory"
-    SubCategoryExt:
-      nullable: true
-      description: "a nested category that can be null"
-      example: null
     SubCategory:
-      allOf:
-        - $ref: "#/components/schemas/Category"
-        - $ref: "#/components/schemas/SubCategoryExt"
+      type: "object"
+      description: "a nested category that can be null"
+      nullable: true
+      example: null
+      required:
+        - "id"
+        - "score"
+        - "sentences"
+        - "sublevel"
+      properties:
+        id:
+          type: "string"
+          example: "01000000"
+        score:
+          $ref: "#/components/schemas/Score"
+        sentences:
+          type: "array"
+          items:
+            type: "object"
+            required:
+              - "id"
+              - "score"
+              - "tokens"
+            properties:
+              id:
+                type: "number"
+                format: "int32"
+                example: 0
+              score:
+                $ref: "#/components/schemas/Score"
+              tokens:
+                type: "array"
+                items:
+                  type: "object"
+                  required:
+                    - "id"
+                    - "score"
+                  properties:
+                    id:
+                      type: "number"
+                      format: "int32"
+                      example: 2
+                    score:
+                      $ref: "#/components/schemas/Score"
+        sublevel:
+          $ref: "#/components/schemas/SubCategory"
     Location:
       type: "object"
       description: "a location recognized in the text"
@@ -531,50 +508,18 @@ components:
           items:
             $ref: "#/components/schemas/Sentence"
     DateTime:
-      oneOf:
-        - $ref: "#/components/schemas/DateTimeSimple"
-        - $ref: "#/components/schemas/Offset"
-        - $ref: "#/components/schemas/Interval"
-      discriminator:
-        propertyName: "type"
-        mapping:
-          dateTime: "#/components/schemas/DateTimeSimple"
-          offset: "#/components/schemas/Offset"
-          interval: "#/components/schemas/Interval"
-    DateTimeSimple:
       type: "object"
-      description: "a specific date-time"
+      description: "a date-time expression"
       required:
         - "type"
         - "sentences"
-        - "isoFormat"
       properties:
         type:
           type: "string"
           enum:
             - "dateTime"
-        sentences:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/Sentence"
-        isoFormat:
-          type: "string"
-          description: "the date-time formatted in 'TZ' ISO format"
-          format: "date-time"
-          example: "2018-01-13T09:15:00Z"
-    Offset:
-      type: "object"
-      description: "an offset of date or time"
-      required:
-        - "type"
-        - "sentences"
-        - "isoFormat"
-        - "seconds"
-      properties:
-        type:
-          type: "string"
-          enum:
             - "offset"
+            - "interval"
         sentences:
           type: "array"
           items:
@@ -587,21 +532,6 @@ components:
         seconds:
           type: "number"
           format: "int64"
-    Interval:
-      type: "object"
-      description: "an interval of date-times (can be open)"
-      required:
-        - "type"
-        - "sentences"
-      properties:
-        type:
-          type: "string"
-          enum:
-            - "interval"
-        sentences:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/Sentence"
         from:
           type: "string"
           description: "the lower bound of the interval (not present if it is open)"
@@ -685,30 +615,32 @@ components:
           format: "int32"
           description: "the index of the last token of the range (within the 'tokens' list of the sentence)"
           example: 4
-    ScoredTokensRangeExt:
+    ScoredTokensRange:
       type: "object"
       description: "a range of tokens that represent an information extracted from the text, with the related confidence of the system"
       required:
+        - "startIndex"
+        - "endIndex"
         - "score"
       properties:
+        startIndex:
+          type: "number"
+          format: "int32"
+          description: "the index of the first token of the range (within the 'tokens' list of the sentence)"
+          example: 2
+        endIndex:
+          type: "number"
+          format: "int32"
+          description: "the index of the last token of the range (within the 'tokens' list of the sentence)"
+          example: 4
         score:
           type: "number"
           format: "double"
           description: "the confidence of the system for this element"
-    ScoredTokensRange:
-      allOf:
-        - $ref: "#/components/schemas/TokensRange"
-        - $ref: "#/components/schemas/ScoredTokensRangeExt"
     Score:
       type: "number"
       format: "double"
       example: 0.89
-    ScoredElement:
-      required:
-        - "score"
-      properties:
-        score:
-          $ref: "#/components/schemas/Score"
     IndexedScore:
       type: "object"
       required:
@@ -739,6 +671,24 @@ components:
           type: "number"
           format: "int32"
           example: 8
+    Dependency:
+      type: "object"
+      required:
+        - "head"
+        - "relation"
+        - "attachmentScore"
+        - "relationScore"
+      properties:
+        head:
+          type: "number"
+          format: "int32"
+          example: "-1"
+        relation:
+          $ref: "#/components/schemas/SyntacticRelation"
+        attachmentScore:
+          $ref: "#/components/schemas/Score"
+        relationScore:
+          $ref: "#/components/schemas/Score"
     Morphology:
       type: "object"
       required:
@@ -756,6 +706,10 @@ components:
           $ref: "#/components/schemas/POS"
         score:
           $ref: "#/components/schemas/Score"
+        numericalForm:
+          type: "number"
+          description: "the number expressed in digits"
+          example: 123.5
         gender:
           $ref: "#/components/schemas/Gender"
         number:
@@ -772,28 +726,6 @@ components:
           $ref: "#/components/schemas/Degree"
         voice:
           $ref: "#/components/schemas/Voice"
-    NumberMorphologyExt:
-      type: "object"
-      required:
-        - "lemma"
-        - "pos"
-        - "numericalForm"
-      properties:
-        lemma:
-          type: "string"
-          example: "123.5"
-        pos:
-          type: "string"
-          enum:
-            - "Number"
-        numericalForm:
-          type: "number"
-          description: "the number expressed in digits"
-          example: 123.5
-    NumberMorphology:
-      allOf:
-        - $ref: "#/components/schemas/Morphology"
-        - $ref: "#/components/schemas/NumberMorphologyExt"
     POSBase:
       type: "string"
       enum:
@@ -814,9 +746,10 @@ components:
         - "NUM"
         - "PREDET"
         - "UNKNOWN"
-    POSExt:
+    POS:
       type: "string"
       enum:
+        - "ADJ"
         - "ADJ-COMPAR"
         - "ADJ-DEITT"
         - "ADJ-DEMONS"
@@ -833,6 +766,7 @@ components:
         - "ADJ-QUALIF"
         - "ADJ-QUALIF-POST"
         - "ADJ-RELAT"
+        - "ADV"
         - "ADV-ADVERS"
         - "ADV-COMPAR"
         - "ADV-CONCESS"
@@ -848,9 +782,11 @@ components:
         - "ADV-STRENG"
         - "ADV-STRENG-NEG"
         - "ADV-TIME"
+        - "ART"
         - "ART-DEF"
         - "ART-INDEF"
         - "ART-INDEF-PART"
+        - "CONJ"
         - "CONJ-COMPAR"
         - "CONJ-COMPAR-ANTEC"
         - "CONJ-COMPAR-SUCC"
@@ -866,6 +802,7 @@ components:
         - "CONJ-SUBORD"
         - "CONJ-SUBORD-ADVERS"
         - "CONJ-SUBORD-INTERR"
+        - "NOUN"
         - "NOUN-COMMON"
         - "NOUN-COMMON-GERUND"
         - "NOUN-COMMON-QUANT"
@@ -873,6 +810,7 @@ components:
         - "NOUN-PROPER-LOC"
         - "NOUN-PROPER-ORG"
         - "NOUN-PROPER-PER"
+        - "PRON"
         - "PRON-DEMONS"
         - "PRON-EXCLAM"
         - "PRON-INDEF"
@@ -891,19 +829,26 @@ components:
         - "PRON-POSS"
         - "PRON-RELAT"
         - "PRON-RELAT-DOUBLE"
+        - "PREP"
         - "PREP-ART"
         - "PREP-POSS"
         - "PREP-COMPAR"
+        - "POSTPOS"
         - "POSTPOS-POSS"
+        - "PHRASE"
         - "PHRASE-EXCLAM"
         - "PHRASE-INTERR"
         - "PHRASE-NEG"
+        - "VERB"
         - "VERB-MODAL"
         - "VERB-AUX"
-    POS:
-      allOf:
-        - $ref: "#/components/schemas/POSBase"
-        - $ref: "#/components/schemas/POSExt"
+        - "INTERJ"
+        - "PUNCT"
+        - "DATE"
+        - "HOUR"
+        - "NUM"
+        - "PREDET"
+        - "UNKNOWN"
     SyntacticRelation:
       type: "string"
       enum:
@@ -976,6 +921,23 @@ components:
         - "_"
         - "UNKNOWN"
         - "WRONG"
+    CoReference:
+      type: "object"
+      required:
+        - "sentenceId"
+        - "tokenId"
+        - "score"
+      properties:
+        sentenceId:
+          type: "number"
+          format: "int32"
+          example: 1
+        tokenId:
+          type: "number"
+          format: "int32"
+          example: 5
+        score:
+          $ref: "#/components/schemas/Score"
     SemanticRelation:
       type: "string"
       enum:
