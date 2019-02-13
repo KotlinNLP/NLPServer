@@ -149,30 +149,32 @@ components:
           type: "string"
         translitForm:
           type: "string"
+    TokenCompositeExt:
+      type: "object"
+      required:
+        - "id"
+        - "type"
+        - "position"
+        - "components"
+      properties:
+        id:
+          type: "number"
+          format: "int32"
+          example: 0
+        type:
+          type: "string"
+          enum:
+            - "WORD-COMPOSITE"
+        position:
+          $ref: "#/components/schemas/Position"
+        components:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/TokenWord"
     TokenComposite:
       allOf:
         - $ref: "#/components/schemas/FormToken"
-        - type: "object"
-          required:
-            - "id"
-            - "type"
-            - "position"
-            - "components"
-          properties:
-            id:
-              type: "number"
-              format: "int32"
-              example: 0
-            type:
-              type: "string"
-              enum:
-                - "WORD-COMPOSITE"
-            position:
-              $ref: "#/components/schemas/Position"
-            components:
-              type: "array"
-              items:
-                $ref: "#/components/schemas/TokenWord"
+        - $ref: "#/components/schemas/TokenCompositeExt"
     TokenSingle:
       type: "object"
       required:
@@ -243,60 +245,50 @@ components:
             oneOf:
               - $ref: "#/components/schemas/Morphology"
               - $ref: "#/components/schemas/NumberMorphology"
+    TokenWordExt:
+      type: "object"
+      required:
+        - "type"
+        - "position"
+      properties:
+        type:
+          type: "string"
+          enum:
+            - "WORD"
+        position:
+          $ref: "#/components/schemas/Position"
     TokenWord:
       allOf:
-        - $ref: "#/components/schemas/TokenSingle"
         - $ref: "#/components/schemas/FormToken"
-        - type: "object"
-          required:
-            - "type"
-            - "position"
-          properties:
-            type:
-              type: "string"
-              enum:
-                - "WORD"
-            position:
-              $ref: "#/components/schemas/Position"
+        - $ref: "#/components/schemas/TokenSingle"
+        - $ref: "#/components/schemas/TokenWordExt"
+    TokenTraceExt:
+      type: "object"
+      required:
+        - "type"
+      properties:
+        type:
+          type: "string"
+          enum:
+            - "TRACE"
     TokenTrace:
       allOf:
         - $ref: "#/components/schemas/TokenSingle"
-        - type: "object"
-          required:
-            - "type"
-          properties:
-            type:
-              type: "string"
-              enum:
-                - "TRACE"
+        - $ref: "#/components/schemas/TokenTraceExt"
+    TokenWordTraceExt:
+      type: "object"
+      required:
+        - "type"
+      properties:
+        type:
+          type: "string"
+          enum:
+            - "WORD-TRACE"
     TokenWordTrace:
       allOf:
-        - $ref: "#/components/schemas/TokenSingle"
         - $ref: "#/components/schemas/FormToken"
-        - type: "object"
-          required:
-            - "type"
-          properties:
-            type:
-              type: "string"
-              enum:
-                - "WORD-TRACE"
-    Language:
-      allOf:
-        - $ref: "#/components/schemas/LanguageObject"
-        - description: "the language in which the text has been written"
-          properties:
-            distribution:
-              type: "array"
-              description: "the distribution of the score among the languages"
-              items:
-                allOf:
-                  - $ref: "#/components/schemas/LanguageObject"
-                  - required:
-                      - "score"
-                    properties:
-                      score:
-                        $ref: "#/components/schemas/Score"
+        - $ref: "#/components/schemas/TokenSingle"
+        - $ref: "#/components/schemas/TokenWordTraceExt"
     LanguageObject:
       type: "object"
       required:
@@ -314,6 +306,22 @@ components:
       example: "en"
       pattern: "^[a-z][a-z]$"
       description: "the ISO 639-1 code of the language (2 chars)"
+    ScoredLanguage:
+      allOf:
+        - $ref: "#/components/schemas/LanguageObject"
+        - $ref: "#/components/schemas/ScoredElement"
+    LanguageExt:
+      description: "the language in which the text has been written"
+      properties:
+        distribution:
+          type: "array"
+          description: "the distribution of the score among the languages"
+          items:
+            $ref: "#/components/schemas/ScoredLanguage"
+    Language:
+      allOf:
+        - $ref: "#/components/schemas/LanguageObject"
+        - $ref: "#/components/schemas/LanguageExt"
     Category:
       type: "object"
       description: "a category that indicates the content of the text"
@@ -359,12 +367,14 @@ components:
                       $ref: "#/components/schemas/Score"
         sublevel:
           $ref: "#/components/schemas/SubCategory"
+    SubCategoryExt:
+      nullable: true
+      description: "a nested category that can be null"
+      example: null
     SubCategory:
       allOf:
         - $ref: "#/components/schemas/Category"
-        - nullable: true
-          description: "a nested category that can be null"
-          example: null
+        - $ref: "#/components/schemas/SubCategoryExt"
     Location:
       type: "object"
       description: "a location recognized in the text"
@@ -570,22 +580,30 @@ components:
           format: "int32"
           description: "the index of the last token of the range (within the 'tokens' list of the sentence)"
           example: 4
+    ScoredTokensRangeExt:
+      type: "object"
+      description: "a range of tokens that represent an information extracted from the text, with the related confidence of the system"
+      required:
+        - "score"
+      properties:
+        score:
+          type: "number"
+          format: "double"
+          description: "the confidence of the system for this element"
     ScoredTokensRange:
       allOf:
         - $ref: "#/components/schemas/TokensRange"
-        - type: "object"
-          description: "a range of tokens that represent an information extracted from the text, with the related confidence of the system"
-          required:
-            - "score"
-          properties:
-            score:
-              type: "number"
-              format: "double"
-              description: "the confidence of the system for this element"
+        - $ref: "#/components/schemas/ScoredTokensRangeExt"
     Score:
       type: "number"
       format: "double"
       example: 0.89
+    ScoredElement:
+      required:
+        - "score"
+      properties:
+        score:
+          $ref: "#/components/schemas/Score"
     Position:
       type: "object"
       description: "the position in the text"
@@ -639,26 +657,28 @@ components:
           $ref: "#/components/schemas/Degree"
         voice:
           $ref: "#/components/schemas/Voice"
+    NumberMorphologyExt:
+      type: "object"
+      required:
+        - "lemma"
+        - "pos"
+        - "numericalForm"
+      properties:
+        lemma:
+          type: "string"
+          example: "123.5"
+        pos:
+          type: "string"
+          enum:
+            - "Number"
+        numericalForm:
+          type: "number"
+          description: "the number expressed in digits"
+          example: 123.5
     NumberMorphology:
       allOf:
         - $ref: "#/components/schemas/Morphology"
-        - type: "object"
-          required:
-            - "lemma"
-            - "pos"
-            - "numericalForm"
-          properties:
-            lemma:
-              type: "string"
-              example: "123.5"
-            pos:
-              type: "string"
-              enum:
-                - "Number"
-            numericalForm:
-              type: "number"
-              description: "the number expressed in digits"
-              example: 123.5
+        - $ref: "#/components/schemas/NumberMorphologyExt"
     POSBase:
       type: "string"
       enum:
@@ -679,94 +699,96 @@ components:
         - "NUM"
         - "PREDET"
         - "UNKNOWN"
+    POSExt:
+      type: "string"
+      enum:
+        - "ADJ-COMPAR"
+        - "ADJ-DEITT"
+        - "ADJ-DEMONS"
+        - "ADJ-DEMONS-ANTEC"
+        - "ADJ-DEMONS-SUCC"
+        - "ADJ-EXCLAM"
+        - "ADJ-INDEF"
+        - "ADJ-INDEF-SUBORD"
+        - "ADJ-INDEF-DISTR"
+        - "ADJ-INDEF-QUANT"
+        - "ADJ-INTERR"
+        - "ADJ-POSS"
+        - "ADJ-ORDIN"
+        - "ADJ-QUALIF"
+        - "ADJ-QUALIF-POST"
+        - "ADJ-RELAT"
+        - "ADV-ADVERS"
+        - "ADV-COMPAR"
+        - "ADV-CONCESS"
+        - "ADV-DEITT"
+        - "ADV-INDEF"
+        - "ADV-INDEF-SUBORD"
+        - "ADV-INTERR"
+        - "ADV-LIMIT"
+        - "ADV-LOC"
+        - "ADV-NEG"
+        - "ADV-PHRAS"
+        - "ADV-QUANT"
+        - "ADV-STRENG"
+        - "ADV-STRENG-NEG"
+        - "ADV-TIME"
+        - "ART-DEF"
+        - "ART-INDEF"
+        - "ART-INDEF-PART"
+        - "CONJ-COMPAR"
+        - "CONJ-COMPAR-ANTEC"
+        - "CONJ-COMPAR-SUCC"
+        - "CONJ-CONCESS"
+        - "CONJ-COORD"
+        - "CONJ-COORD-ADVERS"
+        - "CONJ-COORD-DISJ"
+        - "CONJ-COORD-EXPLIC"
+        - "CONJ-COORD-NEG"
+        - "CONJ-CORREL"
+        - "CONJ-CORREL-ANTEC"
+        - "CONJ-CORREL-SUCC"
+        - "CONJ-SUBORD"
+        - "CONJ-SUBORD-ADVERS"
+        - "CONJ-SUBORD-INTERR"
+        - "NOUN-COMMON"
+        - "NOUN-COMMON-GERUND"
+        - "NOUN-COMMON-QUANT"
+        - "NOUN-PROPER"
+        - "NOUN-PROPER-LOC"
+        - "NOUN-PROPER-ORG"
+        - "NOUN-PROPER-PER"
+        - "PRON-DEMONS"
+        - "PRON-EXCLAM"
+        - "PRON-INDEF"
+        - "PRON-INDEF-DISTR"
+        - "PRON-INDEF-QUANT"
+        - "PRON-INDEF-SUBORD"
+        - "PRON-INTERR"
+        - "PRON-ORDIN"
+        - "PRON-PERS"
+        - "PRON-PERS-ENCLIT"
+        - "PRON-PERS-PROCLIT"
+        - "PRON-PERS-PROCLIT-REFL"
+        - "PRON-PERS-PROCLIT-VARIANT"
+        - "PRON-PERS-REFL"
+        - "PRON-PERS-VARIANT"
+        - "PRON-POSS"
+        - "PRON-RELAT"
+        - "PRON-RELAT-DOUBLE"
+        - "PREP-ART"
+        - "PREP-POSS"
+        - "PREP-COMPAR"
+        - "POSTPOS-POSS"
+        - "PHRASE-EXCLAM"
+        - "PHRASE-INTERR"
+        - "PHRASE-NEG"
+        - "VERB-MODAL"
+        - "VERB-AUX"
     POS:
       allOf:
         - $ref: "#/components/schemas/POSBase"
-        - type: "string"
-          enum:
-            - "ADJ-COMPAR"
-            - "ADJ-DEITT"
-            - "ADJ-DEMONS"
-            - "ADJ-DEMONS-ANTEC"
-            - "ADJ-DEMONS-SUCC"
-            - "ADJ-EXCLAM"
-            - "ADJ-INDEF"
-            - "ADJ-INDEF-SUBORD"
-            - "ADJ-INDEF-DISTR"
-            - "ADJ-INDEF-QUANT"
-            - "ADJ-INTERR"
-            - "ADJ-POSS"
-            - "ADJ-ORDIN"
-            - "ADJ-QUALIF"
-            - "ADJ-QUALIF-POST"
-            - "ADJ-RELAT"
-            - "ADV-ADVERS"
-            - "ADV-COMPAR"
-            - "ADV-CONCESS"
-            - "ADV-DEITT"
-            - "ADV-INDEF"
-            - "ADV-INDEF-SUBORD"
-            - "ADV-INTERR"
-            - "ADV-LIMIT"
-            - "ADV-LOC"
-            - "ADV-NEG"
-            - "ADV-PHRAS"
-            - "ADV-QUANT"
-            - "ADV-STRENG"
-            - "ADV-STRENG-NEG"
-            - "ADV-TIME"
-            - "ART-DEF"
-            - "ART-INDEF"
-            - "ART-INDEF-PART"
-            - "CONJ-COMPAR"
-            - "CONJ-COMPAR-ANTEC"
-            - "CONJ-COMPAR-SUCC"
-            - "CONJ-CONCESS"
-            - "CONJ-COORD"
-            - "CONJ-COORD-ADVERS"
-            - "CONJ-COORD-DISJ"
-            - "CONJ-COORD-EXPLIC"
-            - "CONJ-COORD-NEG"
-            - "CONJ-CORREL"
-            - "CONJ-CORREL-ANTEC"
-            - "CONJ-CORREL-SUCC"
-            - "CONJ-SUBORD"
-            - "CONJ-SUBORD-ADVERS"
-            - "CONJ-SUBORD-INTERR"
-            - "NOUN-COMMON"
-            - "NOUN-COMMON-GERUND"
-            - "NOUN-COMMON-QUANT"
-            - "NOUN-PROPER"
-            - "NOUN-PROPER-LOC"
-            - "NOUN-PROPER-ORG"
-            - "NOUN-PROPER-PER"
-            - "PRON-DEMONS"
-            - "PRON-EXCLAM"
-            - "PRON-INDEF"
-            - "PRON-INDEF-DISTR"
-            - "PRON-INDEF-QUANT"
-            - "PRON-INDEF-SUBORD"
-            - "PRON-INTERR"
-            - "PRON-ORDIN"
-            - "PRON-PERS"
-            - "PRON-PERS-ENCLIT"
-            - "PRON-PERS-PROCLIT"
-            - "PRON-PERS-PROCLIT-REFL"
-            - "PRON-PERS-PROCLIT-VARIANT"
-            - "PRON-PERS-REFL"
-            - "PRON-PERS-VARIANT"
-            - "PRON-POSS"
-            - "PRON-RELAT"
-            - "PRON-RELAT-DOUBLE"
-            - "PREP-ART"
-            - "PREP-POSS"
-            - "PREP-COMPAR"
-            - "POSTPOS-POSS"
-            - "PHRASE-EXCLAM"
-            - "PHRASE-INTERR"
-            - "PHRASE-NEG"
-            - "VERB-MODAL"
-            - "VERB-AUX"
+        - $ref: "#/components/schemas/POSExt"
     SyntacticRelation:
       type: "string"
       enum:
