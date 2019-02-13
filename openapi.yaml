@@ -135,10 +135,10 @@ components:
       discriminator:
         propertyName: "type"
         mapping:
-          WORD: "TokenWord"
-          TRACE: "TokenTrace"
-          WORD-TRACE: "TokenWordTrace"
-          WORD-COMPOSITE: "TokenComposite"
+          WORD: "#/components/schemas/TokenWord"
+          TRACE: "#/components/schemas/TokenTrace"
+          WORD-TRACE: "#/components/schemas/TokenWordTrace"
+          WORD-COMPOSITE: "#/components/schemas/TokenComposite"
     FormToken:
       type: "object"
       required:
@@ -423,9 +423,9 @@ components:
       discriminator:
         propertyName: "type"
         mapping:
-          dateTime: "DateTimeSimple"
-          offset: "Offset"
-          interval: "Interval"
+          dateTime: "#/components/schemas/DateTimeSimple"
+          offset: "#/components/schemas/Offset"
+          interval: "#/components/schemas/Interval"
     DateTimeSimple:
       type: "object"
       description: "a specific date-time"
