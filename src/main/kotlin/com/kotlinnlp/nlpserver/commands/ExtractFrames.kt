@@ -121,6 +121,6 @@ class ExtractFrames(
       })
     })
 
-    return jsonFrames.toJsonString(prettyPrint) + "\n"
+    return jsonFrames.toJsonString(prettyPrint) + if (prettyPrint) "\n" else ""
   }
 }

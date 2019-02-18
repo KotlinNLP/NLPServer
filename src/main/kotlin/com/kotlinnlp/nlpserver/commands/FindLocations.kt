@@ -60,7 +60,7 @@ class FindLocations(
       array(finder.bestLocations.map {
         JsonObject(it.toJSON() + it.location.getParentsInfo())
       })
-    }.toJsonString(prettyPrint) + "\n"
+    }.toJsonString(prettyPrint) + if (prettyPrint) "\n" else ""
   }
 
   /**

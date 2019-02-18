@@ -50,7 +50,7 @@ class Tokenize(
     }
 
     return this.tokenizers.getValue(tokenizerLang.isoCode).tokenize(text)
-      .toJsonSentences().toJsonString(prettyPrint) + "\n"
+      .toJsonSentences().toJsonString(prettyPrint) + if (prettyPrint) "\n" else ""
   }
 
   /**

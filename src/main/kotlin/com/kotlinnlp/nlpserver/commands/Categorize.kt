@@ -83,6 +83,6 @@ class Categorize(
       }
     })
 
-    return outputPerDomain.toJsonString(prettyPrint) + "\n"
+    return outputPerDomain.toJsonString(prettyPrint) + if (prettyPrint) "\n" else ""
   }
 }

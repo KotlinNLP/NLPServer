@@ -89,7 +89,7 @@ class Parse(
         preprocessor = preprocessor,
         lang = textLanguage,
         prettyPrint = prettyPrint)
-    } + "\n"
+    }
   }
 
   /**
@@ -104,7 +104,7 @@ class Parse(
   private fun parseToCoNLLFormat(parser: NeuralParser<*>,
                                  preprocessor: SentencePreprocessor,
                                  sentences: List<Sentence>): String =
-    sentences.joinToString (separator = "\n\n") {
+    sentences.joinToString(separator = "\n\n", postfix = "\n") {
       parser
         .parse(preprocessor.convert(it.toBaseSentence()))
         .toCoNLL()
@@ -133,7 +133,7 @@ class Parse(
         parser.parse(preprocessor.convert(it.toBaseSentence())).toJSON()
       })
     )
-  }.toJsonString(prettyPrint = prettyPrint)
+  }.toJsonString(prettyPrint = prettyPrint) + if (prettyPrint) "\n" else ""
 
   /**
    * @return a new base sentence built from this tokenizer sentence

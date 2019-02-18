@@ -59,7 +59,7 @@ class DetectLanguage(private val languageDetector: LanguageDetector) : Command {
 
       jsonObj
 
-    }.toJsonString(prettyPrint) + "\n"
+    }.toJsonString(prettyPrint) + if (prettyPrint) "\n" else ""
   }
 
   /**
@@ -114,7 +114,7 @@ class DetectLanguage(private val languageDetector: LanguageDetector) : Command {
 
         jsonObj
       })
-    }.toJsonString(prettyPrint) + "\n"
+    }.toJsonString(prettyPrint) + if (prettyPrint) "\n" else ""
   }
 
   /**
