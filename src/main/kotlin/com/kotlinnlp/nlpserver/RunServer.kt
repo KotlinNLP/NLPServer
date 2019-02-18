@@ -114,7 +114,11 @@ private fun buildFrameExtractors(parsedArgs: CommandLineArguments): Map<String, 
  * @return a map of HAN classifiers associated by domain name or null if the required arguments are not present
  */
 private fun buildHANClassifiers(parsedArgs: CommandLineArguments): Map<String, HANClassifier>? =
-  parsedArgs.hanClassifierModelsDir?.let { NLPBuilder.buildHANClassifiersMap(it) }
+  parsedArgs.hanClassifierModelsDir?.let {
+    NLPBuilder.buildHANClassifiersMap(
+      hanClassifierModelsDir = it,
+      embeddingsDir = parsedArgs.hanClassifierEmbeddingsDir)
+  }
 
 /**
  * @param parsedArgs the parsed command line arguments

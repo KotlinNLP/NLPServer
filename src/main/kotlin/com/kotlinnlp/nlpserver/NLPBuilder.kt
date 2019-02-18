@@ -24,6 +24,8 @@ import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizerModel
 import com.kotlinnlp.simplednn.core.embeddings.EMBDLoader
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMapByDictionary
+import com.kotlinnlp.tokensencoder.embeddings.EmbeddingsEncoderModel
+import com.kotlinnlp.tokensencoder.reduction.ReductionEncoderModel
 import com.kotlinnlp.utils.notEmptyOr
 import java.io.File
 import java.io.FileInputStream
@@ -137,22 +139,32 @@ object NLPBuilder {
   }
 
   /**
-   * Build a list of [HANClassifier]s.
+   * Build a map of domain names to the related [HANClassifier]s.
    *
    * @param hanClassifierModelsDir the directory containing the HAN classifier models
+   * @param embeddingsDir the directory containing the embeddings for the HAN classifiers (null if they are already
+   *                      included in the classifiers models)
    *
    * @return a map of HAN classifiers associated by domain name
    */
-  fun buildHANClassifiersMap(hanClassifierModelsDir: String): Map<String, HANClassifier> {
+  fun buildHANClassifiersMap(hanClassifierModelsDir: String,
+                             embeddingsDir: String? = null): Map<String, HANClassifier> {
 
     this.logger.info("Loading classifiers models from '$hanClassifierModelsDir'")
+
+    val embeddings: Map<String, EmbeddingsMapByDictionary>? = embeddingsDir?.let { this.buildHANEmbeddingsMap(it) }
 
     return File(hanClassifierModelsDir).listFilesOrRaise().associate { modelFile ->
 
       this.logger.info("Loading '${modelFile.name}'...")
       val classifier = HANClassifier(model = HANClassifierModel.load(FileInputStream(modelFile)))
+      val domainName: String = classifier.model.name
 
-      classifier.model.name to classifier
+      embeddings
+        ?.getOrElse(domainName) { throw RuntimeException("Missing classifier embeddings for '$domainName'") }
+        ?.let { classifier.setEmbeddings(it) }
+
+      domainName to classifier
     }
   }
 
@@ -212,6 +224,43 @@ object NLPBuilder {
     this.logger.info("Loading locations dictionary from '$locationsDictionaryFilename'")
 
     return LocationsDictionary.load(FileInputStream(File(locationsDictionaryFilename)))
+  }
+
+  /**
+   * Build a map of domain names to the related HAN classifier embeddings.
+   *
+   * @param embeddingsDir the directory containing the embeddings for the HAN classifiers
+   *
+   * @return a map of HAN classifier embeddings associated by domain name
+   */
+  private fun buildHANEmbeddingsMap(embeddingsDir: String): Map<String, EmbeddingsMapByDictionary> {
+
+    this.logger.info("Loading classifiers embeddings from '$embeddingsDir'")
+
+    return File(embeddingsDir).listFilesOrRaise().associate { embeddingsFile ->
+
+      this.logger.info("Loading '${embeddingsFile.name}'...")
+      val embeddingsMap: EmbeddingsMapByDictionary =
+        EMBDLoader(verbose = false).load(embeddingsFile.absolutePath.toString())
+
+      val domainName: String = embeddingsFile.nameWithoutExtension.substringAfterLast("__")
+
+      domainName to embeddingsMap
+    }
+  }
+
+  /**
+   * Set a given embeddings map into this HAN classifier.
+   * The classifier must use a reduction tokens encoder with a transient embeddings encoder.
+   *
+   * @param embeddingsMap an embeddings map
+   */
+  private fun HANClassifier.setEmbeddings(embeddingsMap: EmbeddingsMapByDictionary) {
+
+    val inputTokensEncoder: EmbeddingsEncoderModel.Transient<*, *> =
+      (this.model.tokensEncoder as ReductionEncoderModel).inputEncoderModel as EmbeddingsEncoderModel.Transient
+
+    inputTokensEncoder.setEmbeddingsMap(embeddingsMap)
   }
 
   /**

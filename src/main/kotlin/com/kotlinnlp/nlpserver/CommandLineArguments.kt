@@ -115,6 +115,17 @@ class CommandLineArguments(args: Array<String>) {
   ).default(null)
 
   /**
+   * The directory containing the pre-trained word embeddings files for the HAN classifiers, one per domain (the file
+   * name must end with '__' followed by the domain name).
+   */
+  val hanClassifierEmbeddingsDir: String? by parser.storing(
+    "-g",
+    "--classifier-embeddings",
+    help="the directory containing the pre-trained word embeddings files for the HAN classifiers, one per domain " +
+      "(the file name must end with '__' followed by the domain name)"
+  ).default(null)
+
+  /**
    * The filename of the LocationsDictionary.
    */
   val locationsDictionary: String? by parser.storing(
@@ -173,6 +184,10 @@ class CommandLineArguments(args: Array<String>) {
     this.checkDependency(
       arg = this.hanClassifierModelsDir, argName = "HAN classifier models directory",
       dep = this.tokenizerModelsDir, depName = "tokenizer models directory")
+
+    this.checkDependency(
+      arg = this.hanClassifierEmbeddingsDir, argName = "HAN classifier embeddings directory",
+      dep = this.hanClassifierModelsDir, depName = "HAN classifier models directory")
   }
 
   /**
