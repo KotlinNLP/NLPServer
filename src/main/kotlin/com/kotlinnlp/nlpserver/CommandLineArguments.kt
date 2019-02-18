@@ -169,6 +169,10 @@ class CommandLineArguments(args: Array<String>) {
     this.checkDependency(
       arg = this.frameExtractorModelsDir, argName = "frame extractor models directory",
       dep = this.embeddingsDir, depName = "embeddings directory")
+
+    this.checkDependency(
+      arg = this.hanClassifierModelsDir, argName = "HAN classifier models directory",
+      dep = this.tokenizerModelsDir, depName = "tokenizer models directory")
   }
 
   /**
