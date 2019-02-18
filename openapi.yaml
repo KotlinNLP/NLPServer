@@ -31,13 +31,28 @@ paths:
         - "analyze"
       summary: "Get the complete analysis of a text"
       operationId: "analyzeText"
+      parameters:
+        - name: "distribution"
+          in: "query"
+          description: "whether to return the score distributions of various analysis elements"
+          allowEmptyValue: true
+          schema:
+            type: "boolean"
+            default: false
+        - name: "pretty"
+          in: "query"
+          description: "whether to indent the returned JSON string, for a major readability"
+          allowEmptyValue: true
+          schema:
+            type: "boolean"
+            default: false
       requestBody:
-        description: "Request parameters"
+        description: "The text to analyze"
         required: true
         content:
-          application/json:
+          text/plain:
             schema:
-              $ref: "#/components/schemas/AnalyzeRequest"
+              type: "string"
       responses:
         "200":
           description: "text successfully analyzed"
@@ -49,21 +64,6 @@ paths:
           description: "Invalid input"
 components:
   schemas:
-    AnalyzeRequest:
-      type: "object"
-      required:
-        - "text"
-      properties:
-        text:
-          type: "string"
-        distribution:
-          type: "boolean"
-          description: "whether to return the score distributions of various analysis elements"
-          default: true
-        pretty:
-          type: "boolean"
-          description: "whether to indent the returned JSON string, for a major readability"
-          default: false
     AnalyzeResponse:
       type: "object"
       required:
