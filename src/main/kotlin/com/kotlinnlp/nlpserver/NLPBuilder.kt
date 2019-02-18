@@ -24,6 +24,7 @@ import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizerModel
 import com.kotlinnlp.simplednn.core.embeddings.EMBDLoader
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMapByDictionary
+import com.kotlinnlp.utils.notEmptyOr
 import java.io.File
 import java.io.FileInputStream
 import java.lang.RuntimeException
@@ -79,11 +80,8 @@ object NLPBuilder {
   fun buildTokenizers(tokenizerModelsDir: String): Map<String, NeuralTokenizer> {
 
     this.logger.info("Loading tokenizer models from '$tokenizerModelsDir'")
-    val modelsDirectory = File(tokenizerModelsDir)
 
-    require(modelsDirectory.isDirectory) { "$tokenizerModelsDir is not a directory" }
-
-    return modelsDirectory.listFilesOrRaise().associate { modelFile ->
+    return File(tokenizerModelsDir).listFilesOrRaise().associate { modelFile ->
 
       this.logger.info("Loading '${modelFile.name}'...")
       val model = NeuralTokenizerModel.load(FileInputStream(modelFile))
@@ -148,11 +146,8 @@ object NLPBuilder {
   fun buildHANClassifiersMap(hanClassifierModelsDir: String): Map<String, HANClassifier> {
 
     this.logger.info("Loading classifiers models from '$hanClassifierModelsDir'")
-    val hanClassifiersDir = File(hanClassifierModelsDir)
 
-    require(hanClassifiersDir.isDirectory) { "$hanClassifierModelsDir is not a directory" }
-
-    return hanClassifiersDir.listFiles().associate { modelFile ->
+    return File(hanClassifierModelsDir).listFilesOrRaise().associate { modelFile ->
 
       this.logger.info("Loading '${modelFile.name}'...")
       val classifier = HANClassifier(model = HANClassifierModel.load(FileInputStream(modelFile)))
@@ -171,11 +166,8 @@ object NLPBuilder {
   fun buildMorphoDictionaries(morphoDictionariesDir: String): Map<String, MorphologyDictionary> {
 
     this.logger.info("Loading morphology dictionaries from '$morphoDictionariesDir'")
-    val morphoDictDir = File(morphoDictionariesDir)
 
-    require(morphoDictDir.isDirectory) { "$morphoDictionariesDir is not a directory" }
-
-    return morphoDictDir.listFilesOrRaise().associate { dictionaryFile ->
+    return File(morphoDictionariesDir).listFilesOrRaise().associate { dictionaryFile ->
 
       this.logger.info("Loading '${dictionaryFile.name}'...")
       val dictionary: MorphologyDictionary = MorphologyDictionary.load(FileInputStream(dictionaryFile))
@@ -194,11 +186,8 @@ object NLPBuilder {
   fun buildEmbeddingsMapsByLanguage(embeddingsDirname: String): Map<String, EmbeddingsMapByDictionary> {
 
     this.logger.info("Loading embeddings from '$embeddingsDirname'")
-    val embeddingsDir = File(embeddingsDirname)
 
-    require(embeddingsDir.isDirectory) { "$embeddingsDirname is not a directory" }
-
-    return embeddingsDir.listFilesOrRaise().associate { embeddingsFile ->
+    return File(embeddingsDirname).listFilesOrRaise().associate { embeddingsFile ->
 
       this.logger.info("Loading '${embeddingsFile.name}'...")
       val embeddings: EmbeddingsMapByDictionary =
@@ -226,11 +215,15 @@ object NLPBuilder {
   }
 
   /**
+   * @throws IllegalArgumentException if this is not a directory
    * @throws RuntimeException if the file of this directory is empty
    *
    * @return the list of files contained in this directory if it is not empty, otherwise an exception is raised
    */
-  private fun File.listFilesOrRaise(): Array<File> = this.listFiles().let {
-    if (it.isNotEmpty()) it else throw RuntimeException("Empty directory.")
+  private fun File.listFilesOrRaise(): List<File> {
+
+    require(this.isDirectory) { "${this.name} is not a directory" }
+
+    return this.listFiles().toList().notEmptyOr { throw RuntimeException("Empty directory.") }
   }
 }
