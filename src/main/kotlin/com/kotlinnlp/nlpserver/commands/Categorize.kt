@@ -60,7 +60,8 @@ class Categorize(
     this.checkText(text)
 
     val textLanguage: Language = this.getTextLanguage(text = text, forcedLang = lang)
-    val sentences: List<TokenizerSentence> = this.tokenizers.getValue(textLanguage.isoCode).tokenize(text)
+    val sentences: List<TokenizerSentence> =
+      this.tokenizers.getValue(textLanguage.isoCode).tokenize(text).filter { it.tokens.isNotEmpty() }
     val classifiers: List<HANClassifier> =
       domain?.let { listOf(this.hanClassifiers[domain] ?: throw InvalidDomain(domain)) }
         ?: this.hanClassifiers.values.toList()
