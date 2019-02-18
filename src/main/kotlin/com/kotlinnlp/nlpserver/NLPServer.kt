@@ -359,6 +359,18 @@ class NLPServer(
         prettyPrint = request.queryParams("pretty") != null)
     }
 
+    Spark.get("/:lang/:domain") { request, _ ->
+
+      request.checkRequiredParams(requiredParams = listOf("text"))
+
+      this.categorize!!(
+        text = request.queryParams("text"),
+        lang = getLanguageByIso(request.params("lang")),
+        domain = request.params("domain"),
+        distribution = request.queryParams("distribution") != null,
+        prettyPrint = request.queryParams("pretty") != null)
+    }
+
     Spark.post("") { request, _ ->
       this.categorize!!(
         text = request.body(),
@@ -371,6 +383,15 @@ class NLPServer(
       this.categorize!!(
         text = request.body(),
         lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
+        domain = request.params("domain"),
+        distribution = request.queryParams("distribution") != null,
+        prettyPrint = request.queryParams("pretty") != null)
+    }
+
+    Spark.post("/:lang/:domain") { request, _ ->
+      this.categorize!!(
+        text = request.body(),
+        lang = getLanguageByIso(request.params("lang")),
         domain = request.params("domain"),
         distribution = request.queryParams("distribution") != null,
         prettyPrint = request.queryParams("pretty") != null)
