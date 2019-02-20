@@ -68,8 +68,8 @@
         <klaxon.version>3.0.5</klaxon.version>
         <linguisticdescription.version>0.10.1</linguisticdescription.version>
         <morphologicalanalyzer.version>0.4.1</morphologicalanalyzer.version>
-        <neuraltokenizer.version>0.4.3</neuraltokenizer.version>
-        <languagedetector.version>0.4.5</languagedetector.version>
+        <neuraltokenizer.version>0.4.4</neuraltokenizer.version>
+        <languagedetector.version>0.4.6</languagedetector.version>
         <neuralparser.version>0.6.1</neuralparser.version>
         <lssencoder.version>0.1.2</lssencoder.version>
         <simplednn.version>0.12.0</simplednn.version>
