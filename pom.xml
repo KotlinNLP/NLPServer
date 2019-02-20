@@ -67,7 +67,7 @@
         <xenocom.version>0.0.5</xenocom.version>
         <klaxon.version>3.0.5</klaxon.version>
         <linguisticdescription.version>0.10.1</linguisticdescription.version>
-        <morphologicalanalyzer.version>0.4.1</morphologicalanalyzer.version>
+        <morphologicalanalyzer.version>0.4.2</morphologicalanalyzer.version>
         <neuraltokenizer.version>0.4.4</neuraltokenizer.version>
         <languagedetector.version>0.4.6</languagedetector.version>
         <neuralparser.version>0.6.1</neuralparser.version>
