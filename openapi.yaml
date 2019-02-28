@@ -50,9 +50,9 @@ paths:
         description: "The text to analyze"
         required: true
         content:
-          text/plain:
+          application/json:
             schema:
-              type: "string"
+              $ref: "#/components/schemas/AnalyzeInput"
       responses:
         "200":
           description: "text successfully analyzed"
@@ -64,6 +64,13 @@ paths:
           description: "Invalid input"
 components:
   schemas:
+    AnalyzeInput:
+      type: "object"
+      required:
+        - "text"
+      properties:
+        text:
+          type: "string"
     AnalyzeResponse:
       type: "object"
       required:
