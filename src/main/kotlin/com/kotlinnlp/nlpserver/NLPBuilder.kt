@@ -22,8 +22,7 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRParser
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizerModel
-import com.kotlinnlp.simplednn.core.embeddings.EMBDLoader
-import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMapByDictionary
+import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
 import com.kotlinnlp.tokensencoder.embeddings.EmbeddingsEncoderModel
 import com.kotlinnlp.tokensencoder.reduction.ReductionEncoderModel
 import com.kotlinnlp.utils.notEmptyOr
@@ -152,7 +151,7 @@ object NLPBuilder {
 
     this.logger.info("Loading classifiers models from '$hanClassifierModelsDir'")
 
-    val embeddings: Map<String, EmbeddingsMapByDictionary>? = embeddingsDir?.let { this.buildHANEmbeddingsMap(it) }
+    val embeddings: Map<String, EmbeddingsMap<String>>? = embeddingsDir?.let { this.buildHANEmbeddingsMap(it) }
 
     return File(hanClassifierModelsDir).listFilesOrRaise().associate { modelFile ->
 
@@ -195,15 +194,15 @@ object NLPBuilder {
    *
    * @return a map of languages ISO 639-1 codes to the related [MorphologyDictionary]
    */
-  fun buildEmbeddingsMapsByLanguage(embeddingsDirname: String): Map<String, EmbeddingsMapByDictionary> {
+  fun buildEmbeddingsMapsByLanguage(embeddingsDirname: String): Map<String, EmbeddingsMap<String>> {
 
     this.logger.info("Loading embeddings from '$embeddingsDirname'")
 
     return File(embeddingsDirname).listFilesOrRaise().associate { embeddingsFile ->
 
       this.logger.info("Loading '${embeddingsFile.name}'...")
-      val embeddings: EmbeddingsMapByDictionary =
-        EMBDLoader(verbose = false).load(embeddingsFile.absolutePath.toString())
+      val embeddings: EmbeddingsMap<String> =
+        EmbeddingsMap.load(embeddingsFile.absolutePath.toString(), verbose = false)
 
       val langCode: String =
         getLanguageByIso(with (embeddingsFile.nameWithoutExtension) { substring(length - 2) }.toLowerCase()).isoCode
@@ -233,15 +232,15 @@ object NLPBuilder {
    *
    * @return a map of HAN classifier embeddings associated by domain name
    */
-  private fun buildHANEmbeddingsMap(embeddingsDir: String): Map<String, EmbeddingsMapByDictionary> {
+  private fun buildHANEmbeddingsMap(embeddingsDir: String): Map<String, EmbeddingsMap<String>> {
 
     this.logger.info("Loading classifiers embeddings from '$embeddingsDir'")
 
     return File(embeddingsDir).listFilesOrRaise().associate { embeddingsFile ->
 
       this.logger.info("Loading '${embeddingsFile.name}'...")
-      val embeddingsMap: EmbeddingsMapByDictionary =
-        EMBDLoader(verbose = false).load(embeddingsFile.absolutePath.toString())
+      val embeddingsMap: EmbeddingsMap<String> =
+        EmbeddingsMap.load(embeddingsFile.absolutePath.toString(), verbose = false)
 
       val domainName: String = embeddingsFile.nameWithoutExtension.substringAfterLast("__")
 
@@ -255,7 +254,7 @@ object NLPBuilder {
    *
    * @param embeddingsMap an embeddings map
    */
-  private fun HANClassifier.setEmbeddings(embeddingsMap: EmbeddingsMapByDictionary) {
+  private fun HANClassifier.setEmbeddings(embeddingsMap: EmbeddingsMap<String>) {
 
     val inputTokensEncoder: EmbeddingsEncoderModel.Transient<*, *> =
       (this.model.tokensEncoder as ReductionEncoderModel).inputEncoderModel as EmbeddingsEncoderModel.Transient

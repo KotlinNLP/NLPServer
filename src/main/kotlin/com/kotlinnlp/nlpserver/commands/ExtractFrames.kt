@@ -28,7 +28,7 @@ import com.kotlinnlp.nlpserver.MissingEmbeddingsMapByLanguage
 import com.kotlinnlp.nlpserver.commands.utils.TokenizingCommand
 import com.kotlinnlp.nlpserver.commands.utils.buildSentence
 import com.kotlinnlp.nlpserver.commands.utils.buildTokensEncoder
-import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMapByDictionary
+import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.tokensencoder.TokensEncoder
 
@@ -47,7 +47,7 @@ class ExtractFrames(
   override val tokenizers: Map<String, NeuralTokenizer>,
   private val morphoPreprocessors: Map<String, MorphoPreprocessor>,
   private val lssModels: Map<String, LSSModel<ParsingToken, ParsingSentence>>,
-  private val wordEmbeddings: Map<String, EmbeddingsMapByDictionary>,
+  private val wordEmbeddings: Map<String, EmbeddingsMap<String>>,
   private val frameExtractors: Map<String, FrameExtractor>
 ) : TokenizingCommand {
 

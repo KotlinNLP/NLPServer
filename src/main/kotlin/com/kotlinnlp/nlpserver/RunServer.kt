@@ -16,7 +16,7 @@ import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRParser
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.nlpserver.commands.*
-import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMapByDictionary
+import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
 import com.xenomachina.argparser.mainBody
 
 /**
@@ -35,7 +35,7 @@ fun main(args: Array<String>) = mainBody {
   val locationsDictionary: LocationsDictionary? = buildLocationsDictionary(parsedArgs)
   val frameExtractors: Map<String, FrameExtractor>? = buildFrameExtractors(parsedArgs)
   val hanClassifiers: Map<String, HANClassifier>? = buildHANClassifiers(parsedArgs)
-  val embeddingsMapByLang: Map<String, EmbeddingsMapByDictionary>? = buildEmbeddingsMapsByLanguage(parsedArgs)
+  val embeddingsMapByLang: Map<String, EmbeddingsMap<String>>? = buildEmbeddingsMapsByLanguage(parsedArgs)
 
   NLPServer(
     port = parsedArgs.port,
@@ -125,7 +125,7 @@ private fun buildHANClassifiers(parsedArgs: CommandLineArguments): Map<String, H
  *
  * @return a map of embeddings maps associated by language ISO code or null if the required arguments are not present
  */
-private fun buildEmbeddingsMapsByLanguage(parsedArgs: CommandLineArguments): Map<String, EmbeddingsMapByDictionary>? =
+private fun buildEmbeddingsMapsByLanguage(parsedArgs: CommandLineArguments): Map<String, EmbeddingsMap<String>>? =
   parsedArgs.embeddingsDir?.let { NLPBuilder.buildEmbeddingsMapsByLanguage(it) }
 
 /**
