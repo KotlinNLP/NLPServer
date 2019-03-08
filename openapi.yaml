@@ -59,7 +59,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AnalyzeResponse"
+                $ref: "#/components/schemas/NLPAnalysis"
         400:
           description: "Invalid input"
 components:
@@ -71,7 +71,7 @@ components:
       properties:
         text:
           type: "string"
-    AnalyzeResponse:
+    NLPAnalysis:
       type: "object"
       required:
         - "linguisticAnalysis"
