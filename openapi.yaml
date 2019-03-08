@@ -19,8 +19,8 @@ servers:
       basePath:
         default: "/"
 tags:
-  - name: "analyze"
-    description: "Get the complete analysis of a text"
+  - name: "NLPService"
+    description: "Services for the analysis of texts written in natural language"
     externalDocs:
       description: "Find out more"
       url: "https://github.com/KotlinNLP/NLPServer"
@@ -28,7 +28,7 @@ paths:
   /analyze:
     post:
       tags:
-        - "analyze"
+        - "NLPService"
       summary: "Get the complete analysis of a text"
       operationId: "analyzeText"
       parameters:
