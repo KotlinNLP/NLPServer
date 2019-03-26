@@ -18,6 +18,7 @@ import com.kotlinnlp.neuralparser.language.BaseToken
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
+import com.kotlinnlp.tokensencoder.TokensEncoder
 import com.kotlinnlp.tokensencoder.embeddings.keyextractor.NormWordKeyExtractor
 import com.kotlinnlp.tokensencoder.embeddings.EmbeddingsEncoderModel
 import com.kotlinnlp.tokensencoder.ensemble.EnsembleTokensEncoder
@@ -43,23 +44,30 @@ internal fun buildSentence(forms: List<String>): Sentence<FormToken> =
  *
  * @return a new tokens encoder
  */
-internal fun buildTokensEncoder(preprocessor: SentencePreprocessor,
-                                embeddingsMap: EmbeddingsMap<String>,
-                                lssModel: LSSModel<ParsingToken, ParsingSentence>) = EnsembleTokensEncoder(
-  model = EnsembleTokensEncoderModel(
-    components = listOf(
-      EnsembleTokensEncoderModel.ComponentModel(
-        TokensEncoderWrapperModel(
-          model = EmbeddingsEncoderModel.Base(
-            embeddingsMap = embeddingsMap,
-            embeddingKeyExtractor = NormWordKeyExtractor()),
-          converter = MirrorConverter())),
-      EnsembleTokensEncoderModel.ComponentModel(
-        TokensEncoderWrapperModel(
-          model = LSSTokensEncoderModel(lssModel = lssModel),
-          converter = FormSentenceConverter(preprocessor))))
-  ),
-  useDropout = false)
+internal fun buildTokensEncoder(
+  preprocessor: SentencePreprocessor,
+  embeddingsMap: EmbeddingsMap<String>,
+  lssModel: LSSModel<ParsingToken, ParsingSentence>
+): TokensEncoder<FormToken, Sentence<FormToken>> {
+
+  val embeddingsEncoderModel = EmbeddingsEncoderModel.Base(
+    embeddingsMap = embeddingsMap,
+    embeddingKeyExtractor = NormWordKeyExtractor())
+  val lssEncoderModel = LSSTokensEncoderModel(lssModel = lssModel)
+
+  return EnsembleTokensEncoder(
+    model = EnsembleTokensEncoderModel(
+      components = listOf(
+        EnsembleTokensEncoderModel.ComponentModel(
+          model = TokensEncoderWrapperModel(model = embeddingsEncoderModel, converter = MirrorConverter()),
+          trainable = true),
+        EnsembleTokensEncoderModel.ComponentModel(
+          model = TokensEncoderWrapperModel(model = lssEncoderModel, converter = FormSentenceConverter(preprocessor)),
+          trainable = true)
+      )
+    ),
+    useDropout = false)
+}
 
 /**
  * A token with a form.
