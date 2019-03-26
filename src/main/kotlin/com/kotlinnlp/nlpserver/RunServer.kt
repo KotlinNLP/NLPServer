@@ -11,7 +11,6 @@ import com.kotlinnlp.frameextractor.FrameExtractor
 import com.kotlinnlp.geolocation.dictionary.LocationsDictionary
 import com.kotlinnlp.hanclassifier.HANClassifier
 import com.kotlinnlp.languagedetector.LanguageDetector
-import com.kotlinnlp.morphologicalanalyzer.MorphologicalAnalyzer
 import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRParser
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
@@ -136,9 +135,7 @@ private fun buildEmbeddingsMapsByLanguage(parsedArgs: CommandLineArguments): Map
  */
 private fun buildMorphoPreprocessors(parsedArgs: CommandLineArguments): Map<String, MorphoPreprocessor> =
   parsedArgs.morphoDictionaryDir?.let {
-    NLPBuilder.buildMorphoDictionaries(it).mapValues { (_, dictionary) ->
-      MorphoPreprocessor(MorphologicalAnalyzer(dictionary))
-    }
+    NLPBuilder.buildMorphoDictionaries(it).mapValues { (_, dictionary) -> MorphoPreprocessor(dictionary) }
   } ?: mapOf()
 
 /**
