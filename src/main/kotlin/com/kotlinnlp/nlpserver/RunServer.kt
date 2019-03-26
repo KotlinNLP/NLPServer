@@ -137,7 +137,7 @@ private fun buildEmbeddingsMapsByLanguage(parsedArgs: CommandLineArguments): Map
 private fun buildMorphoPreprocessors(parsedArgs: CommandLineArguments): Map<String, MorphoPreprocessor> =
   parsedArgs.morphoDictionaryDir?.let {
     NLPBuilder.buildMorphoDictionaries(it).mapValues { (_, dictionary) ->
-      MorphoPreprocessor(MorphologicalAnalyzer(language = dictionary.language, dictionary = dictionary))
+      MorphoPreprocessor(MorphologicalAnalyzer(dictionary))
     }
   } ?: mapOf()
 
