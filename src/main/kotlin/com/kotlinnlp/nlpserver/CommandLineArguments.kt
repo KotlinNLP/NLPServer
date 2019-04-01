@@ -77,17 +77,6 @@ class CommandLineArguments(args: Array<String>) {
   ).default(null)
 
   /**
-   * The directory containing the pre-trained word embeddings files, one per language (the file name must end with the
-   * ISO 639-1 language code).
-   */
-  val embeddingsDir: String? by parser.storing(
-    "-e",
-    "--pre-trained-word-emb",
-    help="the directory containing the pre-trained word embeddings files, one per language (the file name must end " +
-      "with the ISO 639-1 language code)"
-  ).default(null)
-
-  /**
    * The directory containing the serialized models of the LHRParser, one per language.
    */
   val lhrParserModelsDir: String? by parser.storing(
@@ -103,6 +92,17 @@ class CommandLineArguments(args: Array<String>) {
     "-x",
     "--frame-extractor",
     help="the directory containing the serialized models of the frame extractors, one per domain"
+  ).default(null)
+
+  /**
+   * The directory containing the pre-trained word embeddings files for the frame extractors, one per domain (the file
+   * name must end with '__' followed by the domain name).
+   */
+  val framesExtractorEmbeddingsDir: String? by parser.storing(
+    "-e",
+    "--frames-extractor-embeddings",
+    help="the directory containing the pre-trained word embeddings files for the frame extractors, one per domain " +
+      "(the file name must end with '__' followed by the domain name)"
   ).default(null)
 
   /**
@@ -176,10 +176,6 @@ class CommandLineArguments(args: Array<String>) {
     this.checkDependency(
       arg = this.frameExtractorModelsDir, argName = "frame extractor models directory",
       dep = this.tokenizerModelsDir, depName = "tokenizer models directory")
-
-    this.checkDependency(
-      arg = this.frameExtractorModelsDir, argName = "frame extractor models directory",
-      dep = this.embeddingsDir, depName = "embeddings directory")
 
     this.checkDependency(
       arg = this.hanClassifierModelsDir, argName = "HAN classifier models directory",
