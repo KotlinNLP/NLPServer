@@ -92,23 +92,12 @@ class NLPServer(
 
       Spark.path("/tokenize") { this.tokenizeRoute() }
 
-      this.parse?.let {
-
-        Spark.path("/parse") { this.parseRoute() }
-
-        this.extractFrames?.let {
-          Spark.path("/extract-frames") { this.extractFramesRoute() }
-        }
-      }
-
-      this.categorize?.let {
-        Spark.path("/categorize") { this.categorizeRoute() }
-      }
+      this.parse?.let { Spark.path("/parse") { this.parseRoute() } }
+      this.extractFrames?.let { Spark.path("/extract-frames") { this.extractFramesRoute() } }
+      this.categorize?.let { Spark.path("/categorize") { this.categorizeRoute() } }
     }
 
-    this.findLocations?.let {
-      Spark.path("/find-locations") { this.findLocationsRoute() }
-    }
+    this.findLocations?.let { Spark.path("/find-locations") { this.findLocationsRoute() } }
 
     this.logger.info("NLP Server running on 'localhost:%d'".format(Spark.port()))
   }
