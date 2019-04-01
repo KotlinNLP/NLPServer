@@ -150,13 +150,16 @@ object NLPBuilder {
                              embeddingsDir: String? = null): Map<String, HANClassifier> {
 
     this.logger.info("Loading classifiers models from '$hanClassifierModelsDir'")
+    val hanClassifiersDir = File(hanClassifierModelsDir)
+
+    require(hanClassifiersDir.isDirectory) { "$hanClassifierModelsDir is not a directory" }
 
     val embeddings: Map<String, EmbeddingsMap<String>>? = embeddingsDir?.let {
       this.logger.info("Loading classifiers embeddings from '$embeddingsDir'")
       this.buildDomainEmbeddingsMap(it)
     }
 
-    return File(hanClassifierModelsDir).listFilesOrRaise().associate { modelFile ->
+    return hanClassifiersDir.listFilesOrRaise().associate { modelFile ->
 
       this.logger.info("Loading '${modelFile.name}'...")
       val classifier = HANClassifier(model = HANClassifierModel.load(FileInputStream(modelFile)))
