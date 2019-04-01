@@ -7,7 +7,7 @@
 
 package com.kotlinnlp.nlpserver
 
-import com.kotlinnlp.frameextractor.FrameExtractor
+import com.kotlinnlp.frameextractor.TextFramesExtractor
 import com.kotlinnlp.geolocation.dictionary.LocationsDictionary
 import com.kotlinnlp.hanclassifier.HANClassifier
 import com.kotlinnlp.languagedetector.LanguageDetector
@@ -15,7 +15,6 @@ import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRParser
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.nlpserver.commands.*
-import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
 import com.xenomachina.argparser.mainBody
 
 /**
@@ -32,9 +31,8 @@ fun main(args: Array<String>) = mainBody {
   val parsers: Map<String, LHRParser>? = buildParsers(parsedArgs)
   val morphoPreprocessors: Map<String, MorphoPreprocessor> = buildMorphoPreprocessors(parsedArgs)
   val locationsDictionary: LocationsDictionary? = buildLocationsDictionary(parsedArgs)
-  val frameExtractors: Map<String, FrameExtractor>? = buildFrameExtractors(parsedArgs)
+  val frameExtractors: Map<String, TextFramesExtractor>? = buildFrameExtractors(parsedArgs)
   val hanClassifiers: Map<String, HANClassifier>? = buildHANClassifiers(parsedArgs)
-  val embeddingsMapByLang: Map<String, EmbeddingsMap<String>>? = buildEmbeddingsMapsByLanguage(parsedArgs)
 
   NLPServer(
     port = parsedArgs.port,
@@ -52,14 +50,8 @@ fun main(args: Array<String>) = mainBody {
       FindLocations(dictionary = locationsDictionary, tokenizers = tokenizers)
     else
       null,
-    extractFrames = if (tokenizers != null && parsers != null && embeddingsMapByLang != null && frameExtractors != null)
-      ExtractFrames(
-        languageDetector = languageDetector,
-        tokenizers = tokenizers,
-        lssModels = parsers.mapValues { it.value.model.lssModel },
-        morphoPreprocessors = morphoPreprocessors,
-        wordEmbeddings = embeddingsMapByLang,
-        frameExtractors = frameExtractors)
+    extractFrames = if (tokenizers != null && parsers != null && frameExtractors != null)
+      ExtractFrames(languageDetector = languageDetector, tokenizers = tokenizers, frameExtractors = frameExtractors)
     else
       null,
     categorize = if (tokenizers != null && hanClassifiers != null)
@@ -102,10 +94,14 @@ private fun buildParsers(parsedArgs: CommandLineArguments): Map<String, LHRParse
 /**
  * @param parsedArgs the parsed command line arguments
  *
- * @return a map of frame extractors associated by domain name or null if the required arguments are not present
+ * @return a map of text frames extractors associated by domain name or null if the required arguments are not present
  */
-private fun buildFrameExtractors(parsedArgs: CommandLineArguments): Map<String, FrameExtractor>? =
-  parsedArgs.frameExtractorModelsDir?.let { NLPBuilder.buildFrameExtractorsMap(it) }
+private fun buildFrameExtractors(parsedArgs: CommandLineArguments): Map<String, TextFramesExtractor>? =
+  parsedArgs.frameExtractorModelsDir?.let {
+    NLPBuilder.buildFrameExtractorsMap(
+      frameExtractorModelsDir = it,
+      embeddingsDir = parsedArgs.framesExtractorEmbeddingsDir)
+  }
 
 /**
  * @param parsedArgs the parsed command line arguments
@@ -118,14 +114,6 @@ private fun buildHANClassifiers(parsedArgs: CommandLineArguments): Map<String, H
       hanClassifierModelsDir = it,
       embeddingsDir = parsedArgs.hanClassifierEmbeddingsDir)
   }
-
-/**
- * @param parsedArgs the parsed command line arguments
- *
- * @return a map of embeddings maps associated by language ISO code or null if the required arguments are not present
- */
-private fun buildEmbeddingsMapsByLanguage(parsedArgs: CommandLineArguments): Map<String, EmbeddingsMap<String>>? =
-  parsedArgs.embeddingsDir?.let { NLPBuilder.buildEmbeddingsMapsByLanguage(it) }
 
 /**
  * @param parsedArgs the parsed command line arguments
