@@ -50,7 +50,7 @@ fun main(args: Array<String>) = mainBody {
       FindLocations(dictionary = locationsDictionary, tokenizers = tokenizers)
     else
       null,
-    extractFrames = if (tokenizers != null && parsers != null && frameExtractors != null)
+    extractFrames = if (tokenizers != null && frameExtractors != null)
       ExtractFrames(languageDetector = languageDetector, tokenizers = tokenizers, frameExtractors = frameExtractors)
     else
       null,
