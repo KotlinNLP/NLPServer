@@ -11,62 +11,29 @@ import com.beust.klaxon.JsonArray
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.json
 import com.kotlinnlp.frameextractor.FrameExtractor
+import com.kotlinnlp.frameextractor.TextFramesExtractor
 import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.linguisticdescription.InvalidLanguageCode
 import com.kotlinnlp.linguisticdescription.language.Language
 import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
 import com.kotlinnlp.linguisticdescription.sentence.Sentence
-import com.kotlinnlp.lssencoder.LSSModel
-import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
-import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
-import com.kotlinnlp.neuralparser.language.ParsingSentence
-import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.Sentence as TokenizerSentence
 import com.kotlinnlp.nlpserver.InvalidDomain
-import com.kotlinnlp.nlpserver.MissingEmbeddingsMapByLanguage
 import com.kotlinnlp.nlpserver.commands.utils.TokenizingCommand
-import com.kotlinnlp.nlpserver.commands.utils.buildSentence
-import com.kotlinnlp.nlpserver.commands.utils.buildTokensEncoder
-import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
-import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
-import com.kotlinnlp.tokensencoder.TokensEncoder
 
 /**
  * The command executed on the route '/extract-frames'.
 
  * @param languageDetector a language detector (can be null)
  * @param tokenizers a map of neural tokenizers associated by language ISO 639-1 code
- * @param morphoPreprocessors a map of morpho-preprocessors associated by language ISO 639-1 code
- * @param lssModels a map of LSS encoders models associated by language ISO 639-1 code
- * @param wordEmbeddings a map of pre-trained word embeddings maps associated by language ISO 639-1 code
- * @param frameExtractors a map of frame extractors associated by domain name
+ * @param frameExtractors a map of text frames extractors associated by domain name
  */
 class ExtractFrames(
   override val languageDetector: LanguageDetector?,
   override val tokenizers: Map<String, NeuralTokenizer>,
-  private val morphoPreprocessors: Map<String, MorphoPreprocessor>,
-  private val lssModels: Map<String, LSSModel<ParsingToken, ParsingSentence>>,
-  private val wordEmbeddings: Map<String, EmbeddingsMap<String>>,
-  private val frameExtractors: Map<String, FrameExtractor>
+  private val frameExtractors: Map<String, TextFramesExtractor>
 ) : TokenizingCommand {
-
-  /**
-   * A base sentence preprocessor.
-   */
-  private val basePreprocessor = BasePreprocessor()
-
-  /**
-   * A map of LSS sentence encoders associated by ISO 639-1 language code.
-   */
-  private val tokensEncoders: Map<String, TokensEncoder<FormToken, Sentence<FormToken>>> =
-    this.lssModels
-      .mapValues { (langCode, lssModel) ->
-        buildTokensEncoder(
-          preprocessor = this.morphoPreprocessors[langCode] ?: this.basePreprocessor,
-          embeddingsMap = this.wordEmbeddings[langCode] ?: throw MissingEmbeddingsMapByLanguage(langCode),
-          lssModel = lssModel)
-      }
 
   /**
    * Extract frames from the given [text], eventually forcing on a given language and a given domain.
@@ -92,9 +59,7 @@ class ExtractFrames(
 
     val textLanguage: Language = this.getTextLanguage(text = text, forcedLang = lang)
     val sentences: List<TokenizerSentence> = this.tokenizers.getValue(textLanguage.isoCode).tokenize(text)
-    val tokensEncoder: TokensEncoder<FormToken, Sentence<FormToken>> =
-      this.tokensEncoders[textLanguage.isoCode] ?: throw InvalidLanguageCode(textLanguage.isoCode)
-    val extractors: List<FrameExtractor> = domain?.let {
+    val extractors: List<TextFramesExtractor> = domain?.let {
       listOf(this.frameExtractors[it] ?: throw InvalidDomain(domain))
     } ?: this.frameExtractors.values.toList()
 
@@ -102,12 +67,11 @@ class ExtractFrames(
 
       extractor.model.name to JsonArray(sentences.map { sentence ->
 
-        val tokensForms: List<String> = sentence.tokens.map { it.form }
-        val tokenEncodings: List<DenseNDArray> = tokensEncoder.forward(buildSentence(tokensForms))
-        val output: FrameExtractor.Output = extractor.forward(tokenEncodings)
+        @Suppress("UNCHECKED_CAST")
+        val output: FrameExtractor.Output = extractor.extractFrames(sentence as Sentence<FormToken>)
 
         json {
-          val jsonObj: JsonObject = obj("intent" to output.buildIntent().toJSON(tokensForms))
+          val jsonObj: JsonObject = obj("intent" to output.buildIntent().toJSON(sentence.tokens.map { it.form }))
 
           if (distribution) jsonObj["distribution"] = array(
             output.buildDistribution().map.entries
