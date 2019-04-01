@@ -10,7 +10,7 @@ package com.kotlinnlp.nlpserver.commands
 import com.beust.klaxon.JsonArray
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.json
-import com.kotlinnlp.frameextractor.FrameExtractor
+import com.kotlinnlp.frameextractor.FramesExtractor
 import com.kotlinnlp.frameextractor.TextFramesExtractor
 import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.linguisticdescription.InvalidLanguageCode
@@ -68,7 +68,7 @@ class ExtractFrames(
       extractor.model.name to JsonArray(sentences.map { sentence ->
 
         @Suppress("UNCHECKED_CAST")
-        val output: FrameExtractor.Output = extractor.extractFrames(sentence as Sentence<FormToken>)
+        val output: FramesExtractor.Output = extractor.extractFrames(sentence as Sentence<FormToken>)
 
         json {
           val jsonObj: JsonObject = obj("intent" to output.buildIntent().toJSON(sentence.tokens.map { it.form }))
