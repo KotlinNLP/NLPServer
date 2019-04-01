@@ -171,10 +171,6 @@ class CommandLineArguments(args: Array<String>) {
 
     this.checkDependency(
       arg = this.frameExtractorModelsDir, argName = "frame extractor models directory",
-      dep = this.lhrParserModelsDir, depName = "neural parser models directory")
-
-    this.checkDependency(
-      arg = this.frameExtractorModelsDir, argName = "frame extractor models directory",
       dep = this.tokenizerModelsDir, depName = "tokenizer models directory")
 
     this.checkDependency(
