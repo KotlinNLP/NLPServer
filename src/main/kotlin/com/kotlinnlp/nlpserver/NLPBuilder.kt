@@ -7,7 +7,6 @@
 
 package com.kotlinnlp.nlpserver
 
-import com.kotlinnlp.frameextractor.FrameExtractor
 import com.kotlinnlp.frameextractor.TextFramesExtractor
 import com.kotlinnlp.frameextractor.TextFramesExtractorModel
 import com.kotlinnlp.geolocation.dictionary.LocationsDictionary
@@ -117,7 +116,7 @@ object NLPBuilder {
   }
 
   /**
-   * Build a list of [FrameExtractor]s.
+   * Build a map of domain names to the related [TextFramesExtractor]s.
    *
    * @param frameExtractorModelsDir the directory containing the frame extractors models
    * @param embeddingsDir the directory containing the embeddings for the frames extractors (null if they are already
