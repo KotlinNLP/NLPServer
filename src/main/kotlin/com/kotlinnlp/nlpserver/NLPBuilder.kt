@@ -151,7 +151,10 @@ object NLPBuilder {
 
     this.logger.info("Loading classifiers models from '$hanClassifierModelsDir'")
 
-    val embeddings: Map<String, EmbeddingsMap<String>>? = embeddingsDir?.let { this.buildHANEmbeddingsMap(it) }
+    val embeddings: Map<String, EmbeddingsMap<String>>? = embeddingsDir?.let {
+      this.logger.info("Loading classifiers embeddings from '$embeddingsDir'")
+      this.buildDomainEmbeddingsMap(it)
+    }
 
     return File(hanClassifierModelsDir).listFilesOrRaise().associate { modelFile ->
 
@@ -226,15 +229,13 @@ object NLPBuilder {
   }
 
   /**
-   * Build a map of domain names to the related HAN classifier embeddings.
+   * Build a map of domain names to the related embeddings map.
    *
-   * @param embeddingsDir the directory containing the embeddings for the HAN classifiers
+   * @param embeddingsDir the directory containing the embeddings
    *
-   * @return a map of HAN classifier embeddings associated by domain name
+   * @return a map of embeddings maps associated by domain name
    */
-  private fun buildHANEmbeddingsMap(embeddingsDir: String): Map<String, EmbeddingsMap<String>> {
-
-    this.logger.info("Loading classifiers embeddings from '$embeddingsDir'")
+  private fun buildDomainEmbeddingsMap(embeddingsDir: String): Map<String, EmbeddingsMap<String>> {
 
     return File(embeddingsDir).listFilesOrRaise().associate { embeddingsFile ->
 
