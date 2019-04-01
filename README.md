@@ -73,7 +73,7 @@ optional arguments:
 <dependency>
     <groupId>com.kotlinnlp</groupId>
     <artifactId>nlpserver</artifactId>
-    <version>0.5.0</version>
+    <version>0.6.1</version>
 </dependency>
 ```
 
