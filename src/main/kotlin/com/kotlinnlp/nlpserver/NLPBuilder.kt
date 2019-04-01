@@ -8,7 +8,8 @@
 package com.kotlinnlp.nlpserver
 
 import com.kotlinnlp.frameextractor.FrameExtractor
-import com.kotlinnlp.frameextractor.FrameExtractorModel
+import com.kotlinnlp.frameextractor.TextFramesExtractor
+import com.kotlinnlp.frameextractor.TextFramesExtractorModel
 import com.kotlinnlp.geolocation.dictionary.LocationsDictionary
 import com.kotlinnlp.hanclassifier.HANClassifier
 import com.kotlinnlp.hanclassifier.HANClassifierModel
@@ -16,7 +17,6 @@ import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.languagedetector.LanguageDetectorModel
 import com.kotlinnlp.languagedetector.utils.FrequencyDictionary
 import com.kotlinnlp.languagedetector.utils.TextTokenizer
-import com.kotlinnlp.linguisticdescription.language.getLanguageByIso
 import com.kotlinnlp.morphologicalanalyzer.dictionary.MorphologyDictionary
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRParser
@@ -24,7 +24,9 @@ import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizerModel
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
 import com.kotlinnlp.tokensencoder.embeddings.EmbeddingsEncoderModel
+import com.kotlinnlp.tokensencoder.ensemble.EnsembleTokensEncoderModel
 import com.kotlinnlp.tokensencoder.reduction.ReductionEncoderModel
+import com.kotlinnlp.tokensencoder.wrapper.TokensEncoderWrapperModel
 import com.kotlinnlp.utils.notEmptyOr
 import java.io.File
 import java.io.FileInputStream
@@ -118,20 +120,33 @@ object NLPBuilder {
    * Build a list of [FrameExtractor]s.
    *
    * @param frameExtractorModelsDir the directory containing the frame extractors models
+   * @param embeddingsDir the directory containing the embeddings for the frames extractors (null if they are already
+   *                      included in the models)
    *
-   * @return a map of frame extractors associated by domain name
+   * @return a map of text frame extractors associated by domain name
    */
-  fun buildFrameExtractorsMap(frameExtractorModelsDir: String): Map<String, FrameExtractor> {
+  fun buildFrameExtractorsMap(frameExtractorModelsDir: String,
+                              embeddingsDir: String?): Map<String, TextFramesExtractor> {
 
     this.logger.info("Loading frame extractor models from '$frameExtractorModelsDir'")
     val frameExtractorsDir = File(frameExtractorModelsDir)
 
     require(frameExtractorsDir.isDirectory) { "$frameExtractorModelsDir is not a directory" }
 
+    val embeddings: Map<String, EmbeddingsMap<String>>? = embeddingsDir?.let {
+      this.logger.info("Loading frames extractor embeddings from '$embeddingsDir'")
+      this.buildDomainEmbeddingsMap(it)
+    }
+
     return frameExtractorsDir.listFiles().associate { modelFile ->
 
       this.logger.info("Loading '${modelFile.name}'...")
-      val extractor = FrameExtractor(model = FrameExtractorModel.load(FileInputStream(modelFile)))
+      val extractor = TextFramesExtractor(model = TextFramesExtractorModel.load(FileInputStream(modelFile)))
+      val domainName: String = extractor.model.name
+
+      embeddings
+        ?.getOrElse(domainName) { throw RuntimeException("Missing frames extractor embeddings for '$domainName'") }
+        ?.let { extractor.setEmbeddings(it) }
 
       extractor.model.name to extractor
     }
@@ -147,7 +162,7 @@ object NLPBuilder {
    * @return a map of HAN classifiers associated by domain name
    */
   fun buildHANClassifiersMap(hanClassifierModelsDir: String,
-                             embeddingsDir: String? = null): Map<String, HANClassifier> {
+                             embeddingsDir: String?): Map<String, HANClassifier> {
 
     this.logger.info("Loading classifiers models from '$hanClassifierModelsDir'")
     val hanClassifiersDir = File(hanClassifierModelsDir)
@@ -190,30 +205,6 @@ object NLPBuilder {
       val dictionary: MorphologyDictionary = MorphologyDictionary.load(FileInputStream(dictionaryFile))
 
       dictionary.language.isoCode to dictionary
-    }
-  }
-
-  /**
-   * Build the map of languages ISO 639-1 codes to the related [MorphologyDictionary]s.
-   *
-   * @param embeddingsDirname the directory containing the embeddings vectors files, one per language
-   *
-   * @return a map of languages ISO 639-1 codes to the related [MorphologyDictionary]
-   */
-  fun buildEmbeddingsMapsByLanguage(embeddingsDirname: String): Map<String, EmbeddingsMap<String>> {
-
-    this.logger.info("Loading embeddings from '$embeddingsDirname'")
-
-    return File(embeddingsDirname).listFilesOrRaise().associate { embeddingsFile ->
-
-      this.logger.info("Loading '${embeddingsFile.name}'...")
-      val embeddings: EmbeddingsMap<String> =
-        EmbeddingsMap.load(embeddingsFile.absolutePath.toString(), verbose = false)
-
-      val langCode: String =
-        getLanguageByIso(with (embeddingsFile.nameWithoutExtension) { substring(length - 2) }.toLowerCase()).isoCode
-
-      langCode to embeddings
     }
   }
 
@@ -264,6 +255,22 @@ object NLPBuilder {
       (this.model.tokensEncoder as ReductionEncoderModel).inputEncoderModel as EmbeddingsEncoderModel.Transient
 
     inputTokensEncoder.setEmbeddingsMap(embeddingsMap)
+  }
+
+  /**
+   * Set a given embeddings map into this Text Frames Extractor.
+   * The extractor must use an ensemble tokens encoder with an embeddings encoder with a transient embeddings encoder as
+   * first component.
+   *
+   * @param embeddingsMap an embeddings map
+   */
+  private fun TextFramesExtractor.setEmbeddings(embeddingsMap: EmbeddingsMap<String>) {
+
+    val firstEncoder: TokensEncoderWrapperModel<*, *, *, *> =
+      (model.tokensEncoder as EnsembleTokensEncoderModel)
+        .components.first().model as TokensEncoderWrapperModel<*, *, *, *>
+
+    (firstEncoder.model as EmbeddingsEncoderModel.Transient).setEmbeddingsMap(embeddingsMap)
   }
 
   /**
