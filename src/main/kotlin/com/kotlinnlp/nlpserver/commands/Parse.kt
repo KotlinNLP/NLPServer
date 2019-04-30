@@ -66,10 +66,7 @@ class Parse(
    *
    * @return the parsed [text] in the given string [format]
    */
-  operator fun invoke(text: String,
-                      lang: Language? = null,
-                      format: ResponseFormat = ResponseFormat.JSON,
-                      prettyPrint: Boolean = false): String {
+  operator fun invoke(text: String, lang: Language?, format: ResponseFormat, prettyPrint: Boolean): String {
 
     this.checkText(text)
 
