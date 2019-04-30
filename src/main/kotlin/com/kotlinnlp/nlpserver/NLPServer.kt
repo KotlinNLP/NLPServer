@@ -142,6 +142,7 @@ class NLPServer(
     Spark.post("") { request, _ ->
       this.parse!!(
         text = request.body(),
+        lang = null,
         format = this.getParsedFormat(request.queryParams("format") ?: "JSON"),
         prettyPrint = request.queryParams("pretty") != null)
     }
