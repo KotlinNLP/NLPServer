@@ -27,6 +27,7 @@ import com.kotlinnlp.neuraltokenizer.Sentence
 import com.kotlinnlp.neuraltokenizer.Token
 import com.kotlinnlp.nlpserver.LanguageNotSupported
 import com.kotlinnlp.nlpserver.commands.utils.TokenizingCommand
+import spark.Response
 
 /**
  * The command executed on the route '/parse'.
@@ -62,11 +63,16 @@ class Parse(
    * @param text the text to parse
    * @param lang the language to use to parse the [text] (default = unknown)
    * @param format the string format of the parsed sentences response (default = JSON)
+   * @param response the response of the server
    * @param prettyPrint pretty print, used for JSON format (default = false)
    *
    * @return the parsed [text] in the given string [format]
    */
-  operator fun invoke(text: String, lang: Language?, format: ResponseFormat, prettyPrint: Boolean): String {
+  operator fun invoke(text: String,
+                      lang: Language?,
+                      format: ResponseFormat,
+                      response: Response,
+                      prettyPrint: Boolean): String {
 
     this.checkText(text)
 
@@ -74,6 +80,8 @@ class Parse(
     val sentences: List<Sentence> = this.tokenizers.getValue(textLanguage.isoCode).tokenize(text)
     val parser: NeuralParser<*> = this.parsers[textLanguage.isoCode] ?: throw LanguageNotSupported(textLanguage.isoCode)
     val preprocessor: SentencePreprocessor = this.morphoPreprocessors[textLanguage.isoCode] ?: basePreprocessor
+
+    if (format == ResponseFormat.CoNLL) response.header("Content-Type", "text/plain")
 
     return when (format) {
       ResponseFormat.CoNLL -> this.parseToCoNLLFormat(

@@ -12,6 +12,7 @@ import com.kotlinnlp.geolocation.structures.CandidateEntity
 import com.kotlinnlp.linguisticdescription.language.Language
 import com.kotlinnlp.linguisticdescription.language.getLanguageByIso
 import com.kotlinnlp.nlpserver.commands.*
+import spark.Filter
 import spark.Request
 import spark.Spark
 import java.util.logging.Logger
@@ -74,6 +75,10 @@ class NLPServer(
       response.body("500 Server error\n")
       this.logger.warning(exception.toString() + ". Stacktrace: \n  " + exception.stackTrace.joinToString("\n  "))
     }
+
+    Spark.before(Filter { _, response ->
+      response.header("Content-Type", "application/json")
+    })
   }
 
   /**
@@ -117,7 +122,7 @@ class NLPServer(
    */
   private fun parseRoute() {
 
-    Spark.get("") { request, _ ->
+    Spark.get("") { request, response ->
 
       request.checkRequiredParams(requiredParams = listOf("text"))
 
@@ -125,10 +130,11 @@ class NLPServer(
         text = request.queryParams("text"),
         lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
         format = this.getParsedFormat(request.queryParams("format") ?: "JSON"),
+        response = response,
         prettyPrint = request.queryParams("pretty") != null)
     }
 
-    Spark.get("/:lang") { request, _ ->
+    Spark.get("/:lang") { request, response ->
 
       request.checkRequiredParams(requiredParams = listOf("text"))
 
@@ -136,22 +142,25 @@ class NLPServer(
         text = request.queryParams("text"),
         lang = request.params("lang")?.let { getLanguageByIso(it) },
         format = this.getParsedFormat(request.queryParams("format") ?: "JSON"),
+        response = response,
         prettyPrint = request.queryParams("pretty") != null)
     }
 
-    Spark.post("") { request, _ ->
+    Spark.post("") { request, response ->
       this.parse!!(
         text = request.body(),
         lang = null,
         format = this.getParsedFormat(request.queryParams("format") ?: "JSON"),
+        response = response,
         prettyPrint = request.queryParams("pretty") != null)
     }
 
-    Spark.post("/:lang") { request, _ ->
+    Spark.post("/:lang") { request, response ->
       this.parse!!(
         text = request.body(),
         lang = request.params("lang")?.let { getLanguageByIso(it) },
         format = this.getParsedFormat(request.queryParams("format") ?: "JSON"),
+        response = response,
         prettyPrint = request.queryParams("pretty") != null)
     }
   }
