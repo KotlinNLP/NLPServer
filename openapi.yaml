@@ -52,7 +52,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AnalyzeInput"
+              $ref: "#/components/schemas/InputText"
       responses:
         "200":
           description: "text successfully analyzed"
@@ -62,15 +62,113 @@ paths:
                 $ref: "#/components/schemas/NLPAnalysis"
         400:
           description: "Invalid input"
+  /extract-frames/{domainId}:
+    post:
+      tags:
+        - "NLPService"
+      summary: "Extract frames from a text, respect to a given domain"
+      operationId: "extractFrames"
+      parameters:
+        - $ref: "#/components/parameters/DomainId"
+        - name: "distribution"
+          in: "query"
+          description: "whether to return the score distributions of various analysis elements"
+          allowEmptyValue: true
+          schema:
+            type: "boolean"
+            default: false
+        - name: "pretty"
+          in: "query"
+          description: "whether to indent the returned JSON string, for a major readability"
+          allowEmptyValue: true
+          schema:
+            type: "boolean"
+            default: false
+      requestBody:
+        description: "The input text"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InputText"
+      responses:
+        "200":
+          description: "frames extracted successfully"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/ExtractFramesResponse"
+        400:
+          description: "Invalid input"
 components:
+  parameters:
+    DomainId:
+      name: "domainId"
+      in: "path"
+      description: "the ID of a domain"
+      required: true
+      schema:
+        type: "string"
   schemas:
-    AnalyzeInput:
+    InputText:
       type: "object"
       required:
         - "text"
       properties:
         text:
           type: "string"
+    ExtractFramesResponse:
+      type: "object"
+      required:
+        - "intent"
+      properties:
+        intent:
+          $ref: "#/components/schemas/NLPIntent"
+        distribution:
+          type: "array"
+          items:
+            type: "object"
+            required:
+              - "intent"
+              - "score"
+            properties:
+              intent:
+                type: "string"
+                description: "The name of the intent"
+              score:
+                $ref: "#/components/schemas/Score"
+    NLPIntent:
+      type: "object"
+      required:
+        - "name"
+        - "slots"
+        - "score"
+      properties:
+        name:
+          type: "string"
+        slots:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/NLPSlot"
+        score:
+          $ref: "#/components/schemas/Score"
+    NLPSlot:
+      type: "object"
+      required:
+        - "name"
+        - "value"
+        - "tokens"
+      properties:
+        name:
+          type: "string"
+        value:
+          type: "string"
+        tokens:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/IndexedScore"
     NLPAnalysis:
       type: "object"
       required:
@@ -611,6 +709,16 @@ components:
       properties:
         score:
           $ref: "#/components/schemas/Score"
+    IndexedScore:
+      type: "object"
+      required:
+        - "index"
+        - "score"
+      properties:
+        index:
+          type: "number"
+          format: "int32"
+          example: 0
     Position:
       type: "object"
       description: "the position in the text"
