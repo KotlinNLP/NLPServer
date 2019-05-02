@@ -297,7 +297,7 @@ components:
             head:
               type: "number"
               format: "int32"
-              example: "-1"
+              example: -1
             relation:
               $ref: "#/components/schemas/SyntacticRelation"
             attachmentScore:
