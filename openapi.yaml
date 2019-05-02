@@ -221,7 +221,7 @@ components:
               - "tokens"
           properties:
             id:
-              type: "number"
+              type: "integer"
               format: "int32"
               example: 0
             score:
@@ -237,7 +237,7 @@ components:
         - "type"
       properties:
         id:
-          type: "number"
+          type: "integer"
           format: "int32"
           example: 0
         type:
@@ -295,7 +295,7 @@ components:
             - "relationScore"
           properties:
             head:
-              type: "number"
+              type: "integer"
               format: "int32"
               example: -1
             relation:
@@ -314,11 +314,11 @@ components:
               - "score"
             properties:
               sentenceId:
-                type: "number"
+                type: "integer"
                 format: "int32"
                 example: 1
               tokenId:
-                type: "number"
+                type: "integer"
                 format: "int32"
                 example: 5
               score:
@@ -407,7 +407,7 @@ components:
               - "tokens"
             properties:
               id:
-                type: "number"
+                type: "integer"
                 format: "int32"
                 example: 0
               score:
@@ -421,7 +421,7 @@ components:
                     - "score"
                   properties:
                     id:
-                      type: "number"
+                      type: "integer"
                       format: "int32"
                       example: 2
                     score:
@@ -531,7 +531,7 @@ components:
               format: "date-time"
               example: "2018-01-13T09:15:00Z"
             seconds:
-              type: "number"
+              type: "integer"
               format: "int64"
     Interval:
       allOf:
@@ -583,7 +583,7 @@ components:
         - "tokens"
       properties:
         id:
-          type: "number"
+          type: "integer"
           format: "int32"
           description: "the sentence id"
         tokens:
@@ -598,7 +598,7 @@ components:
         - "tokens"
       properties:
         id:
-          type: "number"
+          type: "integer"
           format: "int32"
           description: "the sentence id"
         tokens:
@@ -613,12 +613,12 @@ components:
         - "endIndex"
       properties:
         startIndex:
-          type: "number"
+          type: "integer"
           format: "int32"
           description: "the index of the first token of the range (within the 'tokens' list of the sentence)"
           example: 2
         endIndex:
-          type: "number"
+          type: "integer"
           format: "int32"
           description: "the index of the last token of the range (within the 'tokens' list of the sentence)"
           example: 4
@@ -645,7 +645,7 @@ components:
         - "score"
       properties:
         index:
-          type: "number"
+          type: "integer"
           format: "int32"
           example: 0
     PositionalElement:
@@ -662,15 +662,15 @@ components:
             - "end"
           properties:
             index:
-              type: "number"
+              type: "integer"
               format: "int32"
               example: 0
             start:
-              type: "number"
+              type: "integer"
               format: "int32"
               example: 0
             end:
-              type: "number"
+              type: "integer"
               format: "int32"
               example: 8
     Morphology:
