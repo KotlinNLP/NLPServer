@@ -192,7 +192,7 @@ components:
         dateTimes:
           type: "array"
           items:
-            $ref: "#/components/schemas/DateTime"
+            $ref: "#/components/schemas/DateTimeObj"
         entities:
           type: "array"
           items:
@@ -489,7 +489,7 @@ components:
           type: "array"
           items:
             $ref: "#/components/schemas/Sentence"
-    DateTime:
+    DateTimeObj:
       type: "object"
       required:
         - "type"
@@ -509,7 +509,7 @@ components:
           interval: "#/components/schemas/Interval"
     DateTimeSimple:
       allOf:
-        - $ref: "#/components/schemas/DateTime"
+        - $ref: "#/components/schemas/DateTimeObj"
         - type: "object"
           description: "a specific date-time"
           required:
@@ -522,7 +522,7 @@ components:
               example: "2018-01-13T09:15:00Z"
     Offset:
       allOf:
-        - $ref: "#/components/schemas/DateTime"
+        - $ref: "#/components/schemas/DateTimeObj"
         - type: "object"
           description: "an offset of date or time"
           required:
@@ -539,7 +539,7 @@ components:
               format: "int64"
     Interval:
       allOf:
-        - $ref: "#/components/schemas/DateTime"
+        - $ref: "#/components/schemas/DateTimeObj"
         - type: "object"
           description: "an interval of date-times (can be open)"
           properties:
