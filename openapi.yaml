@@ -211,32 +211,37 @@ components:
         language:
           $ref: "#/components/schemas/Language"
     LinguisticSentence:
+      allOf:
+        - $ref: "#/components/schemas/PositionalElement"
+        - type: "object"
+          description: "the linguistic analysis of a sentence, including syntactic, morphological and semantic information"
+          required:
+              - "id"
+              - "score"
+              - "tokens"
+          properties:
+            id:
+              type: "number"
+              format: "int32"
+              example: 0
+            score:
+              $ref: "#/components/schemas/Score"
+            tokens:
+              type: "array"
+              items:
+                $ref: "#/components/schemas/LinguisticToken"
+    LinguisticToken:
       type: "object"
-      description: "the linguistic analysis of a sentence, including syntactic, morphological and semantic information"
       required:
         - "id"
-        - "score"
-        - "position"
-        - "tokens"
+        - "type"
       properties:
         id:
           type: "number"
           format: "int32"
           example: 0
-        score:
-          $ref: "#/components/schemas/Score"
-        position:
-          $ref: "#/components/schemas/Position"
-        tokens:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/LinguisticToken"
-    LinguisticToken:
-      oneOf:
-        - $ref: "#/components/schemas/TokenWord"
-        - $ref: "#/components/schemas/TokenTrace"
-        - $ref: "#/components/schemas/TokenWordTrace"
-        - $ref: "#/components/schemas/TokenComposite"
+        type:
+          type: "string"
       discriminator:
         propertyName: "type"
         mapping:
@@ -257,33 +262,21 @@ components:
     TokenCompositeExt:
       type: "object"
       required:
-        - "id"
-        - "type"
-        - "position"
         - "components"
       properties:
-        id:
-          type: "number"
-          format: "int32"
-          example: 0
-        type:
-          type: "string"
-          enum:
-            - "WORD-COMPOSITE"
-        position:
-          $ref: "#/components/schemas/Position"
         components:
           type: "array"
           items:
             $ref: "#/components/schemas/TokenWord"
     TokenComposite:
       allOf:
+        - $ref: "#/components/schemas/LinguisticToken"
         - $ref: "#/components/schemas/FormToken"
+        - $ref: "#/components/schemas/PositionalElement"
         - $ref: "#/components/schemas/TokenCompositeExt"
     TokenSingle:
       type: "object"
       required:
-        - "id"
         - "posBase"
         - "dependency"
         - "coReferences"
@@ -291,10 +284,6 @@ components:
         - "morphology"
         - "contextMorphology"
       properties:
-        id:
-          type: "number"
-          format: "int32"
-          example: 0
         posBase:
           $ref: "#/components/schemas/POSBase"
         dependency:
@@ -350,50 +339,18 @@ components:
             oneOf:
               - $ref: "#/components/schemas/Morphology"
               - $ref: "#/components/schemas/NumberMorphology"
-    TokenWordExt:
-      type: "object"
-      required:
-        - "type"
-        - "position"
-      properties:
-        type:
-          type: "string"
-          enum:
-            - "WORD"
-        position:
-          $ref: "#/components/schemas/Position"
-    TokenWord:
-      allOf:
-        - $ref: "#/components/schemas/FormToken"
-        - $ref: "#/components/schemas/TokenSingle"
-        - $ref: "#/components/schemas/TokenWordExt"
-    TokenTraceExt:
-      type: "object"
-      required:
-        - "type"
-      properties:
-        type:
-          type: "string"
-          enum:
-            - "TRACE"
     TokenTrace:
       allOf:
+        - $ref: "#/components/schemas/LinguisticToken"
         - $ref: "#/components/schemas/TokenSingle"
-        - $ref: "#/components/schemas/TokenTraceExt"
-    TokenWordTraceExt:
-      type: "object"
-      required:
-        - "type"
-      properties:
-        type:
-          type: "string"
-          enum:
-            - "WORD-TRACE"
     TokenWordTrace:
       allOf:
+        - $ref: "#/components/schemas/TokenTrace"
         - $ref: "#/components/schemas/FormToken"
-        - $ref: "#/components/schemas/TokenSingle"
-        - $ref: "#/components/schemas/TokenWordTraceExt"
+    TokenWord:
+      allOf:
+        - $ref: "#/components/schemas/TokenWordTrace"
+        - $ref: "#/components/schemas/PositionalElement"
     LanguageObject:
       type: "object"
       required:
@@ -415,18 +372,17 @@ components:
       allOf:
         - $ref: "#/components/schemas/LanguageObject"
         - $ref: "#/components/schemas/ScoredElement"
-    LanguageExt:
-      description: "the language in which the text has been written"
-      properties:
-        distribution:
-          type: "array"
-          description: "the distribution of the score among the languages"
-          items:
-            $ref: "#/components/schemas/ScoredLanguage"
     Language:
       allOf:
         - $ref: "#/components/schemas/LanguageObject"
-        - $ref: "#/components/schemas/LanguageExt"
+        - type: "object"
+          description: "the language in which the text has been written"
+          properties:
+            distribution:
+              type: "array"
+              description: "the distribution of the score among the languages"
+              items:
+                $ref: "#/components/schemas/ScoredLanguage"
     Category:
       type: "object"
       description: "a category that indicates the content of the text"
@@ -472,14 +428,13 @@ components:
                       $ref: "#/components/schemas/Score"
         sublevel:
           $ref: "#/components/schemas/SubCategory"
-    SubCategoryExt:
-      nullable: true
-      description: "a nested category that can be null"
-      example: null
     SubCategory:
       allOf:
         - $ref: "#/components/schemas/Category"
-        - $ref: "#/components/schemas/SubCategoryExt"
+        - type: "object"
+          description: "a nested category that can be null"
+          nullable: true
+          example: null
     Location:
       type: "object"
       description: "a location recognized in the text"
@@ -531,10 +486,17 @@ components:
           items:
             $ref: "#/components/schemas/Sentence"
     DateTime:
-      oneOf:
-        - $ref: "#/components/schemas/DateTimeSimple"
-        - $ref: "#/components/schemas/Offset"
-        - $ref: "#/components/schemas/Interval"
+      type: "object"
+      required:
+        - "type"
+        - "sentences"
+      properties:
+        type:
+          type: "string"
+        sentences:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Sentence"
       discriminator:
         propertyName: "type"
         mapping:
@@ -542,76 +504,51 @@ components:
           offset: "#/components/schemas/Offset"
           interval: "#/components/schemas/Interval"
     DateTimeSimple:
-      type: "object"
-      description: "a specific date-time"
-      required:
-        - "type"
-        - "sentences"
-        - "isoFormat"
-      properties:
-        type:
-          type: "string"
-          enum:
-            - "dateTime"
-        sentences:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/Sentence"
-        isoFormat:
-          type: "string"
-          description: "the date-time formatted in 'TZ' ISO format"
-          format: "date-time"
-          example: "2018-01-13T09:15:00Z"
+      allOf:
+        - $ref: "#/components/schemas/DateTime"
+        - type: "object"
+          description: "a specific date-time"
+          required:
+            - "isoFormat"
+          properties:
+            isoFormat:
+              type: "string"
+              description: "the date-time formatted in 'TZ' ISO format"
+              format: "date-time"
+              example: "2018-01-13T09:15:00Z"
     Offset:
-      type: "object"
-      description: "an offset of date or time"
-      required:
-        - "type"
-        - "sentences"
-        - "isoFormat"
-        - "seconds"
-      properties:
-        type:
-          type: "string"
-          enum:
-            - "offset"
-        sentences:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/Sentence"
-        isoFormat:
-          type: "string"
-          description: "the date-time formatted in 'TZ' ISO format"
-          format: "date-time"
-          example: "2018-01-13T09:15:00Z"
-        seconds:
-          type: "number"
-          format: "int64"
+      allOf:
+        - $ref: "#/components/schemas/DateTime"
+        - type: "object"
+          description: "an offset of date or time"
+          required:
+            - "isoFormat"
+            - "seconds"
+          properties:
+            isoFormat:
+              type: "string"
+              description: "the date-time formatted in 'TZ' ISO format"
+              format: "date-time"
+              example: "2018-01-13T09:15:00Z"
+            seconds:
+              type: "number"
+              format: "int64"
     Interval:
-      type: "object"
-      description: "an interval of date-times (can be open)"
-      required:
-        - "type"
-        - "sentences"
-      properties:
-        type:
-          type: "string"
-          enum:
-            - "interval"
-        sentences:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/Sentence"
-        from:
-          type: "string"
-          description: "the lower bound of the interval (not present if it is open)"
-          format: "date-time"
-          example: "2018-01-13T09:15:00Z"
-        to:
-          type: "string"
-          description: "the upper bound of the interval (not present if it is open)"
-          format: "date-time"
-          example: "2018-01-13T09:15:00Z"
+      allOf:
+        - $ref: "#/components/schemas/DateTime"
+        - type: "object"
+          description: "an interval of date-times (can be open)"
+          properties:
+            from:
+              type: "string"
+              description: "the lower bound of the interval (not present if it is open)"
+              format: "date-time"
+              example: "2018-01-13T09:15:00Z"
+            to:
+              type: "string"
+              description: "the upper bound of the interval (not present if it is open)"
+              format: "date-time"
+              example: "2018-01-13T09:15:00Z"
     Entity:
       type: "object"
       description: "an entity recognized in the text"
@@ -685,25 +622,17 @@ components:
           format: "int32"
           description: "the index of the last token of the range (within the 'tokens' list of the sentence)"
           example: 4
-    ScoredTokensRangeExt:
-      type: "object"
-      description: "a range of tokens that represent an information extracted from the text, with the related confidence of the system"
-      required:
-        - "score"
-      properties:
-        score:
-          type: "number"
-          format: "double"
-          description: "the confidence of the system for this element"
     ScoredTokensRange:
       allOf:
         - $ref: "#/components/schemas/TokensRange"
-        - $ref: "#/components/schemas/ScoredTokensRangeExt"
+        - $ref: "#/components/schemas/ScoredElement"
     Score:
       type: "number"
+      description: "the confidence of the system for this element"
       format: "double"
       example: 0.89
     ScoredElement:
+      type: "object"
       required:
         - "score"
       properties:
@@ -719,26 +648,31 @@ components:
           type: "number"
           format: "int32"
           example: 0
-    Position:
+    PositionalElement:
       type: "object"
-      description: "the position in the text"
       required:
-        - "index"
-        - "start"
-        - "end"
+        - "position"
       properties:
-        index:
-          type: "number"
-          format: "int32"
-          example: 0
-        start:
-          type: "number"
-          format: "int32"
-          example: 0
-        end:
-          type: "number"
-          format: "int32"
-          example: 8
+        position:
+          type: "object"
+          description: "the position in the text"
+          required:
+            - "index"
+            - "start"
+            - "end"
+          properties:
+            index:
+              type: "number"
+              format: "int32"
+              example: 0
+            start:
+              type: "number"
+              format: "int32"
+              example: 0
+            end:
+              type: "number"
+              format: "int32"
+              example: 8
     Morphology:
       type: "object"
       required:
@@ -772,28 +706,26 @@ components:
           $ref: "#/components/schemas/Degree"
         voice:
           $ref: "#/components/schemas/Voice"
-    NumberMorphologyExt:
-      type: "object"
-      required:
-        - "lemma"
-        - "pos"
-        - "numericalForm"
-      properties:
-        lemma:
-          type: "string"
-          example: "123.5"
-        pos:
-          type: "string"
-          enum:
-            - "Number"
-        numericalForm:
-          type: "number"
-          description: "the number expressed in digits"
-          example: 123.5
     NumberMorphology:
       allOf:
         - $ref: "#/components/schemas/Morphology"
-        - $ref: "#/components/schemas/NumberMorphologyExt"
+        - type: "object"
+          required:
+            - "lemma"
+            - "pos"
+            - "numericalForm"
+          properties:
+            lemma:
+              type: "string"
+              example: "123.5"
+            pos:
+              type: "string"
+              enum:
+                - "Number"
+            numericalForm:
+              type: "number"
+              description: "the number expressed in digits"
+              example: 123.5
     POSBase:
       type: "string"
       enum:
@@ -814,96 +746,94 @@ components:
         - "NUM"
         - "PREDET"
         - "UNKNOWN"
-    POSExt:
-      type: "string"
-      enum:
-        - "ADJ-COMPAR"
-        - "ADJ-DEITT"
-        - "ADJ-DEMONS"
-        - "ADJ-DEMONS-ANTEC"
-        - "ADJ-DEMONS-SUCC"
-        - "ADJ-EXCLAM"
-        - "ADJ-INDEF"
-        - "ADJ-INDEF-SUBORD"
-        - "ADJ-INDEF-DISTR"
-        - "ADJ-INDEF-QUANT"
-        - "ADJ-INTERR"
-        - "ADJ-POSS"
-        - "ADJ-ORDIN"
-        - "ADJ-QUALIF"
-        - "ADJ-QUALIF-POST"
-        - "ADJ-RELAT"
-        - "ADV-ADVERS"
-        - "ADV-COMPAR"
-        - "ADV-CONCESS"
-        - "ADV-DEITT"
-        - "ADV-INDEF"
-        - "ADV-INDEF-SUBORD"
-        - "ADV-INTERR"
-        - "ADV-LIMIT"
-        - "ADV-LOC"
-        - "ADV-NEG"
-        - "ADV-PHRAS"
-        - "ADV-QUANT"
-        - "ADV-STRENG"
-        - "ADV-STRENG-NEG"
-        - "ADV-TIME"
-        - "ART-DEF"
-        - "ART-INDEF"
-        - "ART-INDEF-PART"
-        - "CONJ-COMPAR"
-        - "CONJ-COMPAR-ANTEC"
-        - "CONJ-COMPAR-SUCC"
-        - "CONJ-CONCESS"
-        - "CONJ-COORD"
-        - "CONJ-COORD-ADVERS"
-        - "CONJ-COORD-DISJ"
-        - "CONJ-COORD-EXPLIC"
-        - "CONJ-COORD-NEG"
-        - "CONJ-CORREL"
-        - "CONJ-CORREL-ANTEC"
-        - "CONJ-CORREL-SUCC"
-        - "CONJ-SUBORD"
-        - "CONJ-SUBORD-ADVERS"
-        - "CONJ-SUBORD-INTERR"
-        - "NOUN-COMMON"
-        - "NOUN-COMMON-GERUND"
-        - "NOUN-COMMON-QUANT"
-        - "NOUN-PROPER"
-        - "NOUN-PROPER-LOC"
-        - "NOUN-PROPER-ORG"
-        - "NOUN-PROPER-PER"
-        - "PRON-DEMONS"
-        - "PRON-EXCLAM"
-        - "PRON-INDEF"
-        - "PRON-INDEF-DISTR"
-        - "PRON-INDEF-QUANT"
-        - "PRON-INDEF-SUBORD"
-        - "PRON-INTERR"
-        - "PRON-ORDIN"
-        - "PRON-PERS"
-        - "PRON-PERS-ENCLIT"
-        - "PRON-PERS-PROCLIT"
-        - "PRON-PERS-PROCLIT-REFL"
-        - "PRON-PERS-PROCLIT-VARIANT"
-        - "PRON-PERS-REFL"
-        - "PRON-PERS-VARIANT"
-        - "PRON-POSS"
-        - "PRON-RELAT"
-        - "PRON-RELAT-DOUBLE"
-        - "PREP-ART"
-        - "PREP-POSS"
-        - "PREP-COMPAR"
-        - "POSTPOS-POSS"
-        - "PHRASE-EXCLAM"
-        - "PHRASE-INTERR"
-        - "PHRASE-NEG"
-        - "VERB-MODAL"
-        - "VERB-AUX"
     POS:
       allOf:
         - $ref: "#/components/schemas/POSBase"
-        - $ref: "#/components/schemas/POSExt"
+        - type: "string"
+          enum:
+            - "ADJ-COMPAR"
+            - "ADJ-DEITT"
+            - "ADJ-DEMONS"
+            - "ADJ-DEMONS-ANTEC"
+            - "ADJ-DEMONS-SUCC"
+            - "ADJ-EXCLAM"
+            - "ADJ-INDEF"
+            - "ADJ-INDEF-SUBORD"
+            - "ADJ-INDEF-DISTR"
+            - "ADJ-INDEF-QUANT"
+            - "ADJ-INTERR"
+            - "ADJ-POSS"
+            - "ADJ-ORDIN"
+            - "ADJ-QUALIF"
+            - "ADJ-QUALIF-POST"
+            - "ADJ-RELAT"
+            - "ADV-ADVERS"
+            - "ADV-COMPAR"
+            - "ADV-CONCESS"
+            - "ADV-DEITT"
+            - "ADV-INDEF"
+            - "ADV-INDEF-SUBORD"
+            - "ADV-INTERR"
+            - "ADV-LIMIT"
+            - "ADV-LOC"
+            - "ADV-NEG"
+            - "ADV-PHRAS"
+            - "ADV-QUANT"
+            - "ADV-STRENG"
+            - "ADV-STRENG-NEG"
+            - "ADV-TIME"
+            - "ART-DEF"
+            - "ART-INDEF"
+            - "ART-INDEF-PART"
+            - "CONJ-COMPAR"
+            - "CONJ-COMPAR-ANTEC"
+            - "CONJ-COMPAR-SUCC"
+            - "CONJ-CONCESS"
+            - "CONJ-COORD"
+            - "CONJ-COORD-ADVERS"
+            - "CONJ-COORD-DISJ"
+            - "CONJ-COORD-EXPLIC"
+            - "CONJ-COORD-NEG"
+            - "CONJ-CORREL"
+            - "CONJ-CORREL-ANTEC"
+            - "CONJ-CORREL-SUCC"
+            - "CONJ-SUBORD"
+            - "CONJ-SUBORD-ADVERS"
+            - "CONJ-SUBORD-INTERR"
+            - "NOUN-COMMON"
+            - "NOUN-COMMON-GERUND"
+            - "NOUN-COMMON-QUANT"
+            - "NOUN-PROPER"
+            - "NOUN-PROPER-LOC"
+            - "NOUN-PROPER-ORG"
+            - "NOUN-PROPER-PER"
+            - "PRON-DEMONS"
+            - "PRON-EXCLAM"
+            - "PRON-INDEF"
+            - "PRON-INDEF-DISTR"
+            - "PRON-INDEF-QUANT"
+            - "PRON-INDEF-SUBORD"
+            - "PRON-INTERR"
+            - "PRON-ORDIN"
+            - "PRON-PERS"
+            - "PRON-PERS-ENCLIT"
+            - "PRON-PERS-PROCLIT"
+            - "PRON-PERS-PROCLIT-REFL"
+            - "PRON-PERS-PROCLIT-VARIANT"
+            - "PRON-PERS-REFL"
+            - "PRON-PERS-VARIANT"
+            - "PRON-POSS"
+            - "PRON-RELAT"
+            - "PRON-RELAT-DOUBLE"
+            - "PREP-ART"
+            - "PREP-POSS"
+            - "PREP-COMPAR"
+            - "POSTPOS-POSS"
+            - "PHRASE-EXCLAM"
+            - "PHRASE-INTERR"
+            - "PHRASE-NEG"
+            - "VERB-MODAL"
+            - "VERB-AUX"
     SyntacticRelation:
       type: "string"
       enum:
