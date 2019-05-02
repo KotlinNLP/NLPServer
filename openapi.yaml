@@ -701,7 +701,7 @@ components:
         tense:
           $ref: "#/components/schemas/Tense"
         case:
-          $ref: "#/components/schemas/Case"
+          $ref: "#/components/schemas/GrammaticalCase"
         degree:
           $ref: "#/components/schemas/Degree"
         voice:
@@ -1014,7 +1014,7 @@ components:
         - "IMPERFECT"
         - "PAST"
         - "FUTURE"
-    Case:
+    GrammaticalCase:
       type: "string"
       enum:
         - "_"
