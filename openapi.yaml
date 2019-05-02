@@ -259,21 +259,6 @@ components:
           type: "string"
         translitForm:
           type: "string"
-    TokenCompositeExt:
-      type: "object"
-      required:
-        - "components"
-      properties:
-        components:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/TokenWord"
-    TokenComposite:
-      allOf:
-        - $ref: "#/components/schemas/LinguisticToken"
-        - $ref: "#/components/schemas/FormToken"
-        - $ref: "#/components/schemas/PositionalElement"
-        - $ref: "#/components/schemas/TokenCompositeExt"
     TokenSingle:
       type: "object"
       required:
@@ -339,14 +324,37 @@ components:
       allOf:
         - $ref: "#/components/schemas/LinguisticToken"
         - $ref: "#/components/schemas/TokenSingle"
-    TokenWordTrace:
+    TokenWordTraceExt:
       allOf:
         - $ref: "#/components/schemas/TokenTrace"
         - $ref: "#/components/schemas/FormToken"
-    TokenWord:
+    TokenWordTrace:
+      allOf:
+        - $ref: "#/components/schemas/LinguisticToken"
+        - $ref: "#/components/schemas/TokenWordTraceExt"
+    TokenWordExt:
       allOf:
         - $ref: "#/components/schemas/TokenWordTrace"
         - $ref: "#/components/schemas/PositionalElement"
+    TokenWord:
+      allOf:
+        - $ref: "#/components/schemas/LinguisticToken"
+        - $ref: "#/components/schemas/TokenWordExt"
+    TokenCompositeExt:
+      allOf:
+        - $ref: "#/components/schemas/TokenWord"
+        - type: "object"
+          required:
+            - "components"
+          properties:
+            components:
+              type: "array"
+              items:
+                $ref: "#/components/schemas/TokenWord"
+    TokenComposite:
+      allOf:
+        - $ref: "#/components/schemas/LinguisticToken"
+        - $ref: "#/components/schemas/TokenCompositeExt"
     LanguageObject:
       type: "object"
       required:
