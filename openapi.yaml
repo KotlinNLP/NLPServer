@@ -330,15 +330,11 @@ components:
         morphology:
           type: "array"
           items:
-            oneOf:
-              - $ref: "#/components/schemas/Morphology"
-              - $ref: "#/components/schemas/NumberMorphology"
+            $ref: "#/components/schemas/SingleMorphology"
         contextMorphology:
           type: "array"
           items:
-            oneOf:
-              - $ref: "#/components/schemas/Morphology"
-              - $ref: "#/components/schemas/NumberMorphology"
+            $ref: "#/components/schemas/SingleMorphology"
     TokenTrace:
       allOf:
         - $ref: "#/components/schemas/LinguisticToken"
@@ -673,7 +669,11 @@ components:
               type: "integer"
               format: "int32"
               example: 8
-    Morphology:
+    SingleMorphology:
+      oneOf:
+        - $ref: "#/components/schemas/BaseMorphology"
+        - $ref: "#/components/schemas/NumberMorphology"
+    BaseMorphology:
       type: "object"
       required:
         - "oov"
@@ -708,7 +708,7 @@ components:
           $ref: "#/components/schemas/Voice"
     NumberMorphology:
       allOf:
-        - $ref: "#/components/schemas/Morphology"
+        - $ref: "#/components/schemas/BaseMorphology"
         - type: "object"
           required:
             - "lemma"
