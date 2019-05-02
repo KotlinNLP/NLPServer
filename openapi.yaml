@@ -652,31 +652,33 @@ components:
           type: "integer"
           format: "int32"
           example: 0
+    Position:
+      type: "object"
+      description: "the position in the text"
+      required:
+        - "index"
+        - "start"
+        - "end"
+      properties:
+        index:
+          type: "integer"
+          format: "int32"
+          example: 0
+        start:
+          type: "integer"
+          format: "int32"
+          example: 0
+        end:
+          type: "integer"
+          format: "int32"
+          example: 8
     PositionalElement:
       type: "object"
       required:
         - "position"
       properties:
         position:
-          type: "object"
-          description: "the position in the text"
-          required:
-            - "index"
-            - "start"
-            - "end"
-          properties:
-            index:
-              type: "integer"
-              format: "int32"
-              example: 0
-            start:
-              type: "integer"
-              format: "int32"
-              example: 0
-            end:
-              type: "integer"
-              format: "int32"
-              example: 8
+          $ref: "#/components/schemas/Position"
     SingleMorphology:
       oneOf:
         - $ref: "#/components/schemas/BaseMorphology"
