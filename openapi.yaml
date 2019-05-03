@@ -602,8 +602,8 @@ components:
         - $ref: "#/components/schemas/ScoredElement"
     Score:
       type: "number"
-      description: "the confidence of the system for this element"
       format: "double"
+      description: "the confidence of the system for this element"
       example: 0.89
     ScoredElement:
       type: "object"
