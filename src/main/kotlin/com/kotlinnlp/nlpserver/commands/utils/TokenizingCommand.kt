@@ -38,22 +38,25 @@ interface TokenizingCommand : Command {
    */
   fun getTextLanguage(text: String, forcedLang: Language?): Language {
 
-    return if (this.languageDetector == null) {
+    val language: Language? = forcedLang ?: this.languageDetector?.detectLanguage(text)
 
-      if (forcedLang == null)
-        throw RuntimeException("Cannot determine language automatically (missing language detector)")
+    return checkLanguage(language)
+  }
 
-      if (forcedLang.isoCode !in this.tokenizers) throw LanguageNotSupported(forcedLang.isoCode)
+  /**
+   * Check that the language is valid.
+   *
+   * @param language a language
+   *
+   * @return the language itself
+   */
+  private fun checkLanguage(language: Language?): Language {
 
-      forcedLang
+    if (language == null)
+      throw RuntimeException("Cannot determine language automatically (missing language detector)")
 
-    } else {
+    if (language.isoCode !in this.tokenizers) throw LanguageNotSupported(language.isoCode)
 
-      val tokenizerLang: Language = forcedLang ?: this.languageDetector!!.detectLanguage(text)
-
-      if (tokenizerLang.isoCode !in this.tokenizers) throw LanguageNotSupported(tokenizerLang.isoCode)
-
-      tokenizerLang
-    }
+    return language
   }
 }
