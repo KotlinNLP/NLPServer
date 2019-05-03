@@ -460,6 +460,7 @@ components:
             $ref: "#/components/schemas/Sentence"
     DateTimeObj:
       type: "object"
+      description: "a date-time expression"
       required:
         - "type"
         - "sentences"
@@ -480,7 +481,7 @@ components:
       allOf:
         - $ref: "#/components/schemas/DateTimeObj"
         - type: "object"
-          description: "a specific date-time"
+          description: "a specific date-time expression"
           required:
             - "isoFormat"
           properties:
