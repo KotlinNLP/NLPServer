@@ -691,17 +691,8 @@ components:
         - $ref: "#/components/schemas/BaseMorphology"
         - type: "object"
           required:
-            - "lemma"
-            - "pos"
             - "numericalForm"
           properties:
-            lemma:
-              type: "string"
-              example: "123.5"
-            pos:
-              type: "string"
-              enum:
-                - "Number"
             numericalForm:
               type: "number"
               description: "the number expressed in digits"
