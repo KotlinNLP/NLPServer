@@ -272,42 +272,11 @@ components:
         posBase:
           $ref: "#/components/schemas/POSBase"
         dependency:
-          type: "object"
-          required:
-            - "head"
-            - "relation"
-            - "attachmentScore"
-            - "relationScore"
-          properties:
-            head:
-              type: "integer"
-              format: "int32"
-              example: -1
-            relation:
-              $ref: "#/components/schemas/SyntacticRelation"
-            attachmentScore:
-              $ref: "#/components/schemas/Score"
-            relationScore:
-              $ref: "#/components/schemas/Score"
+          $ref: "#/components/schemas/Dependency"
         coReferences:
           type: "array"
           items:
-            type: "object"
-            required:
-              - "sentenceId"
-              - "tokenId"
-              - "score"
-            properties:
-              sentenceId:
-                type: "integer"
-                format: "int32"
-                example: 1
-              tokenId:
-                type: "integer"
-                format: "int32"
-                example: 5
-              score:
-                $ref: "#/components/schemas/Score"
+            $ref: "#/components/schemas/CoReference"
         semanticRelations:
           type: "array"
           items:
@@ -736,6 +705,41 @@ components:
               type: "number"
               description: "the number expressed in digits"
               example: 123.5
+    CoReference:
+      type: "object"
+      required:
+        - "sentenceId"
+        - "tokenId"
+        - "score"
+      properties:
+        sentenceId:
+          type: "integer"
+          format: "int32"
+          example: 1
+        tokenId:
+          type: "integer"
+          format: "int32"
+          example: 5
+        score:
+          $ref: "#/components/schemas/Score"
+    Dependency:
+      type: "object"
+      required:
+        - "head"
+        - "relation"
+        - "attachmentScore"
+        - "relationScore"
+      properties:
+        head:
+          type: "integer"
+          format: "int32"
+          example: -1
+        relation:
+          $ref: "#/components/schemas/SyntacticRelation"
+        attachmentScore:
+          $ref: "#/components/schemas/Score"
+        relationScore:
+          $ref: "#/components/schemas/Score"
     POSBase:
       type: "string"
       enum:
