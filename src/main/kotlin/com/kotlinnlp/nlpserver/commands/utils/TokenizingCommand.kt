@@ -11,6 +11,7 @@ import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.linguisticdescription.language.Language
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.nlpserver.LanguageNotSupported
+import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 
 /**
  * Defines a command that uses a language detector and tokenizers.
@@ -41,6 +42,32 @@ interface TokenizingCommand : Command {
   }
 
   /**
+   * @param text the input text (of which to detect the language if [forcedLang] is null)
+   * @param forcedLang force this language to be returned (if it is supported)
+   *
+   * @return the language of a text with the related scores distribution
+   */
+  fun getTextLanguageDistribution(text: String, forcedLang: Language?): LanguageDistribution {
+
+    val language: Language?
+    val distribution: List<Pair<Language, Double>>?
+
+    if (forcedLang == null && this.languageDetector != null) {
+
+      val result: DenseNDArray = this.languageDetector!!.predict(text)
+
+      language = this.languageDetector!!.getLanguage(result)
+      distribution = this.languageDetector!!.getFullDistribution(result)
+
+    } else {
+      language = forcedLang
+      distribution = null
+    }
+
+    return LanguageDistribution(language = checkLanguage(language), distribution = distribution)
+  }
+
+  /**
    * Check that the language is valid.
    *
    * @param language a language
@@ -59,4 +86,5 @@ interface TokenizingCommand : Command {
 
     return language
   }
+
 }
