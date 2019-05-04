@@ -26,6 +26,7 @@ import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.Sentence
 import com.kotlinnlp.neuraltokenizer.Token
 import com.kotlinnlp.nlpserver.LanguageNotSupported
+import com.kotlinnlp.nlpserver.commands.utils.LanguageDistribution
 import com.kotlinnlp.nlpserver.commands.utils.TokenizingCommand
 import spark.Response
 
@@ -76,10 +77,11 @@ class Parse(
 
     this.checkText(text)
 
-    val textLanguage: Language = this.getTextLanguage(text = text, forcedLang = lang)
-    val sentences: List<Sentence> = this.tokenizers.getValue(textLanguage.isoCode).tokenize(text)
-    val parser: NeuralParser<*> = this.parsers[textLanguage.isoCode] ?: throw LanguageNotSupported(textLanguage.isoCode)
-    val preprocessor: SentencePreprocessor = this.morphoPreprocessors[textLanguage.isoCode] ?: basePreprocessor
+    val langDistribution: LanguageDistribution = this.getTextLanguageDistribution(text = text, forcedLang = lang)
+    val textLang: Language = langDistribution.language
+    val sentences: List<Sentence> = this.tokenizers.getValue(textLang.isoCode).tokenize(text)
+    val parser: NeuralParser<*> = this.parsers[textLang.isoCode] ?: throw LanguageNotSupported(textLang.isoCode)
+    val preprocessor: SentencePreprocessor = this.morphoPreprocessors[textLang.isoCode] ?: basePreprocessor
 
     if (format == ResponseFormat.CoNLL) response.header("Content-Type", "text/plain")
 
@@ -92,7 +94,7 @@ class Parse(
         parser = parser,
         sentences = sentences,
         preprocessor = preprocessor,
-        lang = textLanguage,
+        langDistribution = langDistribution,
         prettyPrint = prettyPrint)
     }
   }
@@ -122,7 +124,7 @@ class Parse(
    * @param parser the parser to use
    * @param sentences the list of sentences to parse
    * @param preprocessor a sentence preprocessor
-   * @param lang the text language
+   * @param langDistribution the language of the text with the distribution of the languages scores
    * @param prettyPrint pretty print (default = false)
    *
    * @return the parsed sentences in JSON string format
@@ -130,10 +132,10 @@ class Parse(
   private fun parseToJSONFormat(parser: NeuralParser<*>,
                                 sentences: List<Sentence>,
                                 preprocessor: SentencePreprocessor,
-                                lang: Language,
+                                langDistribution: LanguageDistribution,
                                 prettyPrint: Boolean = false): String = json {
     obj(
-      "lang" to lang.isoCode,
+      "language" to langDistribution.toJSON(),
       "sentences" to array(sentences.map {
         parser.parse(preprocessor.convert(it.toBaseSentence())).toJSON()
       })
