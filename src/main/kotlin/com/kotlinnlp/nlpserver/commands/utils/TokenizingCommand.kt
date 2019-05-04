@@ -31,9 +31,6 @@ interface TokenizingCommand : Command {
    * @param text the input text (of which to detect the language if [forcedLang] is null)
    * @param forcedLang force this language to be returned (if it is supported)
    *
-   * @throws LanguageNotSupported when the returning language is not supported
-   * @throws RuntimeException when [forcedLang] is 'null' but the language detector is missing
-   *
    * @return the language of the given [text]
    */
   fun getTextLanguage(text: String, forcedLang: Language?): Language {
@@ -47,6 +44,9 @@ interface TokenizingCommand : Command {
    * Check that the language is valid.
    *
    * @param language a language
+   *
+   * @throws LanguageNotSupported when the returning language is not supported
+   * @throws RuntimeException when [language] is 'null' and the language detector is missing
    *
    * @return the language itself
    */
