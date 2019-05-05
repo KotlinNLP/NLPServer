@@ -35,14 +35,14 @@ paths:
         - name: "distribution"
           in: "query"
           description: "whether to return the score distributions of various analysis elements"
-          allowEmptyValue: true
+          required: false
           schema:
             type: "boolean"
             default: false
         - name: "pretty"
           in: "query"
           description: "whether to indent the returned JSON string, for a major readability"
-          allowEmptyValue: true
+          required: false
           schema:
             type: "boolean"
             default: false
@@ -73,14 +73,14 @@ paths:
         - name: "distribution"
           in: "query"
           description: "whether to return the score distributions of various analysis elements"
-          allowEmptyValue: true
+          required: false
           schema:
             type: "boolean"
             default: false
         - name: "pretty"
           in: "query"
           description: "whether to indent the returned JSON string, for a major readability"
-          allowEmptyValue: true
+          required: false
           schema:
             type: "boolean"
             default: false
