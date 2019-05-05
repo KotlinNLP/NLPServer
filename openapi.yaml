@@ -70,6 +70,12 @@ paths:
       operationId: "extractFrames"
       parameters:
         - $ref: "#/components/parameters/DomainId"
+        - name: "lang"
+          in: "query"
+          description: "force the language analysis"
+          required: false
+          schema:
+            $ref: "#/components/schemas/LanguageISO"
         - name: "distribution"
           in: "query"
           description: "whether to return the score distributions of various analysis elements"
