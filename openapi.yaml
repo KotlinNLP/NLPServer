@@ -49,7 +49,7 @@ paths:
       requestBody:
         $ref: "#/components/requestBodies/InputText"
       responses:
-        "200":
+        200:
           description: "text successfully analyzed"
           content:
             application/json:
@@ -57,12 +57,46 @@ paths:
                 $ref: "#/components/schemas/NLPAnalysis"
         400:
           description: "Invalid input"
+  /extract-frames:
+    post:
+      tags:
+        - "NLPService"
+      summary: "Extract frames from a text, respect to all the available domains"
+      operationId: "extractFrames"
+      parameters:
+        - name: "lang"
+          in: "query"
+          description: "force the language analysis"
+          required: false
+          schema:
+            $ref: "#/components/schemas/LanguageISO"
+        - name: "distribution"
+          in: "query"
+          description: "whether to return the score distributions of various analysis elements"
+          required: false
+          schema:
+            type: "boolean"
+            default: false
+        - name: "pretty"
+          in: "query"
+          description: "whether to indent the returned JSON string, for a major readability"
+          required: false
+          schema:
+            type: "boolean"
+            default: false
+      requestBody:
+        $ref: "#/components/requestBodies/InputText"
+      responses:
+        200:
+          $ref: "#/components/responses/FramesExtraction"
+        400:
+          description: "Invalid input"
   /extract-frames/{domainId}:
     post:
       tags:
         - "NLPService"
       summary: "Extract frames from a text, respect to a given domain"
-      operationId: "extractFrames"
+      operationId: "extractDomainFrames"
       parameters:
         - $ref: "#/components/parameters/DomainId"
         - name: "lang"
@@ -88,14 +122,8 @@ paths:
       requestBody:
         $ref: "#/components/requestBodies/InputText"
       responses:
-        "200":
-          description: "frames extracted successfully"
-          content:
-            application/json:
-              schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/ExtractFramesResponse"
+        200:
+          $ref: "#/components/responses/FramesExtraction"
         400:
           description: "Invalid input"
 components:
@@ -115,6 +143,15 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/InputText"
+  responses:
+    FramesExtraction:
+      description: "frames extracted successfully"
+      content:
+        application/json:
+          schema:
+            type: "array"
+            items:
+              $ref: "#/components/schemas/ExtractFramesResponse"
   schemas:
     InputText:
       type: "object"
