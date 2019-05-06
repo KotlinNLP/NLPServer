@@ -651,15 +651,16 @@ components:
         score:
           $ref: "#/components/schemas/Score"
     IndexedScore:
-      type: "object"
-      required:
-        - "index"
-        - "score"
-      properties:
-        index:
-          type: "integer"
-          format: "int32"
-          example: 0
+      allOf:
+        - $ref: "#/components/schemas/ScoredElement"
+        - type: "object"
+          required:
+            - "index"
+          properties:
+            index:
+              type: "integer"
+              format: "int32"
+              example: 0
     Position:
       type: "object"
       description: "the position in the text"
