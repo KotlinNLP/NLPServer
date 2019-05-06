@@ -63,27 +63,31 @@ class ExtractFrames(
       listOf(this.frameExtractors[it] ?: throw InvalidDomain(domain))
     } ?: this.frameExtractors.values.toList()
 
-    val jsonFrames = JsonObject(extractors.associate { extractor ->
+    val jsonFrames: JsonArray<*> = json {
+      array(extractors.map { extractor ->
+        obj(
+          "domain" to extractor.model.name,
+          "sentences" to array(sentences.map { sentence ->
 
-      extractor.model.name to JsonArray(sentences.map { sentence ->
+            @Suppress("UNCHECKED_CAST")
+            val output: FramesExtractor.Output = extractor.extractFrames(sentence as Sentence<FormToken>)
 
-        @Suppress("UNCHECKED_CAST")
-        val output: FramesExtractor.Output = extractor.extractFrames(sentence as Sentence<FormToken>)
+            json {
+              val jsonObj: JsonObject = obj("intent" to output.buildIntent().toJSON(sentence.tokens.map { it.form }))
 
-        json {
-          val jsonObj: JsonObject = obj("intent" to output.buildIntent().toJSON(sentence.tokens.map { it.form }))
+              if (distribution) jsonObj["distribution"] = array(
+                output.buildDistribution().map.entries
+                  .asSequence()
+                  .sortedByDescending { it.value }
+                  .map { obj("intent" to it.key, "score" to it.value) }
+                  .toList())
 
-          if (distribution) jsonObj["distribution"] = array(
-            output.buildDistribution().map.entries
-              .asSequence()
-              .sortedByDescending { it.value }
-              .map { obj("intent" to it.key, "score" to it.value) }
-              .toList())
-
-          jsonObj
-        }
+              jsonObj
+            }
+          })
+        )
       })
-    })
+    }
 
     return jsonFrames.toJsonString(prettyPrint) + if (prettyPrint) "\n" else ""
   }
