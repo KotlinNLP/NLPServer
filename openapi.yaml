@@ -47,12 +47,7 @@ paths:
             type: "boolean"
             default: false
       requestBody:
-        description: "The text to analyze"
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/InputText"
+        $ref: "#/components/requestBodies/InputText"
       responses:
         "200":
           description: "text successfully analyzed"
@@ -91,12 +86,7 @@ paths:
             type: "boolean"
             default: false
       requestBody:
-        description: "The input text"
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/InputText"
+        $ref: "#/components/requestBodies/InputText"
       responses:
         "200":
           description: "frames extracted successfully"
@@ -117,6 +107,14 @@ components:
       required: true
       schema:
         type: "string"
+  requestBodies:
+    InputText:
+      description: "The input text"
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/InputText"
   schemas:
     InputText:
       type: "object"
