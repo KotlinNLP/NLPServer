@@ -54,3 +54,8 @@ class MissingEmbeddingsMapByDomain(domain: String): RuntimeException("Missing em
  * @property domain the domain name
  */
 class InvalidDomain(val domain: String): RuntimeException(domain)
+
+/**
+ * Raised when the given body does not contain the expected JSON object.
+ */
+class InvalidJSONBody : RuntimeException()
