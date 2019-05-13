@@ -263,7 +263,7 @@ class NLPServer(
 
     Spark.post("") { request, _ ->
 
-      val jsonBody: JsonObject = Parser().parse(StringBuilder(request.body())) as JsonObject
+      val jsonBody: JsonObject = request.getJsonObject()
 
       this.execFindLocations(
         jsonBody = jsonBody,
@@ -273,7 +273,7 @@ class NLPServer(
 
     Spark.post("/:lang") { request, _ ->
 
-      val jsonBody: JsonObject = Parser().parse(StringBuilder(request.body())) as JsonObject
+      val jsonBody: JsonObject = request.getJsonObject()
 
       this.execFindLocations(
         jsonBody = jsonBody,
@@ -421,6 +421,29 @@ class NLPServer(
       },
       prettyPrint = prettyPrint
     )
+  }
+
+  /**
+   * @throws InvalidJSONBody if the body of this request is not a JSON object
+   *
+   * @return the body of this request parsed as JSON object
+   */
+  fun Request.getJsonObject(): JsonObject {
+
+    this.assertJsonApplication()
+
+    return Parser().parse(java.lang.StringBuilder(this.body())) as? JsonObject ?: throw InvalidJSONBody()
+  }
+
+  /**
+   * Assert that the Content-Type header of this request is 'application/json'.
+   *
+   * @throws InvalidContentType if the Content-Type header of this request is not 'application/json'
+   */
+  fun Request.assertJsonApplication() {
+
+    if (!this.contentType().startsWith("application/json"))
+      throw InvalidContentType(expected = "application/json", given = this.contentType())
   }
 
   /**
