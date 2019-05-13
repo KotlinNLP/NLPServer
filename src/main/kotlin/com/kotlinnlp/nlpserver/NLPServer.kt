@@ -312,16 +312,22 @@ class NLPServer(
     }
 
     Spark.post("") { request, _ ->
+
+      val jsonBody: JsonObject = request.getJsonObject()
+
       this.extractFrames!!(
-        text = request.body(),
+        text = jsonBody.string("text")!!,
         lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
         distribution = request.queryParams("distribution") != null,
         prettyPrint = request.queryParams("pretty") != null)
     }
 
     Spark.post("/:domain") { request, _ ->
+
+      val jsonBody: JsonObject = request.getJsonObject()
+
       this.extractFrames!!(
-        text = request.body(),
+        text = jsonBody.string("text")!!,
         lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
         domain = request.params("domain"),
         distribution = request.queryParams("distribution") != null,
