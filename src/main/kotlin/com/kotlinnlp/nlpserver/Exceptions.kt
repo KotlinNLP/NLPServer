@@ -59,3 +59,12 @@ class InvalidDomain(val domain: String): RuntimeException(domain)
  * Raised when the given body does not contain the expected JSON object.
  */
 class InvalidJSONBody : RuntimeException()
+
+/**
+ * Raised when the Content-Type header of the request is not the expected one.
+ *
+ * @property expected the expected Content-Type
+ * @property given the given Content-Type
+ */
+class InvalidContentType(val expected: String, val given: String)
+  : RuntimeException("Expected '$expected', given '$given'")
