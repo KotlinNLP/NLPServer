@@ -717,9 +717,9 @@ components:
         - $ref: "#/components/schemas/BaseMorphology"
         - type: "object"
           required:
-            - "numericalForm"
+            - "numericForm"
           properties:
-            numericalForm:
+            numericForm:
               type: "number"
               description: "the number expressed in digits"
               example: 123.5
