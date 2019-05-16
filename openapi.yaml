@@ -292,7 +292,6 @@ components:
         - "coReferences"
         - "semanticRelations"
         - "morphology"
-        - "contextMorphology"
       properties:
         id:
           type: "integer"
@@ -313,10 +312,6 @@ components:
           items:
             $ref: "#/components/schemas/SemanticRelation"
         morphology:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/SingleMorphology"
-        contextMorphology:
           type: "array"
           items:
             $ref: "#/components/schemas/SingleMorphology"
