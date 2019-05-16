@@ -147,8 +147,11 @@ class NLPServer(
     }
 
     Spark.post("") { request, response ->
+
+      val jsonBody: JsonObject = request.getJsonObject()
+
       this.parse!!(
-        text = request.body(),
+        text = jsonBody.string("text")!!,
         lang = null,
         format = this.getParsedFormat(request.queryParams("format") ?: "JSON"),
         response = response,
@@ -156,8 +159,11 @@ class NLPServer(
     }
 
     Spark.post("/:lang") { request, response ->
+
+      val jsonBody: JsonObject = request.getJsonObject()
+
       this.parse!!(
-        text = request.body(),
+        text = jsonBody.string("text")!!,
         lang = request.params("lang")?.let { getLanguageByIso(it) },
         format = this.getParsedFormat(request.queryParams("format") ?: "JSON"),
         response = response,
