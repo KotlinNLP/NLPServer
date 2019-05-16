@@ -813,6 +813,22 @@ components:
           $ref: '#/components/schemas/POS'
         score:
           $ref: '#/components/schemas/Score'
+        gender:
+          $ref: "#/components/schemas/Gender"
+        number:
+          $ref: "#/components/schemas/Number"
+        person:
+          $ref: "#/components/schemas/Person"
+        mood:
+          $ref: "#/components/schemas/Mood"
+        tense:
+          $ref: "#/components/schemas/Tense"
+        case:
+          $ref: "#/components/schemas/GrammaticalCase"
+        degree:
+          $ref: "#/components/schemas/Degree"
+        voice:
+          $ref: "#/components/schemas/Voice"
     NumberMorphology:
       allOf:
         - $ref: '#/components/schemas/BaseMorphology'
@@ -1122,3 +1138,73 @@ components:
         - FAULT
         - PENALTY
         - REPLACEMENT
+    Gender:
+      type: "string"
+      enum:
+        - "_"
+        - "M"
+        - "F"
+        - "N"
+    Number:
+      type: "string"
+      enum:
+        - "_"
+        - "SING"
+        - "PL"
+        - "DUAL"
+    Person:
+      type: "string"
+      enum:
+        - "_"
+        - "1"
+        - "2"
+        - "3"
+    Mood:
+      type: "string"
+      enum:
+        - "BASE"
+        - "IND"
+        - "COND"
+        - "SUBJ"
+        - "PART"
+        - "GERUND"
+        - "INF"
+        - "IMPER"
+    Tense:
+      type: "string"
+      enum:
+        - "BASE"
+        - "PRESENT"
+        - "IMPERFECT"
+        - "PAST"
+        - "FUTURE"
+    GrammaticalCase:
+      type: "string"
+      enum:
+        - "_"
+        - "UNKNOWN"
+        - "SUBJ"
+        - "OBJ"
+        - "IOBJ"
+        - "VOC"
+        - "PART"
+        - "LOC"
+        - "NEUT"
+        - "EMPTY"
+    Degree:
+      type: "string"
+      enum:
+        - "BASE"
+        - "POS"
+        - "SUPER"
+        - "COMPAR"
+        - "DIM"
+        - "AUG"
+        - "END"
+        - "PEJ"
+    Voice:
+      type: "string"
+      enum:
+        - "_"
+        - "ACTIVE"
+        - "PASSIVE"
