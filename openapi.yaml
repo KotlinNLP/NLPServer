@@ -269,9 +269,9 @@ components:
         - type: "object"
           description: "the linguistic analysis of a sentence, including syntactic, morphological and semantic information"
           required:
-              - "id"
-              - "score"
-              - "tokens"
+            - "id"
+            - "score"
+            - "tokens"
           properties:
             id:
               type: "integer"
@@ -286,12 +286,8 @@ components:
     LinguisticToken:
       type: "object"
       required:
+        - "id"
         - "type"
-        - "posBase"
-        - "dependency"
-        - "coReferences"
-        - "semanticRelations"
-        - "morphology"
       properties:
         id:
           type: "integer"
@@ -299,6 +295,22 @@ components:
           example: 0
         type:
           type: "string"
+      discriminator:
+        propertyName: "type"
+        mapping:
+          WORD: "#/components/schemas/TokenWord"
+          TRACE: "#/components/schemas/TokenTrace"
+          WORD-TRACE: "#/components/schemas/TokenWordTrace"
+          WORD-COMPOSITE: "#/components/schemas/TokenComposite"
+    TokenBase:
+      type: "object"
+      required:
+        - "posBase"
+        - "dependency"
+        - "coReferences"
+        - "semanticRelations"
+        - "morphology"
+      properties:
         posBase:
           $ref: "#/components/schemas/POSBase"
         dependency:
@@ -315,13 +327,6 @@ components:
           type: "array"
           items:
             $ref: "#/components/schemas/SingleMorphology"
-      discriminator:
-        propertyName: "type"
-        mapping:
-          WORD: "#/components/schemas/TokenWord"
-          TRACE: "#/components/schemas/TokenTrace"
-          WORD-TRACE: "#/components/schemas/TokenWordTrace"
-          WORD-COMPOSITE: "#/components/schemas/TokenComposite"
     FormToken:
       type: "object"
       required:
@@ -335,13 +340,16 @@ components:
     TokenTrace:
       allOf:
         - $ref: "#/components/schemas/LinguisticToken"
+        - $ref: "#/components/schemas/TokenBase"
     TokenWordTrace:
       allOf:
         - $ref: "#/components/schemas/LinguisticToken"
+        - $ref: "#/components/schemas/TokenBase"
         - $ref: "#/components/schemas/FormToken"
     TokenWord:
       allOf:
         - $ref: "#/components/schemas/LinguisticToken"
+        - $ref: "#/components/schemas/TokenBase"
         - $ref: "#/components/schemas/FormToken"
         - $ref: "#/components/schemas/PositionalElement"
     TokenComposite:
