@@ -57,6 +57,38 @@ paths:
                 $ref: "#/components/schemas/NLPAnalysis"
         400:
           description: "Invalid input"
+  /parse:
+    post:
+      tags:
+        - "NLPService"
+      summary: "Parse syntactically and morphologically a text"
+      operationId: "parseText"
+      parameters:
+        - name: "distribution"
+          in: "query"
+          description: "whether to return the score distributions of various analysis elements"
+          required: false
+          schema:
+            type: "boolean"
+            default: false
+        - name: "pretty"
+          in: "query"
+          description: "whether to indent the returned JSON string, for a major readability"
+          required: false
+          schema:
+            type: "boolean"
+            default: false
+      requestBody:
+        $ref: "#/components/requestBodies/InputText"
+      responses:
+        200:
+          description: "text successfully parsed"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LinguisticAnalysis"
+        400:
+          description: "Invalid input"
   /extract-frames:
     post:
       tags:
