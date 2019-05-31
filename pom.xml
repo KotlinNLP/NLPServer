@@ -64,16 +64,16 @@
         <argparser.version>2.0.3</argparser.version>
         <xenocom.version>0.0.5</xenocom.version>
         <klaxon.version>3.0.5</klaxon.version>
-        <linguisticdescription.version>0.12.0</linguisticdescription.version>
-        <morphologicalanalyzer.version>0.4.4</morphologicalanalyzer.version>
-        <neuraltokenizer.version>0.4.6</neuraltokenizer.version>
-        <languagedetector.version>0.4.8</languagedetector.version>
-        <neuralparser.version>0.6.3</neuralparser.version>
-        <lssencoder.version>0.2.1</lssencoder.version>
-        <simplednn.version>0.13.1</simplednn.version>
-        <geolocation.version>0.2.2</geolocation.version>
-        <frameextractor.version>0.4.5</frameextractor.version>
-        <hanclassifier.version>0.6.3</hanclassifier.version>
+        <linguisticdescription.version>0.12.1</linguisticdescription.version>
+        <morphologicalanalyzer.version>0.4.5</morphologicalanalyzer.version>
+        <neuraltokenizer.version>0.4.7</neuraltokenizer.version>
+        <languagedetector.version>0.4.9</languagedetector.version>
+        <neuralparser.version>0.6.4</neuralparser.version>
+        <lssencoder.version>0.2.2</lssencoder.version>
+        <simplednn.version>0.13.2</simplednn.version>
+        <geolocation.version>0.2.3</geolocation.version>
+        <frameextractor.version>0.4.6</frameextractor.version>
+        <hanclassifier.version>0.6.4</hanclassifier.version>
     </properties>
 
     <repositories>
