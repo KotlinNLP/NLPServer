@@ -5,10 +5,11 @@ language_detector_model="models/language_detector.serialized"
 cjk_tokenizer_model="models/cjk_tokenizer.serialized"
 frequency_dictionary="models/frequency_dictionary.serialized"
 morphology_dictionary="models/morphology_dictionary"
-pre_trained_word_emb="models/word_emb"
 neural_parser="models/neural_parser"
 frame_extractor="models/frame_extractor"
+frame_extractor_embeddings="models/frame_extractor_embeddings"
 han_classifier="models/han_classifier"
+han_classifier_embeddings="models/han_classifier_embeddings"
 locations_dictionary="models/locations_dictionary.serialized"
 
 parameters="-p "$NLS_PORT
@@ -43,12 +44,6 @@ if [ -f $morphology_dictionary/* ]; then
     parameters=$parameters" -m $morphology_dictionary"
 fi
 
-if [ -f $pre_trained_word_emb/* ]; then
-    echo "Loaded word embeddings:"
-    ls -1 $pre_trained_word_emb
-    parameters=$parameters" -e $pre_trained_word_emb"
-fi
-
 if [ -f $neural_parser/* ]; then
     echo "Loaded neural parsers:"
     ls -1 $neural_parser
@@ -61,10 +56,22 @@ if [ -f $frame_extractor/* ]; then
     parameters=$parameters" -x $frame_extractor"
 fi
 
+if [ -f $frame_extractor_embeddings/* ]; then
+    echo "Loaded frame extractors embeddings:"
+    ls -1 $frame_extractor_embeddings
+    parameters=$parameters" -e $frame_extractor_embeddings"
+fi
+
 if [ -f $han_classifier/* ]; then
     echo "Loaded han classifiers:"
     ls -1 $han_classifier
     parameters=$parameters" -s $han_classifier"
+fi
+
+if [ -f $han_classifier_embeddings/* ]; then
+    echo "Loaded han classifiers embeddings:"
+    ls -1 $han_classifier_embeddings
+    parameters=$parameters" -g $han_classifier_embeddings"
 fi
 
 if [ -f $locations_dictionary ]; then
