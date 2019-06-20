@@ -12,7 +12,7 @@ han_classifier="models/han_classifier"
 han_classifier_embeddings="models/han_classifier_embeddings"
 locations_dictionary="models/locations_dictionary.serialized"
 
-parameters="-p "$NLS_PORT
+parameters="-p $1"
     
 if [ -f $tokenizer_models_directory/* ]; then
     echo "Loaded tokenizers:"
