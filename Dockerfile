@@ -9,7 +9,7 @@ WORKDIR /app
 COPY . .
 
 # Build project
-RUN mvn package
+RUN mvn clean package
 
 # Build entrypoint
 RUN sh ./create-docker-entrypoint.sh 3000
