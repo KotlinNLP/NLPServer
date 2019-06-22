@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 tokenizer_models_directory="models/tokenizers"
 language_detector_model="models/language_detector.serialized"
 cjk_tokenizer_model="models/tokenizer_cjk.serialized"
