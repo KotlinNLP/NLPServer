@@ -12,7 +12,7 @@ COPY . .
 RUN mvn clean package
 
 # Build entrypoint
-RUN sh ./create-docker-entrypoint.sh 3000
+RUN ./create-docker-entrypoint.sh 3000
 
 # Copy executable files
 WORKDIR /
