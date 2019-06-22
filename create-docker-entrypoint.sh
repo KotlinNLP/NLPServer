@@ -83,5 +83,5 @@ if [[ -f "$locations_dictionary" ]]; then
 fi
 
 echo "#!/bin/bash" > docker-entrypoint.sh
-echo "java -jar nlpserver.jar $parameters" >> docker-entrypoint.sh
+echo "java -Xmx16g -jar nlpserver.jar $parameters" >> docker-entrypoint.sh
 chmod +x ./docker-entrypoint.sh
