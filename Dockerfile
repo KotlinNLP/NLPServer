@@ -16,6 +16,7 @@ RUN sh ./create-docker-entrypoint.sh 3000
 
 # Copy executable files
 WORKDIR /
+RUN mv app/models .
 RUN mv app/target/nlpserver-*-jar-with-dependencies.jar nlpserver.jar
 RUN mv app/docker-entrypoint.sh .
 
