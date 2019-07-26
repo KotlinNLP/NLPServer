@@ -1,3 +1,5 @@
+#! /bin/bash
+
 REV=$(git rev-parse --short HEAD)
 NLP_IMAGE=nlp-server:$REV
 
