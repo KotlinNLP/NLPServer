@@ -1,28 +1,40 @@
 FROM maven:3.6.0-jdk-8-alpine
 MAINTAINER github@kotlinnlp.com
 
-# Prepare building dir
-RUN mkdir /app
-WORKDIR /app
+ARG PORT
 
-# Copy project content
+#####
+## Copy project sources
+#####
+
+RUN mkdir /app_src
+WORKDIR /app_src
 COPY . .
 
-# Build project
+#####
+## Build package
+#####
+
 RUN mvn clean package
 
-# Build entrypoint
-RUN ./create-docker-entrypoint.sh 3000
+#####
+## Copy executable scripts
+#####
 
-# Copy executable files
-WORKDIR /
-RUN mv app/models .
-RUN mv app/target/nlpserver-*-jar-with-dependencies.jar nlpserver.jar
-RUN mv app/docker-entrypoint.sh .
+RUN mkdir /app
+RUN mv target/nlpserver-*-jar-with-dependencies.jar /app/run-server.jar
 
-# Remove project sources
-RUN rm -rf /app
+#####
+## Remove project sources
+#####
 
-# Setup entrypoint
-EXPOSE 3000
-ENTRYPOINT ["./docker-entrypoint.sh"]
+WORKDIR /app
+RUN rm -r /app_src
+
+#####
+## Setup entrypoint
+#####
+
+ENTRYPOINT ["java", "-Xmx16g", "-jar", "run-server.jar"]
+CMD ["-h"]
+EXPOSE $PORT
