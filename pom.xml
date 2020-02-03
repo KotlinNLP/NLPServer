@@ -66,13 +66,7 @@
         <argparser.version>2.0.3</argparser.version>
         <xenocom.version>0.0.5</xenocom.version>
         <klaxon.version>3.0.5</klaxon.version>
-        <linguisticdescription.version>0.12.2</linguisticdescription.version>
-        <morphologicalanalyzer.version>0.4.6</morphologicalanalyzer.version>
-        <neuraltokenizer.version>0.4.8</neuraltokenizer.version>
-        <languagedetector.version>0.4.10</languagedetector.version>
         <neuralparser.version>0.6.5</neuralparser.version>
-        <lssencoder.version>0.2.3</lssencoder.version>
-        <simplednn.version>0.13.3</simplednn.version>
         <geolocation.version>0.2.4</geolocation.version>
         <frameextractor.version>0.4.7</frameextractor.version>
         <hanclassifier.version>0.6.5</hanclassifier.version>
@@ -273,44 +267,8 @@
 
         <dependency>
             <groupId>com.kotlinnlp</groupId>
-            <artifactId>linguisticdescription</artifactId>
-            <version>${linguisticdescription.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.kotlinnlp</groupId>
-            <artifactId>morphologicalanalyzer</artifactId>
-            <version>${morphologicalanalyzer.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.kotlinnlp</groupId>
-            <artifactId>neuraltokenizer</artifactId>
-            <version>${neuraltokenizer.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.kotlinnlp</groupId>
-            <artifactId>languagedetector</artifactId>
-            <version>${languagedetector.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.kotlinnlp</groupId>
             <artifactId>neuralparser</artifactId>
             <version>${neuralparser.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.kotlinnlp</groupId>
-            <artifactId>lssencoder</artifactId>
-            <version>${lssencoder.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.kotlinnlp</groupId>
-            <artifactId>simplednn</artifactId>
-            <version>${simplednn.version}</version>
         </dependency>
 
         <dependency>
