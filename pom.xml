@@ -67,6 +67,7 @@
         <xenocom.version>0.0.5</xenocom.version>
         <klaxon.version>3.0.5</klaxon.version>
         <neuralparser.version>0.6.5</neuralparser.version>
+        <languagedetector.version>0.4.10</languagedetector.version>
         <geolocation.version>0.2.4</geolocation.version>
         <frameextractor.version>0.4.7</frameextractor.version>
         <hanclassifier.version>0.6.5</hanclassifier.version>
@@ -269,6 +270,12 @@
             <groupId>com.kotlinnlp</groupId>
             <artifactId>neuralparser</artifactId>
             <version>${neuralparser.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.kotlinnlp</groupId>
+            <artifactId>languagedetector</artifactId>
+            <version>${languagedetector.version}</version>
         </dependency>
 
         <dependency>
