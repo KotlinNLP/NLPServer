@@ -159,6 +159,27 @@ paths:
           $ref: '#/components/responses/FramesExtraction'
         400:
           description: Invalid input
+  /compare:
+    post:
+      tags:
+        - NLPService
+      summary: Compare a reference text with others
+      operationId: compare
+      parameters:
+        - name: pretty
+          in: query
+          description: whether to indent the returned JSON string, for a major readability
+          required: false
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        $ref: '#/components/requestBodies/ComparingTexts'
+      responses:
+        200:
+          $ref: '#/components/responses/Comparison'
+        400:
+          description: Invalid input
 components:
   parameters:
     DomainId:
@@ -170,12 +191,19 @@ components:
         type: string
   requestBodies:
     InputText:
-      description: The input text
+      description: the input text
       required: true
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/InputText'
+    ComparingTexts:
+      description: the texts for the comparison
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ComparingTexts'
   responses:
     FramesExtraction:
       description: frames extracted successfully
@@ -185,14 +213,28 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/ExtractFramesResponse'
+    Comparison:
+      description: texts compared successfully
+      content:
+        application/json:
+          schema:
+            type: array
+            description: the comparison between a text and others
+            items:
+              $ref: '#/components/schemas/ScoredId'
   schemas:
     InputText:
       type: object
+      description: the input text
       required:
         - text
       properties:
         text:
           type: string
+        id:
+          type: integer
+          format: int32
+          default: 0
     ExtractFramesResponse:
       type: object
       required:
@@ -225,6 +267,31 @@ components:
                 description: The name of the intent
               score:
                 $ref: '#/components/schemas/Score'
+    ComparingTexts:
+      type: object
+      required:
+        - text
+        - comparing
+      properties:
+        text:
+          type: string
+          description: the reference text
+        comparing:
+          type: array
+          description: the comparing texts
+          items:
+            $ref: '#/components/schemas/InputText'
+    ScoredId:
+      allOf:
+        - $ref: '#/components/schemas/ScoredElement'
+        - type: object
+          description: an ID that references something
+          required:
+            - id
+          properties:
+            id:
+              type: integer
+              format: int32
     NLPIntent:
       type: object
       required:
