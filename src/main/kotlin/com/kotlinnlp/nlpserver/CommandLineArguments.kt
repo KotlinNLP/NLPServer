@@ -32,6 +32,15 @@ class CommandLineArguments(args: Array<String>) {
   ) { toInt() }.default(3000)
 
   /**
+   * Whether to print debugging messages.
+   */
+  val debug: Boolean by parser.flagging(
+    "-d",
+    "--debug",
+    help="whether to print debugging messages"
+  )
+
+  /**
    * The directory containing the serialized models of the NeuralTokenizer, one per language.
    */
   val tokenizerModelsDir: String? by parser.storing(
