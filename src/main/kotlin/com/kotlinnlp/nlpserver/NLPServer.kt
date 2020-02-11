@@ -89,20 +89,40 @@ class NLPServer(
     this.enbaleCORS()
 
     this.detectLanguage?.let {
+
       Spark.path("/detect-language") { this.detectLanguageRoute() }
+      this.logger.info("Route '/detect-language' enabled")
+
       Spark.path("/classify-tokens-language") { this.classifyTokensLanguageRoute() }
+      this.logger.info("Route '/classify-tokens-language' enabled")
     }
 
     this.tokenize?.let {
 
       Spark.path("/tokenize") { this.tokenizeRoute() }
+      this.logger.info("Route '/tokenize' enabled")
 
-      this.parse?.let { Spark.path("/parse") { this.parseRoute() } }
-      this.extractFrames?.let { Spark.path("/extract-frames") { this.extractFramesRoute() } }
-      this.categorize?.let { Spark.path("/categorize") { this.categorizeRoute() } }
+      this.parse?.let {
+
+        Spark.path("/parse") { this.parseRoute() }
+        this.logger.info("Route '/parse' enabled")
+      }
+
+      this.extractFrames?.let {
+        Spark.path("/extract-frames") { this.extractFramesRoute() }
+        this.logger.info("Route '/extract-frames' enabled")
+      }
+
+      this.categorize?.let {
+        Spark.path("/categorize") { this.categorizeRoute() }
+        this.logger.info("Route '/categorize' enabled")
+      }
     }
 
-    this.findLocations?.let { Spark.path("/find-locations") { this.findLocationsRoute() } }
+    this.findLocations?.let {
+      Spark.path("/find-locations") { this.findLocationsRoute() }
+      this.logger.info("Route '/find-locations' enabled")
+    }
 
     this.logger.info("NLP Server running on 'localhost:%d'".format(Spark.port()))
   }
