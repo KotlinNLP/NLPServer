@@ -164,9 +164,9 @@ object NLPBuilder {
                              embeddingsDir: String?): Map<String, HANClassifier> {
 
     this.logger.info("Loading classifiers models from '$hanClassifierModelsDir'")
-    val hanClassifiersDir = File(hanClassifierModelsDir)
-
-    require(hanClassifiersDir.isDirectory) { "$hanClassifierModelsDir is not a directory" }
+    val hanClassifiersDir = File(hanClassifierModelsDir).also {
+      require(it.isDirectory) { "$hanClassifierModelsDir is not a directory" }
+    }
 
     val embeddings: Map<String, EmbeddingsMap<String>>? = embeddingsDir?.let {
       this.logger.info("Loading classifiers embeddings from '$embeddingsDir'")
@@ -186,6 +186,29 @@ object NLPBuilder {
       domainName to classifier
     }
   }
+
+  /**
+   * Build a map of generic word embeddings, associated by language ISO 639-1 code.
+   *
+   * @param dirname the name of the directory containing the embeddings
+   *
+   * @return a map of generic word embeddings, associated by language ISO 639-1 code
+   */
+  fun buildWordEmbeddings(dirname: String): Map<String, EmbeddingsMap<String>> =
+
+    File(dirname)
+      .also { require(it.isDirectory) { "$dirname is not a directory" } }
+      .listFilesOrRaise()
+      .associate { embeddingsFile ->
+
+        this.logger.info("Loading word embeddings from '${embeddingsFile.name}'...")
+        val embeddingsMap: EmbeddingsMap<String> =
+          EmbeddingsMap.load(embeddingsFile.absolutePath.toString(), verbose = false)
+
+        val language: String = embeddingsFile.nameWithoutExtension.substringAfterLast("__")
+
+        language to embeddingsMap
+      }
 
   /**
    * Build the map of languages ISO 639-1 codes to the related [MorphologyDictionary]s.
