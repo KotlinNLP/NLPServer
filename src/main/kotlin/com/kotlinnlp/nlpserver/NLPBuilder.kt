@@ -205,7 +205,7 @@ object NLPBuilder {
         val embeddingsMap: EmbeddingsMap<String> =
           EmbeddingsMap.load(embeddingsFile.absolutePath.toString(), verbose = false)
 
-        val language: String = embeddingsFile.nameWithoutExtension.substringAfterLast("__")
+        val language: String = embeddingsFile.nameWithoutExtension.substringAfterLast("__").toLowerCase()
 
         language to embeddingsMap
       }
