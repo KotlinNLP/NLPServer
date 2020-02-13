@@ -85,7 +85,7 @@ private fun buildRoutes(parsedArgs: CommandLineArguments): List<Route> {
 private fun initLogging(debugMode: Boolean) {
 
   val rootLogger = RootLogger.getRootLogger()
-  val maxLoggerNameLen: Int = LogManager.getCurrentLoggers().asSequence().map { (it as Logger).name.length }.max()!!
+  val maxLoggerNameLen: Int = LogManager.getCurrentLoggers().asSequence().map { (it as Logger).name.length }.max() ?: 5
 
   rootLogger.level = if (debugMode) Level.DEBUG else Level.INFO
   rootLogger.addAppender(ConsoleAppender(PatternLayout("(Thread %t) [%d] %-5p %-${maxLoggerNameLen}c - %m%n")))
