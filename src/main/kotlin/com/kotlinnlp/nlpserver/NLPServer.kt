@@ -27,6 +27,7 @@ import java.util.logging.Logger
  * @param findLocations the handler of the 'FindLocations' command
  * @param extractFrames the handler of the 'ExtractFrames' command
  * @param categorize the handler of the 'Categorize' command
+ * @param compare the handler of the 'Compare' command
  */
 class NLPServer(
   port: Int,
@@ -35,7 +36,8 @@ class NLPServer(
   private val parse: Parse?,
   private val findLocations: FindLocations?,
   private val extractFrames: ExtractFrames?,
-  private val categorize: Categorize?
+  private val categorize: Categorize?,
+  private val compare: Compare?
 ) {
 
   /**
@@ -106,6 +108,9 @@ class NLPServer(
 
         Spark.path("/parse") { this.parseRoute() }
         this.logger.info("Route '/parse' enabled")
+
+        Spark.path("/compare") { this.compareRoute() }
+        this.logger.info("Route '/compare' enabled")
       }
 
       this.extractFrames?.let {
@@ -425,6 +430,34 @@ class NLPServer(
         lang = getLanguageByIso(request.params("lang")),
         domain = request.params("domain"),
         distribution = request.queryParams("distribution") != null,
+        prettyPrint = request.queryParams("pretty") != null)
+    }
+  }
+
+  /**
+   * Define the '/compare' route.
+   */
+  private fun compareRoute() {
+
+    Spark.post("") { request, _ ->
+
+      val jsonBody: JsonObject = request.getJsonObject()
+
+      this.compare!!(
+        baseText = jsonBody.string("text")!!,
+        comparingTexts = jsonBody.array<JsonObject>("comparing")!!.associate { it.int("id")!! to it.string("text")!! },
+        lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
+        prettyPrint = request.queryParams("pretty") != null)
+    }
+
+    Spark.post("/:lang") { request, _ ->
+
+      val jsonBody: JsonObject = request.getJsonObject()
+
+      this.compare!!(
+        baseText = jsonBody.string("text")!!,
+        comparingTexts = jsonBody.array<JsonObject>("comparing")!!.associate { it.int("id")!! to it.string("text")!! },
+        lang = getLanguageByIso(request.params("lang")),
         prettyPrint = request.queryParams("pretty") != null)
     }
   }
