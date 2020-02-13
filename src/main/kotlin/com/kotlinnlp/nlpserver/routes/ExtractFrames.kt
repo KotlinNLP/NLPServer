@@ -5,7 +5,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-package com.kotlinnlp.nlpserver.commands
+package com.kotlinnlp.nlpserver.routes
 
 import com.beust.klaxon.JsonArray
 import com.beust.klaxon.JsonObject
@@ -21,7 +21,7 @@ import com.kotlinnlp.linguisticdescription.sentence.Sentence
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.Sentence as TokenizerSentence
 import com.kotlinnlp.nlpserver.InvalidDomain
-import com.kotlinnlp.nlpserver.commands.utils.TokenizingCommand
+import com.kotlinnlp.nlpserver.routes.utils.TokenizingCommand
 import spark.Spark
 
 /**

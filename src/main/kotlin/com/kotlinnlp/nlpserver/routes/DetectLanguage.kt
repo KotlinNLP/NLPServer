@@ -5,14 +5,14 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-package com.kotlinnlp.nlpserver.commands
+package com.kotlinnlp.nlpserver.routes
 
 import com.beust.klaxon.JsonArray
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.json
 import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.linguisticdescription.language.Language
-import com.kotlinnlp.nlpserver.commands.utils.LanguageDetectingCommand
+import com.kotlinnlp.nlpserver.routes.utils.LanguageDetectingCommand
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import spark.Spark
 

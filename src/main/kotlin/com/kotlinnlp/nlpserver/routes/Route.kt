@@ -5,7 +5,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-package com.kotlinnlp.nlpserver.commands
+package com.kotlinnlp.nlpserver.routes
 
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Parser

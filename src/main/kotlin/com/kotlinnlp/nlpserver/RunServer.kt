@@ -7,7 +7,7 @@
 
 package com.kotlinnlp.nlpserver
 
-import com.kotlinnlp.nlpserver.commands.*
+import com.kotlinnlp.nlpserver.routes.*
 import com.xenomachina.argparser.mainBody
 import org.apache.log4j.*
 import org.apache.log4j.spi.RootLogger

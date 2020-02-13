@@ -5,7 +5,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-package com.kotlinnlp.nlpserver.commands.utils
+package com.kotlinnlp.nlpserver.routes.utils
 
 import com.kotlinnlp.linguisticdescription.language.Language
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer

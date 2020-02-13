@@ -7,7 +7,7 @@
 
 package com.kotlinnlp.nlpserver
 
-import com.kotlinnlp.nlpserver.commands.*
+import com.kotlinnlp.nlpserver.routes.*
 import spark.Filter
 import spark.Spark
 import java.util.logging.Logger

@@ -5,7 +5,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-package com.kotlinnlp.nlpserver.commands
+package com.kotlinnlp.nlpserver.routes
 
 import com.beust.klaxon.JsonArray
 import com.beust.klaxon.JsonObject
@@ -15,8 +15,8 @@ import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.linguisticdescription.language.Language
 import com.kotlinnlp.linguisticdescription.language.getLanguageByIso
 import com.kotlinnlp.nlpserver.LanguageNotSupported
-import com.kotlinnlp.nlpserver.commands.utils.LanguageDetectingCommand
-import com.kotlinnlp.nlpserver.commands.utils.Progress
+import com.kotlinnlp.nlpserver.routes.utils.LanguageDetectingCommand
+import com.kotlinnlp.nlpserver.routes.utils.Progress
 import org.apache.log4j.Logger
 import spark.Spark
 import com.kotlinnlp.conllio.Sentence as CoNLLSentence
