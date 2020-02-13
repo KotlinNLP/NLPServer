@@ -7,6 +7,7 @@
 
 package com.kotlinnlp.nlpserver
 
+import com.kotlinnlp.correlator.helpers.TextComparator
 import com.kotlinnlp.frameextractor.TextFramesExtractor
 import com.kotlinnlp.frameextractor.TextFramesExtractorModel
 import com.kotlinnlp.geolocation.dictionary.LocationsDictionary
@@ -17,6 +18,7 @@ import com.kotlinnlp.languagedetector.LanguageDetectorModel
 import com.kotlinnlp.languagedetector.utils.FrequencyDictionary
 import com.kotlinnlp.languagedetector.utils.TextTokenizer
 import com.kotlinnlp.morphologicalanalyzer.dictionary.MorphologyDictionary
+import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRParser
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
@@ -33,14 +35,86 @@ import java.lang.RuntimeException
 import java.util.logging.Logger
 
 /**
- * Helper that builds various NLP components logging the loading steps.
+ * Helper that builds the NLP components logging the loading steps.
+ *
+ * @param parsedArgs the parsed command line arguments
  */
-object NLPBuilder {
+class NLPBuilder(parsedArgs: CommandLineArguments) {
 
   /**
    * The logger of the [NLPBuilder].
    */
   private val logger = Logger.getLogger("NLP Builder")
+
+  /**
+   * A language detector or null if the required arguments are not present.
+   */
+  val languageDetector: LanguageDetector? =
+    if (parsedArgs.langDetectorModel != null && parsedArgs.cjkTokenizerModel != null)
+      buildLanguageDetector(
+        languageDetectorModelFilename = parsedArgs.langDetectorModel!!,
+        cjkModelFilename = parsedArgs.cjkTokenizerModel!!,
+        frequencyDictionaryFilename = parsedArgs.freqDictionary)
+    else
+      null
+
+  /**
+   * Tokenizers associated by language ISO 639-1 code or null if the required arguments are not present.
+   */
+  val tokenizers: Map<String, NeuralTokenizer>? = parsedArgs.tokenizerModelsDir?.let { buildTokenizers(it) }
+
+  /**
+   * LHR parsers associated by language ISO 639-1 code or null if the required arguments are not present.
+   */
+  val parsers: Map<String, LHRParser>? = parsedArgs.lhrParserModelsDir?.let { buildLHRParsers(it) }
+
+  /**
+   * Morphology dictionaries associated by language ISO 639-1 code (empty if the required arguments are not present).
+   */
+  private val morphoDicts: Map<String, MorphologyDictionary> =
+    parsedArgs.morphoDictionaryDir?.let { buildMorphoDictionaries(it) } ?: mapOf()
+
+  /**
+   * Morphological preprocessors associated by language ISO 639-1 code (empty if the required arguments are not
+   * present).
+   */
+  val morphoPreprocessors: Map<String, MorphoPreprocessor> = this.morphoDicts.mapValues { MorphoPreprocessor(it.value) }
+
+  /**
+   * A locations dictionary or null if the required arguments are not present.
+   */
+  val locationsDictionary: LocationsDictionary? = parsedArgs.locationsDictionary?.let { buildLocationsDictionary(it) }
+
+  /**
+   * Frames extractors associated by domain name or null if the required arguments are not present.
+   */
+  val frameExtractors: Map<String, TextFramesExtractor>? = parsedArgs.frameExtractorModelsDir?.let {
+    buildFrameExtractorsMap(frameExtractorModelsDir = it, embeddingsDir = parsedArgs.framesExtractorEmbeddingsDir)
+  }
+
+  /**
+   * HAN classifiers associated by domain name or null if the required arguments are not present.
+   */
+  val hanClassifiers: Map<String, HANClassifier>? = parsedArgs.hanClassifierModelsDir?.let {
+    buildHANClassifiersMap(hanClassifierModelsDir = it, embeddingsDir = parsedArgs.hanClassifierEmbeddingsDir)
+  }
+
+  /**
+   * Generic word embeddings associated by language ISO 639-1 code or null if the required arguments are not present.
+   */
+  private val wordEmbeddings: Map<String, EmbeddingsMap<String>>? =
+    parsedArgs.wordEmbeddingsDir?.let { buildWordEmbeddings(it) }
+
+  /**
+   * Terms blacklists for the comparison, associated by language ISO 639-1 code (empty if no blacklist is present).
+   */
+  private val comparisonBlacklists: Map<String, Set<String>> =
+    parsedArgs.comparisonBlacklistsDir?.let { buildComparisonBlacklists(it) } ?: mapOf()
+
+  /**
+   * Text comparators associated by language ISO-639-1 code or null if the required arguments are not present.
+   */
+  val comparators: Map<String, TextComparator>? = buildComparators()
 
   /**
    * Build a [LanguageDetector].
@@ -51,9 +125,9 @@ object NLPBuilder {
    *
    * @return a language detector
    */
-  fun buildLanguageDetector(languageDetectorModelFilename: String,
-                            cjkModelFilename: String,
-                            frequencyDictionaryFilename: String?): LanguageDetector {
+  private fun buildLanguageDetector(languageDetectorModelFilename: String,
+                                    cjkModelFilename: String,
+                                    frequencyDictionaryFilename: String?): LanguageDetector {
 
     this.logger.info("Loading language detector model from '$languageDetectorModelFilename'")
     val model = LanguageDetectorModel.load(FileInputStream(File(languageDetectorModelFilename)))
@@ -73,13 +147,13 @@ object NLPBuilder {
   }
 
   /**
-   * Build the map of languages ISO 639-1 codes to the related [NeuralTokenizer]s.
+   * Build a map of [NeuralTokenizer]s associated by language ISO 639-1 code.
    *
    * @param tokenizerModelsDir the directory containing the tokenizers models
    *
-   * @return a map of languages ISO 639-1 codes to the related [NeuralTokenizer]s
+   * @return a map of tokenizers associated by language ISO 639-1 code
    */
-  fun buildTokenizers(tokenizerModelsDir: String): Map<String, NeuralTokenizer> {
+  private fun buildTokenizers(tokenizerModelsDir: String): Map<String, NeuralTokenizer> {
 
     this.logger.info("Loading tokenizer models from '$tokenizerModelsDir'")
 
@@ -93,13 +167,13 @@ object NLPBuilder {
   }
 
   /**
-   * Build the map of languages ISO 639-1 codes to the related [LHRParser]s.
+   * Build a map of [LHRParser]s associated by language ISO 639-1 code.
    *
    * @param lhrModelsDir the directory containing the LHR models
    *
-   * @return a map of languages ISO 639-1 codes to the related [LHRParser]s
+   * @return a map of neural parsers associated by language ISO 639-1 code
    */
-  fun buildLHRParsers(lhrModelsDir: String): Map<String, LHRParser> {
+  private fun buildLHRParsers(lhrModelsDir: String): Map<String, LHRParser> {
 
     this.logger.info("Loading LHR models from '$lhrModelsDir'")
     val modelsDirectory = File(lhrModelsDir)
@@ -116,7 +190,7 @@ object NLPBuilder {
   }
 
   /**
-   * Build a map of domain names to the related [TextFramesExtractor]s.
+   * Build a map of [TextFramesExtractor]s associated by domain name.
    *
    * @param frameExtractorModelsDir the directory containing the frame extractors models
    * @param embeddingsDir the directory containing the embeddings for the frames extractors (null if they are already
@@ -124,8 +198,8 @@ object NLPBuilder {
    *
    * @return a map of text frame extractors associated by domain name
    */
-  fun buildFrameExtractorsMap(frameExtractorModelsDir: String,
-                              embeddingsDir: String?): Map<String, TextFramesExtractor> {
+  private fun buildFrameExtractorsMap(frameExtractorModelsDir: String,
+                                      embeddingsDir: String?): Map<String, TextFramesExtractor> {
 
     this.logger.info("Loading frame extractor models from '$frameExtractorModelsDir'")
     val frameExtractorsDir = File(frameExtractorModelsDir)
@@ -152,7 +226,7 @@ object NLPBuilder {
   }
 
   /**
-   * Build a map of domain names to the related [HANClassifier]s.
+   * Build a map [HANClassifier]s associated by domain name.
    *
    * @param hanClassifierModelsDir the directory containing the HAN classifier models
    * @param embeddingsDir the directory containing the embeddings for the HAN classifiers (null if they are already
@@ -160,8 +234,8 @@ object NLPBuilder {
    *
    * @return a map of HAN classifiers associated by domain name
    */
-  fun buildHANClassifiersMap(hanClassifierModelsDir: String,
-                             embeddingsDir: String?): Map<String, HANClassifier> {
+  private fun buildHANClassifiersMap(hanClassifierModelsDir: String,
+                                     embeddingsDir: String?): Map<String, HANClassifier> {
 
     this.logger.info("Loading classifiers models from '$hanClassifierModelsDir'")
     val hanClassifiersDir = File(hanClassifierModelsDir).also {
@@ -188,13 +262,47 @@ object NLPBuilder {
   }
 
   /**
+   * Build a map of [MorphologyDictionary]s associated by language ISO 639-1 code.
+   *
+   * @param morphoDictionariesDir the directory containing the morphology dictionaries
+   *
+   * @return a map morphology dictionaries associated by language ISO 639-1 code
+   */
+  private fun buildMorphoDictionaries(morphoDictionariesDir: String): Map<String, MorphologyDictionary> {
+
+    this.logger.info("Loading morphology dictionaries from '$morphoDictionariesDir'")
+
+    return File(morphoDictionariesDir).listFilesOrRaise().associate { dictionaryFile ->
+
+      this.logger.info("Loading '${dictionaryFile.name}'...")
+      val dictionary: MorphologyDictionary = MorphologyDictionary.load(FileInputStream(dictionaryFile))
+
+      dictionary.language.isoCode to dictionary
+    }
+  }
+
+  /**
+   * Load a serialized [LocationsDictionary] from file.
+   *
+   * @param locationsDictionaryFilename the filename of the serialized locations dictionary
+   *
+   * @return a locations dictionary
+   */
+  private fun buildLocationsDictionary(locationsDictionaryFilename: String): LocationsDictionary {
+
+    this.logger.info("Loading locations dictionary from '$locationsDictionaryFilename'")
+
+    return LocationsDictionary.load(FileInputStream(File(locationsDictionaryFilename)))
+  }
+
+  /**
    * Build a map of generic word embeddings, associated by language ISO 639-1 code.
    *
    * @param dirname the name of the directory containing the embeddings
    *
    * @return a map of generic word embeddings, associated by language ISO 639-1 code
    */
-  fun buildWordEmbeddings(dirname: String): Map<String, EmbeddingsMap<String>> =
+  private fun buildWordEmbeddings(dirname: String): Map<String, EmbeddingsMap<String>> =
 
     File(dirname)
       .also { require(it.isDirectory) { "$dirname is not a directory" } }
@@ -217,7 +325,7 @@ object NLPBuilder {
    *
    * @return a map of terms blacklists for the comparison, associated by language ISO 639-1 code
    */
-  fun buildComparisonBlacklists(dirname: String): Map<String, Set<String>> =
+  private fun buildComparisonBlacklists(dirname: String): Map<String, Set<String>> =
 
     File(dirname)
       .also { require(it.isDirectory) { "$dirname is not a directory" } }
@@ -232,41 +340,30 @@ object NLPBuilder {
       }
 
   /**
-   * Build the map of languages ISO 639-1 codes to the related [MorphologyDictionary]s.
-   *
-   * @param morphoDictionariesDir the directory containing the morphology dictionaries
-   *
-   * @return a map of languages ISO 639-1 codes to the related [MorphologyDictionary]
+   * @return a map of text comparators associated by language ISO-639-1 code or null if the required components are not
+   *         present for any language
    */
-  fun buildMorphoDictionaries(morphoDictionariesDir: String): Map<String, MorphologyDictionary> {
+  private fun buildComparators(): Map<String, TextComparator>? {
 
-    this.logger.info("Loading morphology dictionaries from '$morphoDictionariesDir'")
+    if (this.parsers == null || this.wordEmbeddings == null || this.tokenizers == null) return null
 
-    return File(morphoDictionariesDir).listFilesOrRaise().associate { dictionaryFile ->
+    val languages: Set<String> = this.parsers.keys.intersect(this.morphoDicts.keys).intersect(this.wordEmbeddings.keys)
 
-      this.logger.info("Loading '${dictionaryFile.name}'...")
-      val dictionary: MorphologyDictionary = MorphologyDictionary.load(FileInputStream(dictionaryFile))
-
-      dictionary.language.isoCode to dictionary
-    }
+    return languages
+      .associate {
+        it to TextComparator(
+          embeddings = this.wordEmbeddings.getValue(it),
+          tokenizer = this.tokenizers.getValue(it),
+          morphoDictionary = this.morphoDicts.getValue(it),
+          parser = this.parsers.getValue(it),
+          lemmasBlacklist = this.comparisonBlacklists[it] ?: setOf()
+        )
+      }
+      .ifEmpty { null }
   }
 
   /**
-   * Load a serialized [LocationsDictionary] from file.
-   *
-   * @param locationsDictionaryFilename the filename of the serialized locations dictionary
-   *
-   * @return a locations dictionary
-   */
-  fun buildLocationsDictionary(locationsDictionaryFilename: String): LocationsDictionary {
-
-    this.logger.info("Loading locations dictionary from '$locationsDictionaryFilename'")
-
-    return LocationsDictionary.load(FileInputStream(File(locationsDictionaryFilename)))
-  }
-
-  /**
-   * Build a map of domain names to the related embeddings map.
+   * Build a map of embeddings maps associated by domain name.
    *
    * @param embeddingsDir the directory containing the embeddings
    *
@@ -310,7 +407,7 @@ object NLPBuilder {
   private fun TextFramesExtractor.setEmbeddings(embeddingsMap: EmbeddingsMap<String>) {
 
     val firstEncoder: TokensEncoderWrapperModel<*, *, *, *> =
-      (model.tokensEncoder as EnsembleTokensEncoderModel)
+      (this.model.tokensEncoder as EnsembleTokensEncoderModel)
         .components.first().model as TokensEncoderWrapperModel<*, *, *, *>
 
     (firstEncoder.model as EmbeddingsEncoderModel.Transient).setEmbeddingsMap(embeddingsMap)
