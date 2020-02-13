@@ -211,6 +211,27 @@ object NLPBuilder {
       }
 
   /**
+   * Build a map of terms blacklists for the comparison, associated by language ISO 639-1 code.
+   *
+   * @param dirname the name of the directory containing the comparison blacklists
+   *
+   * @return a map of terms blacklists for the comparison, associated by language ISO 639-1 code
+   */
+  fun buildComparisonBlacklists(dirname: String): Map<String, Set<String>> =
+
+    File(dirname)
+      .also { require(it.isDirectory) { "$dirname is not a directory" } }
+      .listFilesOrRaise()
+      .associate { file ->
+
+        this.logger.info("Loading comparison blacklist from '${file.name}'...")
+
+        val language: String = file.nameWithoutExtension.substringAfterLast("__").toLowerCase()
+
+        language to file.readLines().toSet()
+      }
+
+  /**
    * Build the map of languages ISO 639-1 codes to the related [MorphologyDictionary]s.
    *
    * @param morphoDictionariesDir the directory containing the morphology dictionaries
