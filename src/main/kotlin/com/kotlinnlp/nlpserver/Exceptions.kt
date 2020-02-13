@@ -8,7 +8,7 @@
 package com.kotlinnlp.nlpserver
 
 /**
- * Exception raised when a dependency of a command line argument is not satisfied.
+ * Raised when a dependency of a command line argument is not satisfied.
  *
  * @param dependency the name of the not satisfied dependency
  */
@@ -16,37 +16,23 @@ class ArgumentDependencyNotSatisfied(argName: String, dependency: String)
   : RuntimeException("'$argName' requires '$dependency'")
 
 /**
- * Exception raised when the input text is empty.
+ * Raised when the input text is empty.
  */
 class EmptyText : RuntimeException()
 
 /**
- * Exception raised when the given language is not supported.
+ * Raised when the given language is not supported.
  *
  * @property langCode the ISO 639-1 code of the language
  */
 class LanguageNotSupported(val langCode: String) : RuntimeException(langCode)
 
 /**
- * Exception raised when the given required parameters are missing.
+ * Raised when the given required parameters are missing.
  *
  * @param params the list of missing parameters
  */
 class MissingParameters(params: List<String>) : RuntimeException(params.joinToString(","))
-
-/**
- * Raised when an embeddings map of a given language is missing.
- *
- * @param langCode the ISO 639-1 language code of the missing embeddings map
- */
-class MissingEmbeddingsMapByLanguage(langCode: String): RuntimeException("Missing embeddings for language '$langCode'")
-
-/**
- * Raised when an embeddings map of a given domain is missing.
- *
- * @param domain the domain of the missing embeddings map
- */
-class MissingEmbeddingsMapByDomain(domain: String): RuntimeException("Missing embeddings for domain '$domain'")
 
 /**
  * Raised when there is no model associated to a given domain.
