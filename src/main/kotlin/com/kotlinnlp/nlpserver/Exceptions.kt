@@ -28,11 +28,11 @@ class EmptyText : RuntimeException()
 class LanguageNotSupported(val langCode: String) : RuntimeException(langCode)
 
 /**
- * Raised when the given required parameters are missing.
+ * Raised when the given required query parameters are missing.
  *
  * @param params the list of missing parameters
  */
-class MissingParameters(params: List<String>) : RuntimeException(params.joinToString(","))
+class MissingQueryParameters(params: List<String>) : RuntimeException(params.joinToString(","))
 
 /**
  * Raised when there is no model associated to a given domain.

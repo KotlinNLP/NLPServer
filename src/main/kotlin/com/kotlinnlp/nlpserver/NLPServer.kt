@@ -52,9 +52,9 @@ class NLPServer(
 
     Spark.port(port)
 
-    Spark.exception(MissingParameters::class.java) { exception, _, response ->
+    Spark.exception(MissingQueryParameters::class.java) { exception, _, response ->
       response.status(400)
-      response.body("Missing required parameters: %s\n".format((exception as MissingParameters).message))
+      response.body("Missing required query parameters: %s\n".format((exception as MissingQueryParameters).message))
     }
 
     Spark.exception(EmptyText::class.java) { _, _, response ->
@@ -516,14 +516,14 @@ class NLPServer(
    *
    * @param requiredParams the list of required parameters to check
    *
-   * @throws MissingParameters if at least one parameter is missing
+   * @throws MissingQueryParameters if at least one parameter is missing
    */
   private fun Request.checkRequiredParams(requiredParams: List<String>) {
 
     val missingParams: List<String> = this.getMissingParams(requiredParams)
 
     if (missingParams.isNotEmpty()) {
-      throw MissingParameters(missingParams)
+      throw MissingQueryParameters(missingParams)
     }
   }
 
