@@ -52,8 +52,7 @@ class CommandLineArguments(args: Array<String>) {
    * The directory containing the serialized models of the NeuralTokenizer, one per language.
    */
   val tokenizerModelsDir: String? by parser.storing(
-    "-t",
-    "--tokenizer-models-directory",
+    "--tokenizers",
     help="the directory containing the serialized models of the neural tokenizers (one per language)"
   ).default(null)
 
@@ -61,8 +60,7 @@ class CommandLineArguments(args: Array<String>) {
    * The filename of the LanguageDetector serialized model.
    */
   val langDetectorModel: String? by parser.storing(
-    "-l",
-    "--language-detector-model",
+    "--lang-detector",
     help="the filename of the language detector serialized model"
   ).default(null)
 
@@ -70,8 +68,7 @@ class CommandLineArguments(args: Array<String>) {
    * The filename of the CJK NeuralTokenizer serialized model.
    */
   val cjkTokenizerModel: String? by parser.storing(
-    "-c",
-    "--cjk-tokenizer-model",
+    "--cjk-tokenizer",
     help="the filename of the CJK neural tokenizer model used by the language detector"
   ).default(null)
 
@@ -79,8 +76,7 @@ class CommandLineArguments(args: Array<String>) {
    * The filename of the FrequencyDictionary.
    */
   val freqDictionary: String? by parser.storing(
-    "-f",
-    "--frequency-dictionary",
+    "--freq-dict",
     help="the filename of the frequency dictionary used by the language detector"
   ).default(null)
 
@@ -88,8 +84,7 @@ class CommandLineArguments(args: Array<String>) {
    * The directory containing the morphology dictionaries used by the parser (one per language).
    */
   val morphoDictionaryDir: String? by parser.storing(
-    "-m",
-    "--morphology-dictionary",
+    "--morpho-dict",
     help="the directory containing the morphology dictionaries used by the parser (one per language)"
   ).default(null)
 
@@ -97,8 +92,7 @@ class CommandLineArguments(args: Array<String>) {
    * The directory containing the serialized models of the LHRParser, one per language.
    */
   val lhrParserModelsDir: String? by parser.storing(
-    "-n",
-    "--neural-parser",
+    "--parser",
     help="the directory containing the serialized models of the neural parsers (one per language)"
   ).default(null)
 
@@ -106,8 +100,7 @@ class CommandLineArguments(args: Array<String>) {
    * The directory containing the serialized models of the frame extractors, one per domain.
    */
   val frameExtractorModelsDir: String? by parser.storing(
-    "-x",
-    "--frame-extractor",
+    "--frame-extractors",
     help="the directory containing the serialized models of the frame extractors, one per domain"
   ).default(null)
 
@@ -116,8 +109,7 @@ class CommandLineArguments(args: Array<String>) {
    * name must end with '__' followed by the domain name).
    */
   val framesExtractorEmbeddingsDir: String? by parser.storing(
-    "-e",
-    "--frames-extractor-embeddings",
+    "--frame-extractors-emb",
     help="the directory containing the pre-trained word embeddings files for the frame extractors, one per domain " +
       "(the file name must end with '__' followed by the domain name)"
   ).default(null)
@@ -126,8 +118,7 @@ class CommandLineArguments(args: Array<String>) {
    * The directory containing the serialized models of the HAN classifier, one per domain.
    */
   val hanClassifierModelsDir: String? by parser.storing(
-    "-s",
-    "--han-classifier",
+    "--han-classifiers",
     help="the directory containing the serialized models of the HAN classifier, one per domain"
   ).default(null)
 
@@ -136,8 +127,7 @@ class CommandLineArguments(args: Array<String>) {
    * name must end with '__' followed by the domain name).
    */
   val hanClassifierEmbeddingsDir: String? by parser.storing(
-    "-g",
-    "--classifier-embeddings",
+    "--han-classifiers-emb",
     help="the directory containing the pre-trained word embeddings files for the HAN classifiers, one per domain " +
       "(the file name must end with '__' followed by the domain name)"
   ).default(null)
