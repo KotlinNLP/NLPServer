@@ -138,8 +138,7 @@ class CommandLineArguments(args: Array<String>) {
    * The filename of the LocationsDictionary.
    */
   val locationsDictionary: String? by parser.storing(
-    "-d",
-    "--locations-dictionary",
+    "--locations-dict",
     help="the filename of the serialized locations dictionary"
   ).default(null)
 
