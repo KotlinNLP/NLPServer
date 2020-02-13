@@ -41,6 +41,14 @@ class CommandLineArguments(args: Array<String>) {
   )
 
   /**
+   * Whether to enable CORS requests.
+   */
+  val enableCORS: Boolean by parser.flagging(
+    "--enable-cors",
+    help="whether to enable CORS requests"
+  )
+
+  /**
    * The directory containing the serialized models of the NeuralTokenizer, one per language.
    */
   val tokenizerModelsDir: String? by parser.storing(

@@ -21,6 +21,7 @@ import java.util.logging.Logger
  * The NLP Server class.
  *
  * @param port the port listened from the server
+ * @param enableCORS whether to enable CORS requests
  * @param detectLanguage the handler of the 'DetectLanguage' command
  * @param tokenize the handler of the 'Tokenize' command
  * @param parse the handler of the 'Parse' command
@@ -31,6 +32,7 @@ import java.util.logging.Logger
  */
 class NLPServer(
   port: Int,
+  enableCORS: Boolean,
   private val detectLanguage: DetectLanguage?,
   private val tokenize: Tokenize?,
   private val parse: Parse?,
@@ -57,14 +59,14 @@ class NLPServer(
     })
 
     this.initExceptions()
+
+    if (enableCORS) this.enbaleCORS()
   }
 
   /**
    * Start the server.
    */
   fun start() {
-
-    this.enbaleCORS()
 
     this.detectLanguage?.let {
 

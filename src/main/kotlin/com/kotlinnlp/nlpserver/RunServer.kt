@@ -24,6 +24,7 @@ fun main(args: Array<String>) = mainBody {
 
   val server = NLPServer(
     port = parsedArgs.port,
+    enableCORS = parsedArgs.enableCORS,
     detectLanguage = builder.languageDetector?.let { DetectLanguage(it) },
     tokenize = builder.tokenizers?.let { Tokenize(tokenizers = it, languageDetector = builder.languageDetector) },
     parse = if (builder.parsers != null && builder.tokenizers != null)
