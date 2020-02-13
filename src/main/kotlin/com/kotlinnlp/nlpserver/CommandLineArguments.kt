@@ -154,6 +154,16 @@ class CommandLineArguments(args: Array<String>) {
   ).default(null)
 
   /**
+   * The directory containing the blacklists of terms for the comparison, one per language (the file name
+   * must end with '__' followed by the language ISO 639-1 code).
+   */
+  val comparisonBlacklistsDir: String? by parser.storing(
+    "--comparison-blacklists",
+    help="the directory containing the blacklists of terms for the comparison, one per language " +
+      "(the file name must end with '__' followed by the language ISO 639-1 code)"
+  ).default(null)
+
+  /**
    * Force parsing all arguments (only read ones are parsed by default).
    * Check dependencies.
    */
