@@ -149,10 +149,8 @@ class NLPServer(
 
     Spark.get("") { request, response ->
 
-      request.checkRequiredParams(requiredParams = listOf("text"))
-
       this.parse!!(
-        text = request.queryParams("text"),
+        text = request.requiredQueryParam("text"),
         lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
         format = this.getParsedFormat(request.queryParams("format") ?: "JSON"),
         response = response,
@@ -161,10 +159,8 @@ class NLPServer(
 
     Spark.get("/:lang") { request, response ->
 
-      request.checkRequiredParams(requiredParams = listOf("text"))
-
       this.parse!!(
-        text = request.queryParams("text"),
+        text = request.requiredQueryParam("text"),
         lang = request.params("lang")?.let { getLanguageByIso(it) },
         format = this.getParsedFormat(request.queryParams("format") ?: "JSON"),
         response = response,
@@ -214,17 +210,13 @@ class NLPServer(
 
     Spark.get("") { request, _ ->
 
-      request.checkRequiredParams(requiredParams = listOf("text"))
-
-      this.tokenize!!(text = request.queryParams("text"), prettyPrint = request.queryParams("pretty") != null)
+      this.tokenize!!(text = request.requiredQueryParam("text"), prettyPrint = request.queryParams("pretty") != null)
     }
 
     Spark.get("/:lang") { request, _ ->
 
-      request.checkRequiredParams(requiredParams = listOf("text"))
-
       this.tokenize!!(
-        text = request.queryParams("text"),
+        text = request.requiredQueryParam("text"),
         language = request.params("lang")?.let { getLanguageByIso(it) },
         prettyPrint = request.queryParams("pretty") != null)
     }
@@ -248,10 +240,8 @@ class NLPServer(
 
     Spark.get("") { request, _ ->
 
-      request.checkRequiredParams(requiredParams = listOf("text"))
-
       this.detectLanguage!!(
-        text = request.queryParams("text"),
+        text = request.requiredQueryParam("text"),
         distribution = request.queryParams("distribution") != null,
         prettyPrint = request.queryParams("pretty") != null)
     }
@@ -271,10 +261,8 @@ class NLPServer(
 
     Spark.get("") { request, _ ->
 
-      request.checkRequiredParams(requiredParams = listOf("text"))
-
       this.detectLanguage!!.perToken(
-        text = request.queryParams("text"),
+        text = request.requiredQueryParam("text"),
         distribution = request.queryParams("distribution") != null,
         prettyPrint = request.queryParams("pretty") != null)
     }
@@ -320,10 +308,8 @@ class NLPServer(
 
     Spark.get("") { request, _ ->
 
-      request.checkRequiredParams(requiredParams = listOf("text"))
-
       this.extractFrames!!(
-        text = request.queryParams("text"),
+        text = request.requiredQueryParam("text"),
         lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
         domain = request.queryParams("domain"),
         distribution = request.queryParams("distribution") != null,
@@ -332,10 +318,8 @@ class NLPServer(
 
     Spark.get("/:domain") { request, _ ->
 
-      request.checkRequiredParams(requiredParams = listOf("text"))
-
       this.extractFrames!!(
-        text = request.queryParams("text"),
+        text = request.requiredQueryParam("text"),
         lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
         domain = request.params("domain"),
         distribution = request.queryParams("distribution") != null,
@@ -373,10 +357,8 @@ class NLPServer(
 
     Spark.get("") { request, _ ->
 
-      request.checkRequiredParams(requiredParams = listOf("text"))
-
       this.categorize!!(
-        text = request.queryParams("text"),
+        text = request.requiredQueryParam("text"),
         lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
         domain = request.queryParams("domain"),
         distribution = request.queryParams("distribution") != null,
@@ -385,10 +367,8 @@ class NLPServer(
 
     Spark.get("/:domain") { request, _ ->
 
-      request.checkRequiredParams(requiredParams = listOf("text"))
-
       this.categorize!!(
-        text = request.queryParams("text"),
+        text = request.requiredQueryParam("text"),
         lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
         domain = request.params("domain"),
         distribution = request.queryParams("distribution") != null,
@@ -397,10 +377,8 @@ class NLPServer(
 
     Spark.get("/:lang/:domain") { request, _ ->
 
-      request.checkRequiredParams(requiredParams = listOf("text"))
-
       this.categorize!!(
-        text = request.queryParams("text"),
+        text = request.requiredQueryParam("text"),
         lang = getLanguageByIso(request.params("lang")),
         domain = request.params("domain"),
         distribution = request.queryParams("distribution") != null,
@@ -493,7 +471,7 @@ class NLPServer(
    *
    * @return the body of this request parsed as JSON object
    */
-  fun Request.getJsonObject(): JsonObject {
+  private fun Request.getJsonObject(): JsonObject {
 
     this.assertJsonApplication()
 
@@ -505,10 +483,26 @@ class NLPServer(
    *
    * @throws InvalidContentType if the Content-Type header of this request is not 'application/json'
    */
-  fun Request.assertJsonApplication() {
+  private fun Request.assertJsonApplication() {
 
     if (!this.contentType().startsWith("application/json"))
       throw InvalidContentType(expected = "application/json", given = this.contentType())
+  }
+
+  /**
+   * Check if a required parameter is present in the query of this [Request] and return it.
+   *
+   * @param requiredParam the required parameter to check
+   *
+   * @throws MissingQueryParameters if the given parameter is missing
+   *
+   * @return the required parameter
+   */
+  private fun Request.requiredQueryParam(requiredParam: String): String {
+
+    this.checkRequiredParams(listOf(requiredParam))
+
+    return this.queryParams(requiredParam)
   }
 
   /**
