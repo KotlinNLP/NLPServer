@@ -137,9 +137,24 @@ class NLPServer(
    */
   private fun enbaleCORS() {
 
+    Spark.options("/*") { request, response ->
+
+      request.headers("Access-Control-Request-Headers")?.let {
+        response.header("Access-Control-Allow-Headers", it)
+      }
+
+      request.headers("Access-Control-Request-Method")?.let {
+        response.header("Access-Control-Allow-Methods", it)
+      }
+
+      "OK"
+    }
+
     Spark.before("/*") { _, response ->
       response.header("Access-Control-Allow-Origin", "*")
     }
+
+    this.logger.info("CORS enabled")
   }
 
   /**
