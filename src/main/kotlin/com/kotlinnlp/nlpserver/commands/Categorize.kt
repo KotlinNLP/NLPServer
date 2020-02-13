@@ -15,6 +15,7 @@ import com.kotlinnlp.conllio.Token as CoNLLToken
 import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.linguisticdescription.InvalidLanguageCode
 import com.kotlinnlp.linguisticdescription.language.Language
+import com.kotlinnlp.linguisticdescription.language.getLanguageByIso
 import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
 import com.kotlinnlp.linguisticdescription.sentence.Sentence
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
@@ -23,6 +24,7 @@ import com.kotlinnlp.nlpserver.InvalidDomain
 import com.kotlinnlp.nlpserver.commands.utils.TokenizingCommand
 import com.kotlinnlp.nlpserver.commands.utils.buildSentence
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
+import spark.Spark
 
 /**
  * The command executed on the route '/categorize'.
@@ -35,7 +37,72 @@ class Categorize(
   override val languageDetector: LanguageDetector?,
   override val tokenizers: Map<String, NeuralTokenizer>,
   private val hanClassifiers: Map<String, HANClassifier>
-) : TokenizingCommand {
+) : Route, TokenizingCommand {
+
+  /**
+   * The name of the command.
+   */
+  override val name: String = "categorize"
+
+  /**
+   * Initialize the route.
+   * Define the paths handled.
+   */
+  override fun initialize() {
+
+    Spark.get("") { request, _ ->
+      this.categorize(
+        text = request.requiredQueryParam("text"),
+        lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
+        domain = request.queryParams("domain"),
+        distribution = request.booleanParam("distribution"),
+        prettyPrint = request.booleanParam("pretty"))
+    }
+
+    Spark.get("/:domain") { request, _ ->
+      this.categorize(
+        text = request.requiredQueryParam("text"),
+        lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
+        domain = request.params("domain"),
+        distribution = request.booleanParam("distribution"),
+        prettyPrint = request.booleanParam("pretty"))
+    }
+
+    Spark.get("/:lang/:domain") { request, _ ->
+      this.categorize(
+        text = request.requiredQueryParam("text"),
+        lang = getLanguageByIso(request.params("lang")),
+        domain = request.params("domain"),
+        distribution = request.booleanParam("distribution"),
+        prettyPrint = request.booleanParam("pretty"))
+    }
+
+    Spark.post("") { request, _ ->
+      this.categorize(
+        text = request.body(),
+        lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
+        distribution = request.booleanParam("distribution"),
+        prettyPrint = request.booleanParam("pretty"))
+    }
+
+    Spark.post("/:domain") { request, _ ->
+      this.categorize(
+        text = request.body(),
+        lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
+        domain = request.params("domain"),
+        distribution = request.booleanParam("distribution"),
+        prettyPrint = request.booleanParam("pretty"))
+    }
+
+    Spark.post("/:lang/:domain") { request, _ ->
+      this.categorize(
+        text = request.body(),
+        lang = getLanguageByIso(request.params("lang")),
+        domain = request.params("domain"),
+        distribution = request.booleanParam("distribution"),
+        prettyPrint = request.booleanParam("pretty"))
+    }
+  }
 
   /**
    * Categorize a given [text], eventually forcing on a given language and a given domain.
@@ -51,11 +118,11 @@ class Categorize(
    *
    * @return the category recognized, eventually with the distribution, in a JSON string
    */
-  operator fun invoke(text: String,
-                      lang: Language? = null,
-                      domain: String? = null,
-                      distribution: Boolean = true,
-                      prettyPrint: Boolean = false): String {
+  private fun categorize(text: String,
+                         lang: Language? = null,
+                         domain: String? = null,
+                         distribution: Boolean = true,
+                         prettyPrint: Boolean = false): String {
 
     this.checkText(text)
 

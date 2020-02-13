@@ -12,15 +12,56 @@ import com.beust.klaxon.JsonObject
 import com.beust.klaxon.json
 import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.linguisticdescription.language.Language
-import com.kotlinnlp.nlpserver.commands.utils.Command
+import com.kotlinnlp.nlpserver.commands.utils.LanguageDetectingCommand
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
+import spark.Spark
 
 /**
  * The command executed on the route '/detect-language'.
  *
  * @property languageDetector a [LanguageDetector]
  */
-class DetectLanguage(private val languageDetector: LanguageDetector) : Command {
+class DetectLanguage(override val languageDetector: LanguageDetector) : Route, LanguageDetectingCommand {
+
+  /**
+   * The name of the command.
+   */
+  override val name: String = "detect-language"
+
+  /**
+   * Initialize the route.
+   * Define the paths handled.
+   */
+  override fun initialize() {
+
+    Spark.get("") { request, _ ->
+      this.detectLanguage(
+        text = request.requiredQueryParam("text"),
+        distribution = request.booleanParam("distribution"),
+        prettyPrint = request.booleanParam("pretty"))
+    }
+
+    Spark.post("") { request, _ ->
+      this.detectLanguage(
+        text = request.body(),
+        distribution = request.booleanParam("distribution"),
+        prettyPrint = request.booleanParam("pretty"))
+    }
+
+    Spark.get("/per-token") { request, _ ->
+      this.detectLanguagePerToken(
+        text = request.requiredQueryParam("text"),
+        distribution = request.booleanParam("distribution"),
+        prettyPrint = request.booleanParam("pretty"))
+    }
+
+    Spark.post("/per-token") { request, _ ->
+      this.detectLanguagePerToken(
+        text = request.body(),
+        distribution = request.booleanParam("distribution"),
+        prettyPrint = request.booleanParam("pretty"))
+    }
+  }
 
   /**
    * Detect the language of the given [text].
@@ -44,7 +85,7 @@ class DetectLanguage(private val languageDetector: LanguageDetector) : Command {
    *
    * @return a JSON string containing the ISO 639-1 code of the detected language (and the probability distribution)
    */
-  operator fun invoke(text: String, distribution: Boolean = true, prettyPrint: Boolean = false): String {
+  private fun detectLanguage(text: String, distribution: Boolean = true, prettyPrint: Boolean = false): String {
 
     this.checkText(text)
 
@@ -92,9 +133,9 @@ class DetectLanguage(private val languageDetector: LanguageDetector) : Command {
    *
    * @return a [String] with a JSON list containing the language classification of each token
    */
-  fun perToken(text: String, distribution: Boolean = true, prettyPrint: Boolean = false): String {
+  private fun detectLanguagePerToken(text: String, distribution: Boolean = true, prettyPrint: Boolean = false): String {
 
-    val languages: List<Language> = this@DetectLanguage.languageDetector.model.supportedLanguages
+    val languages: List<Language> = this.languageDetector.model.supportedLanguages
     val tokensClassifications: List<Pair<String, LanguageDetector.TokenClassification>> =
       this.languageDetector.classifyTokens(text)
 
@@ -118,9 +159,11 @@ class DetectLanguage(private val languageDetector: LanguageDetector) : Command {
   }
 
   /**
-   *
+   * @return this dense nd-array as JSON array of double
    */
-  private fun DenseNDArray.toJSONArray(): JsonArray<Any?> = json { array(this@toJSONArray.toDoubleArray().toList()) }
+  @Suppress("UNCHECKED_CAST")
+  private fun DenseNDArray.toJSONArray(): JsonArray<Double> =
+    json { array(this@toJSONArray.toDoubleArray().toList()) } as JsonArray<Double>
 
   /**
    * Convert a [DenseNDArray] representing a languages classification to a JSON array of 'lang' + 'score' objects.

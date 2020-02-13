@@ -11,11 +11,13 @@ import com.beust.klaxon.JsonArray
 import com.beust.klaxon.JsonObject
 import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.linguisticdescription.language.Language
+import com.kotlinnlp.linguisticdescription.language.getLanguageByIso
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.Sentence
 import com.kotlinnlp.neuraltokenizer.Token
 import com.kotlinnlp.nlpserver.LanguageNotSupported
 import com.kotlinnlp.nlpserver.commands.utils.TokenizingCommand
+import spark.Spark
 
 /**
  * The command executed on the route '/tokenize'.
@@ -26,7 +28,41 @@ import com.kotlinnlp.nlpserver.commands.utils.TokenizingCommand
 class Tokenize(
   override val tokenizers: Map<String, NeuralTokenizer>,
   override val languageDetector: LanguageDetector?
-) : TokenizingCommand {
+) : Route, TokenizingCommand {
+
+  /**
+   * The name of the command.
+   */
+  override val name: String = "tokenize"
+
+  /**
+   * Initialize the route.
+   * Define the paths handled.
+   */
+  override fun initialize() {
+
+    Spark.get("") { request, _ ->
+      this.tokenize(text = request.requiredQueryParam("text"), prettyPrint = request.booleanParam("pretty"))
+    }
+
+    Spark.get("/:lang") { request, _ ->
+      this.tokenize(
+        text = request.requiredQueryParam("text"),
+        language = request.params("lang")?.let { getLanguageByIso(it) },
+        prettyPrint = request.booleanParam("pretty"))
+    }
+
+    Spark.post("") { request, _ ->
+      this.tokenize(text = request.body(), prettyPrint = request.booleanParam("pretty"))
+    }
+
+    Spark.post("/:lang") { request, _ ->
+      this.tokenize(
+        text = request.body(),
+        language = request.params("lang")?.let { getLanguageByIso(it) },
+        prettyPrint = request.booleanParam("pretty"))
+    }
+  }
 
   /**
    * Tokenize the given [text].
@@ -39,7 +75,7 @@ class Tokenize(
    *
    * @return the tokenized [text] in JSON format
    */
-  operator fun invoke(text: String, language: Language? = null, prettyPrint: Boolean = false): String {
+  private fun tokenize(text: String, language: Language? = null, prettyPrint: Boolean = false): String {
 
     this.checkText(text)
 

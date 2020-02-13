@@ -8,14 +8,17 @@
 package com.kotlinnlp.nlpserver.commands
 
 import com.beust.klaxon.JsonArray
+import com.beust.klaxon.JsonObject
 import com.beust.klaxon.json
 import com.kotlinnlp.correlator.helpers.TextComparator
 import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.linguisticdescription.language.Language
+import com.kotlinnlp.linguisticdescription.language.getLanguageByIso
 import com.kotlinnlp.nlpserver.LanguageNotSupported
 import com.kotlinnlp.nlpserver.commands.utils.LanguageDetectingCommand
 import com.kotlinnlp.nlpserver.commands.utils.Progress
 import org.apache.log4j.Logger
+import spark.Spark
 import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 
 /**
@@ -27,12 +30,46 @@ import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 class Compare(
   override val languageDetector: LanguageDetector?,
   private val comparators: Map<String, TextComparator>
-) : LanguageDetectingCommand {
+) : Route, LanguageDetectingCommand {
+
+  /**
+   * The name of the command.
+   */
+  override val name: String = "compare"
 
   /**
    * The logger of the command.
    */
   private val logger = Logger.getLogger(this::class.simpleName)
+
+  /**
+   * Initialize the route.
+   * Define the paths handled.
+   */
+  override fun initialize() {
+
+    Spark.post("") { request, _ ->
+
+      val jsonBody: JsonObject = request.getJsonObject()
+
+      this.compare(
+        baseText = jsonBody.string("text")!!,
+        comparingTexts = jsonBody.array<JsonObject>("comparing")!!.associate { it.int("id")!! to it.string("text")!! },
+        lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
+        prettyPrint = request.booleanParam("pretty"))
+    }
+
+    Spark.post("/:lang") { request, _ ->
+
+      val jsonBody: JsonObject = request.getJsonObject()
+
+      this.compare(
+        baseText = jsonBody.string("text")!!,
+        comparingTexts = jsonBody.array<JsonObject>("comparing")!!.associate { it.int("id")!! to it.string("text")!! },
+        lang = getLanguageByIso(request.params("lang")),
+        prettyPrint = request.booleanParam("pretty"))
+    }
+  }
 
   /**
    * Compare a text with others, giving a similarity score for each couple.
@@ -44,7 +81,7 @@ class Compare(
    *
    * @return the results of the comparison, as objects with the text ID and the comparison score
    */
-  operator fun invoke(baseText: String,
+  private fun compare(baseText: String,
                       comparingTexts: Map<Int, String>,
                       lang: Language?,
                       prettyPrint: Boolean): String {
@@ -56,7 +93,7 @@ class Compare(
     val textLang: Language = this.getTextLanguage(text = baseText, forcedLang = lang)
 
     val results: JsonArray<*> = this.compare(
-      text = baseText,
+      baseText = baseText,
       comparingTexts = comparingTexts,
       comparator = this.comparators[textLang.isoCode] ?: throw LanguageNotSupported(textLang.isoCode))
 
@@ -68,16 +105,16 @@ class Compare(
   /**
    * Compare a text with others.
    *
-   * @param text the main text
-   * @param comparingTexts the reference texts
+   * @param baseText the base text
+   * @param comparingTexts the comparing texts
    * @param comparator a texts comparator
    *
    * @return the results of the comparison, as objects with the text ID and the comparison score
    */
-  private fun compare(text: String, comparingTexts: Map<Int, String>, comparator: TextComparator): JsonArray<*> {
+  private fun compare(baseText: String, comparingTexts: Map<Int, String>, comparator: TextComparator): JsonArray<*> {
 
     val progress = Progress(total = comparingTexts.size, logger = this.logger, description = "Comparing progress")
-    val textTokens: List<TextComparator.ComparingToken> = comparator.parse(text)
+    val textTokens: List<TextComparator.ComparingToken> = comparator.parse(baseText)
 
     return json {
 

@@ -7,6 +7,7 @@
 
 package com.kotlinnlp.nlpserver.commands
 
+import com.beust.klaxon.JsonArray
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.json
 import com.kotlinnlp.geolocation.LocationsFinder
@@ -14,9 +15,11 @@ import com.kotlinnlp.geolocation.dictionary.LocationsDictionary
 import com.kotlinnlp.geolocation.structures.CandidateEntity
 import com.kotlinnlp.geolocation.structures.Location
 import com.kotlinnlp.linguisticdescription.language.Language
+import com.kotlinnlp.linguisticdescription.language.getLanguageByIso
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.nlpserver.LanguageNotSupported
 import com.kotlinnlp.nlpserver.commands.utils.Command
+import spark.Spark
 
 /**
  * The command executed on the route '/find-locations'.
@@ -27,7 +30,41 @@ import com.kotlinnlp.nlpserver.commands.utils.Command
 class FindLocations(
   private val dictionary: LocationsDictionary,
   private val tokenizers: Map<String, NeuralTokenizer>
-) : Command {
+) : Route, Command {
+
+  /**
+   * The name of the command.
+   */
+  override val name: String = "find-locations"
+
+  /**
+   * Initialize the route.
+   * Define the paths handled.
+   */
+  override fun initialize() {
+
+    Spark.post("") { request, _ ->
+
+      val jsonBody: JsonObject = request.getJsonObject()
+
+      this.findLocations(
+        text = jsonBody.string("text")!!,
+        language = getLanguageByIso(jsonBody.string("lang")!!),
+        candidates = jsonBody.array<JsonObject>("candidates")!!.map { it.toCandidateEntity() },
+        prettyPrint = request.booleanParam("pretty"))
+    }
+
+    Spark.post("/:lang") { request, _ ->
+
+      val jsonBody: JsonObject = request.getJsonObject()
+
+      this.findLocations(
+        text = jsonBody.string("text")!!,
+        language = getLanguageByIso(jsonBody.string("lang")!!),
+        candidates = jsonBody.array<JsonObject>("candidates")!!.map { it.toCandidateEntity() },
+        prettyPrint = request.booleanParam("pretty"))
+    }
+  }
 
   /**
    * Find locations in the given [text].
@@ -39,10 +76,10 @@ class FindLocations(
    *
    * @return the parsed [text] in the given string [format]
    */
-  operator fun invoke(text: String,
-                      language: Language,
-                      candidates: List<CandidateEntity>,
-                      prettyPrint: Boolean = false): String {
+  private fun findLocations(text: String,
+                            language: Language,
+                            candidates: List<CandidateEntity>,
+                            prettyPrint: Boolean = false): String {
 
     this.checkText(text)
 
@@ -62,6 +99,15 @@ class FindLocations(
       })
     }.toJsonString(prettyPrint) + if (prettyPrint) "\n" else ""
   }
+
+  /**
+   * @return a new [CandidateEntity] built from this JSON representation
+   */
+  private fun JsonObject.toCandidateEntity() = CandidateEntity(
+    name = this.string("name")!!,
+    score = this.double("score")!!,
+    occurrences = this.array<JsonArray<Int>>("occurrences")?.map { range -> IntRange(range[0], range[1]) } ?: listOf()
+  )
 
   /**
    * @return a map of parents info of this location (only actual parents are present)

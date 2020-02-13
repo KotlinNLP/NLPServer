@@ -15,12 +15,14 @@ import com.kotlinnlp.frameextractor.TextFramesExtractor
 import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.linguisticdescription.InvalidLanguageCode
 import com.kotlinnlp.linguisticdescription.language.Language
+import com.kotlinnlp.linguisticdescription.language.getLanguageByIso
 import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
 import com.kotlinnlp.linguisticdescription.sentence.Sentence
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.Sentence as TokenizerSentence
 import com.kotlinnlp.nlpserver.InvalidDomain
 import com.kotlinnlp.nlpserver.commands.utils.TokenizingCommand
+import spark.Spark
 
 /**
  * The command executed on the route '/extract-frames'.
@@ -33,7 +35,60 @@ class ExtractFrames(
   override val languageDetector: LanguageDetector?,
   override val tokenizers: Map<String, NeuralTokenizer>,
   private val frameExtractors: Map<String, TextFramesExtractor>
-) : TokenizingCommand {
+) : Route, TokenizingCommand {
+
+  /**
+   * The name of the command.
+   */
+  override val name: String = "extract-frames"
+
+  /**
+   * Initialize the route.
+   * Define the paths handled.
+   */
+  override fun initialize() {
+
+    Spark.get("") { request, _ ->
+      this.extractFrames(
+        text = request.requiredQueryParam("text"),
+        lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
+        domain = request.queryParams("domain"),
+        distribution = request.booleanParam("distribution"),
+        prettyPrint = request.booleanParam("pretty"))
+    }
+
+    Spark.get("/:domain") { request, _ ->
+      this.extractFrames(
+        text = request.requiredQueryParam("text"),
+        lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
+        domain = request.params("domain"),
+        distribution = request.booleanParam("distribution"),
+        prettyPrint = request.booleanParam("pretty"))
+    }
+
+    Spark.post("") { request, _ ->
+
+      val jsonBody: JsonObject = request.getJsonObject()
+
+      this.extractFrames(
+        text = jsonBody.string("text")!!,
+        lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
+        distribution = request.booleanParam("distribution"),
+        prettyPrint = request.booleanParam("pretty"))
+    }
+
+    Spark.post("/:domain") { request, _ ->
+
+      val jsonBody: JsonObject = request.getJsonObject()
+
+      this.extractFrames(
+        text = jsonBody.string("text")!!,
+        lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
+        domain = request.params("domain"),
+        distribution = request.booleanParam("distribution"),
+        prettyPrint = request.booleanParam("pretty"))
+    }
+  }
 
   /**
    * Extract frames from the given [text], eventually forcing on a given language and a given domain.
@@ -49,11 +104,11 @@ class ExtractFrames(
    *
    * @return the list of frames extracted, in a JSON string
    */
-  operator fun invoke(text: String,
-                      lang: Language? = null,
-                      domain: String? = null,
-                      distribution: Boolean = true,
-                      prettyPrint: Boolean = false): String {
+  private fun extractFrames(text: String,
+                            lang: Language? = null,
+                            domain: String? = null,
+                            distribution: Boolean = true,
+                            prettyPrint: Boolean = false): String {
 
     this.checkText(text)
 
