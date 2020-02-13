@@ -23,7 +23,7 @@ fun main(args: Array<String>): Unit = mainBody {
 
   NLPServer(port = parsedArgs.port, enableCORS = parsedArgs.enableCORS, routes = buildRoutes(parsedArgs)).apply {
 
-    initLogging(debugMode = parsedArgs.debug)
+    setupLogging(debugMode = parsedArgs.debug)
 
     start()
   }
@@ -77,12 +77,12 @@ private fun buildRoutes(parsedArgs: CommandLineArguments): List<Route> {
 }
 
 /**
- * Initialize logging.
+ * Setup the logging.
  * This function should be called after the creation of all the loggers.
  *
  * @param debugMode whether to log in debug mode
  */
-private fun initLogging(debugMode: Boolean) {
+private fun setupLogging(debugMode: Boolean) {
 
   val rootLogger = RootLogger.getRootLogger()
   val maxLoggerNameLen: Int = LogManager.getCurrentLoggers().asSequence().map { (it as Logger).name.length }.max() ?: 5
