@@ -154,7 +154,7 @@ class NLPServer(
         lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
         format = this.getParsedFormat(request.queryParams("format") ?: "JSON"),
         response = response,
-        prettyPrint = request.queryParams("pretty") != null)
+        prettyPrint = request.booleanParam("pretty"))
     }
 
     Spark.get("/:lang") { request, response ->
@@ -164,7 +164,7 @@ class NLPServer(
         lang = request.params("lang")?.let { getLanguageByIso(it) },
         format = this.getParsedFormat(request.queryParams("format") ?: "JSON"),
         response = response,
-        prettyPrint = request.queryParams("pretty") != null)
+        prettyPrint = request.booleanParam("pretty"))
     }
 
     Spark.post("") { request, response ->
@@ -176,7 +176,7 @@ class NLPServer(
         lang = null,
         format = this.getParsedFormat(request.queryParams("format") ?: "JSON"),
         response = response,
-        prettyPrint = request.queryParams("pretty") != null)
+        prettyPrint = request.booleanParam("pretty"))
     }
 
     Spark.post("/:lang") { request, response ->
@@ -188,7 +188,7 @@ class NLPServer(
         lang = request.params("lang")?.let { getLanguageByIso(it) },
         format = this.getParsedFormat(request.queryParams("format") ?: "JSON"),
         response = response,
-        prettyPrint = request.queryParams("pretty") != null)
+        prettyPrint = request.booleanParam("pretty"))
     }
   }
 
@@ -210,7 +210,7 @@ class NLPServer(
 
     Spark.get("") { request, _ ->
 
-      this.tokenize!!(text = request.requiredQueryParam("text"), prettyPrint = request.queryParams("pretty") != null)
+      this.tokenize!!(text = request.requiredQueryParam("text"), prettyPrint = request.booleanParam("pretty"))
     }
 
     Spark.get("/:lang") { request, _ ->
@@ -218,18 +218,18 @@ class NLPServer(
       this.tokenize!!(
         text = request.requiredQueryParam("text"),
         language = request.params("lang")?.let { getLanguageByIso(it) },
-        prettyPrint = request.queryParams("pretty") != null)
+        prettyPrint = request.booleanParam("pretty"))
     }
 
     Spark.post("") { request, _ ->
-      this.tokenize!!(text = request.body(), prettyPrint = request.queryParams("pretty") != null)
+      this.tokenize!!(text = request.body(), prettyPrint = request.booleanParam("pretty"))
     }
 
     Spark.post("/:lang") { request, _ ->
       this.tokenize!!(
         text = request.body(),
         language = request.params("lang")?.let { getLanguageByIso(it) },
-        prettyPrint = request.queryParams("pretty") != null)
+        prettyPrint = request.booleanParam("pretty"))
     }
   }
 
@@ -242,15 +242,15 @@ class NLPServer(
 
       this.detectLanguage!!(
         text = request.requiredQueryParam("text"),
-        distribution = request.queryParams("distribution") != null,
-        prettyPrint = request.queryParams("pretty") != null)
+        distribution = request.booleanParam("distribution"),
+        prettyPrint = request.booleanParam("pretty"))
     }
 
     Spark.post("") { request, _ ->
       this.detectLanguage!!(
         text = request.body(),
-        distribution = request.queryParams("distribution") != null,
-        prettyPrint = request.queryParams("pretty") != null)
+        distribution = request.booleanParam("distribution"),
+        prettyPrint = request.booleanParam("pretty"))
     }
   }
 
@@ -263,15 +263,15 @@ class NLPServer(
 
       this.detectLanguage!!.perToken(
         text = request.requiredQueryParam("text"),
-        distribution = request.queryParams("distribution") != null,
-        prettyPrint = request.queryParams("pretty") != null)
+        distribution = request.booleanParam("distribution"),
+        prettyPrint = request.booleanParam("pretty"))
     }
 
     Spark.post("") { request, _ ->
       this.detectLanguage!!.perToken(
         text = request.body(),
-        distribution = request.queryParams("distribution") != null,
-        prettyPrint = request.queryParams("pretty") != null)
+        distribution = request.booleanParam("distribution"),
+        prettyPrint = request.booleanParam("pretty"))
     }
   }
 
@@ -287,7 +287,7 @@ class NLPServer(
       this.execFindLocations(
         jsonBody = jsonBody,
         language = getLanguageByIso(jsonBody.string("lang")!!),
-        prettyPrint = request.queryParams("pretty") != null)
+        prettyPrint = request.booleanParam("pretty"))
     }
 
     Spark.post("/:lang") { request, _ ->
@@ -297,7 +297,7 @@ class NLPServer(
       this.execFindLocations(
         jsonBody = jsonBody,
         language = getLanguageByIso(request.params("lang")!!),
-        prettyPrint = request.queryParams("pretty") != null)
+        prettyPrint = request.booleanParam("pretty"))
     }
   }
 
@@ -312,8 +312,8 @@ class NLPServer(
         text = request.requiredQueryParam("text"),
         lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
         domain = request.queryParams("domain"),
-        distribution = request.queryParams("distribution") != null,
-        prettyPrint = request.queryParams("pretty") != null)
+        distribution = request.booleanParam("distribution"),
+        prettyPrint = request.booleanParam("pretty"))
     }
 
     Spark.get("/:domain") { request, _ ->
@@ -322,8 +322,8 @@ class NLPServer(
         text = request.requiredQueryParam("text"),
         lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
         domain = request.params("domain"),
-        distribution = request.queryParams("distribution") != null,
-        prettyPrint = request.queryParams("pretty") != null)
+        distribution = request.booleanParam("distribution"),
+        prettyPrint = request.booleanParam("pretty"))
     }
 
     Spark.post("") { request, _ ->
@@ -333,8 +333,8 @@ class NLPServer(
       this.extractFrames!!(
         text = jsonBody.string("text")!!,
         lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
-        distribution = request.queryParams("distribution") != null,
-        prettyPrint = request.queryParams("pretty") != null)
+        distribution = request.booleanParam("distribution"),
+        prettyPrint = request.booleanParam("pretty"))
     }
 
     Spark.post("/:domain") { request, _ ->
@@ -345,8 +345,8 @@ class NLPServer(
         text = jsonBody.string("text")!!,
         lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
         domain = request.params("domain"),
-        distribution = request.queryParams("distribution") != null,
-        prettyPrint = request.queryParams("pretty") != null)
+        distribution = request.booleanParam("distribution"),
+        prettyPrint = request.booleanParam("pretty"))
     }
   }
 
@@ -361,8 +361,8 @@ class NLPServer(
         text = request.requiredQueryParam("text"),
         lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
         domain = request.queryParams("domain"),
-        distribution = request.queryParams("distribution") != null,
-        prettyPrint = request.queryParams("pretty") != null)
+        distribution = request.booleanParam("distribution"),
+        prettyPrint = request.booleanParam("pretty"))
     }
 
     Spark.get("/:domain") { request, _ ->
@@ -371,8 +371,8 @@ class NLPServer(
         text = request.requiredQueryParam("text"),
         lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
         domain = request.params("domain"),
-        distribution = request.queryParams("distribution") != null,
-        prettyPrint = request.queryParams("pretty") != null)
+        distribution = request.booleanParam("distribution"),
+        prettyPrint = request.booleanParam("pretty"))
     }
 
     Spark.get("/:lang/:domain") { request, _ ->
@@ -381,16 +381,16 @@ class NLPServer(
         text = request.requiredQueryParam("text"),
         lang = getLanguageByIso(request.params("lang")),
         domain = request.params("domain"),
-        distribution = request.queryParams("distribution") != null,
-        prettyPrint = request.queryParams("pretty") != null)
+        distribution = request.booleanParam("distribution"),
+        prettyPrint = request.booleanParam("pretty"))
     }
 
     Spark.post("") { request, _ ->
       this.categorize!!(
         text = request.body(),
         lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
-        distribution = request.queryParams("distribution") != null,
-        prettyPrint = request.queryParams("pretty") != null)
+        distribution = request.booleanParam("distribution"),
+        prettyPrint = request.booleanParam("pretty"))
     }
 
     Spark.post("/:domain") { request, _ ->
@@ -398,8 +398,8 @@ class NLPServer(
         text = request.body(),
         lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
         domain = request.params("domain"),
-        distribution = request.queryParams("distribution") != null,
-        prettyPrint = request.queryParams("pretty") != null)
+        distribution = request.booleanParam("distribution"),
+        prettyPrint = request.booleanParam("pretty"))
     }
 
     Spark.post("/:lang/:domain") { request, _ ->
@@ -407,8 +407,8 @@ class NLPServer(
         text = request.body(),
         lang = getLanguageByIso(request.params("lang")),
         domain = request.params("domain"),
-        distribution = request.queryParams("distribution") != null,
-        prettyPrint = request.queryParams("pretty") != null)
+        distribution = request.booleanParam("distribution"),
+        prettyPrint = request.booleanParam("pretty"))
     }
   }
 
@@ -425,7 +425,7 @@ class NLPServer(
         baseText = jsonBody.string("text")!!,
         comparingTexts = jsonBody.array<JsonObject>("comparing")!!.associate { it.int("id")!! to it.string("text")!! },
         lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
-        prettyPrint = request.queryParams("pretty") != null)
+        prettyPrint = request.booleanParam("pretty"))
     }
 
     Spark.post("/:lang") { request, _ ->
@@ -436,7 +436,7 @@ class NLPServer(
         baseText = jsonBody.string("text")!!,
         comparingTexts = jsonBody.array<JsonObject>("comparing")!!.associate { it.int("id")!! to it.string("text")!! },
         lang = getLanguageByIso(request.params("lang")),
-        prettyPrint = request.queryParams("pretty") != null)
+        prettyPrint = request.booleanParam("pretty"))
     }
   }
 
@@ -532,4 +532,15 @@ class NLPServer(
 
     return requiredParams.filter { !requestParams.contains(it) }
   }
+
+  /**
+   * Get a boolean query parameter.
+   * A boolean query parameter is true if it is present with an empty value or containing 'true'.
+   *
+   * @param paramName the name of the query parameter
+   *
+   * @return true if the parameters is 'true' or empty, otherwise false
+   */
+  private fun Request.booleanParam(paramName: String): Boolean =
+    this.queryParams(paramName)?.let { it.isEmpty() || it.toBoolean() } ?: false
 }
