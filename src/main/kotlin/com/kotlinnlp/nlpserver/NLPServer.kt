@@ -52,35 +52,11 @@ class NLPServer(
 
     Spark.port(port)
 
-    Spark.exception(MissingQueryParameters::class.java) { exception, _, response ->
-      response.status(400)
-      response.body("Missing required query parameters: %s\n".format((exception as MissingQueryParameters).message))
-    }
-
-    Spark.exception(EmptyText::class.java) { _, _, response ->
-      response.status(400)
-      response.body("Text is empty\n")
-    }
-
-    Spark.exception(LanguageNotSupported::class.java) { exception, _, response ->
-      response.status(400)
-      response.body("Language not supported: %s\n".format((exception as LanguageNotSupported).langCode))
-    }
-
-    Spark.exception(InvalidDomain::class.java) { exception, _, response ->
-      response.status(400)
-      response.body("Invalid domain: %s\n".format((exception as InvalidDomain).domain))
-    }
-
-    Spark.exception(RuntimeException::class.java) { exception, _, response ->
-      response.status(500)
-      response.body("500 Server error\n")
-      this.logger.warning(exception.toString() + ". Stacktrace: \n  " + exception.stackTrace.joinToString("\n  "))
-    }
-
     Spark.before(Filter { _, response ->
       response.header("Content-Type", "application/json")
     })
+
+    this.initExceptions()
   }
 
   /**
@@ -155,6 +131,38 @@ class NLPServer(
     }
 
     this.logger.info("CORS enabled")
+  }
+
+  /**
+   * Setup the exceptions handling.
+   */
+  private fun initExceptions() {
+
+    Spark.exception(MissingQueryParameters::class.java) { exception, _, response ->
+      response.status(400)
+      response.body("Missing required query parameters: %s\n".format((exception as MissingQueryParameters).message))
+    }
+
+    Spark.exception(EmptyText::class.java) { _, _, response ->
+      response.status(400)
+      response.body("Text is empty\n")
+    }
+
+    Spark.exception(LanguageNotSupported::class.java) { exception, _, response ->
+      response.status(400)
+      response.body("Language not supported: %s\n".format((exception as LanguageNotSupported).langCode))
+    }
+
+    Spark.exception(InvalidDomain::class.java) { exception, _, response ->
+      response.status(400)
+      response.body("Invalid domain: %s\n".format((exception as InvalidDomain).domain))
+    }
+
+    Spark.exception(RuntimeException::class.java) { exception, _, response ->
+      response.status(500)
+      response.body("500 Server error\n")
+      this.logger.warning(exception.toString() + ". Stacktrace: \n  " + exception.stackTrace.joinToString("\n  "))
+    }
   }
 
   /**
