@@ -14,7 +14,7 @@ import com.kotlinnlp.nlpserver.LanguageNotSupported
 /**
  * Defines a command that uses a language detector and tokenizers.
  */
-interface TokenizingCommand : LanguageDetectingCommand {
+internal interface TokenizingCommand : LanguageDetectingCommand {
 
   /**
    * Tokenizers associated by language ISO 639-1 code.

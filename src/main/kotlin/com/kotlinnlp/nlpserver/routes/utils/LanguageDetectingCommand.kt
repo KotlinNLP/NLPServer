@@ -15,7 +15,7 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 /**
  * Defines a command that uses a language detector.
  */
-interface LanguageDetectingCommand : Command {
+internal interface LanguageDetectingCommand : Command {
 
   /**
    * A language detector (can be null).

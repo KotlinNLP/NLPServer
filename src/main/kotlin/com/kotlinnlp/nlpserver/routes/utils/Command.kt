@@ -12,7 +12,7 @@ import com.kotlinnlp.nlpserver.EmptyText
 /**
  * Defines a generic command that works on a text.
  */
-interface Command {
+internal interface Command {
 
   /**
    * Check that the text is not empty.

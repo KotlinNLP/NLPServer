@@ -39,7 +39,7 @@ import java.util.logging.Logger
  *
  * @param parsedArgs the parsed command line arguments
  */
-class NLPBuilder(parsedArgs: CommandLineArguments) {
+internal class NLPBuilder(parsedArgs: CommandLineArguments) {
 
   /**
    * The logger of the [NLPBuilder].
