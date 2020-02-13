@@ -22,7 +22,6 @@ import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.Sentence as TokenizerSentence
 import com.kotlinnlp.nlpserver.InvalidDomain
 import com.kotlinnlp.nlpserver.routes.utils.TokenizingCommand
-import com.kotlinnlp.nlpserver.routes.utils.buildSentence
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import spark.Spark
 
@@ -137,8 +136,8 @@ class Categorize(
 
       classifier.model.name to json {
 
-        val formSentences: List<Sentence<FormToken>> = sentences.map { s -> buildSentence(s.tokens.map { it.form }) }
-        val predictions: List<DenseNDArray> = classifier.classify(formSentences)
+        @Suppress("UNCHECKED_CAST")
+        val predictions: List<DenseNDArray> = classifier.classify(sentences.map { it as Sentence<FormToken> })
 
         array(predictions.map {
 
