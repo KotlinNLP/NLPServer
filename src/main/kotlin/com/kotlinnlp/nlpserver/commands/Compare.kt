@@ -81,18 +81,24 @@ class Compare(
 
     return json {
 
-      array(comparingTexts.map { (id, text) ->
+      array(
+        comparingTexts
+          .asSequence()
+          .map { (id, text) ->
 
-        progress.tick()
+            progress.tick()
 
-        val similarity: TextComparator.TokensSimilarity =
-          comparator.compare(parsedTokensA = textTokens, parsedTokensB = comparator.parse(text))
-
-        obj(
-          "id" to id,
-          "score" to similarity.score
-        )
-      })
+            id to comparator.compare(parsedTokensA = textTokens, parsedTokensB = comparator.parse(text)).score
+          }
+          .sortedByDescending { it.second }
+          .map {
+            obj(
+              "id" to it.first,
+              "score" to it.second
+            )
+          }
+          .toList()
+      )
     }
   }
 }
