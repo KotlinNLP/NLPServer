@@ -92,7 +92,7 @@ class CommandLineArguments(args: Array<String>) {
    * The directory containing the serialized models of the LHRParser, one per language.
    */
   val lhrParserModelsDir: String? by parser.storing(
-    "--parser",
+    "--parsers",
     help="the directory containing the serialized models of the neural parsers (one per language)"
   ).default(null)
 
