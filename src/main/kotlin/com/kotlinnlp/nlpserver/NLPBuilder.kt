@@ -353,9 +353,9 @@ internal class NLPBuilder(parsedArgs: CommandLineArguments) {
       .associate {
         it to TextComparator(
           embeddings = this.wordEmbeddings.getValue(it),
-          tokenizer = this.tokenizers.getValue(it),
+          tokenizerModel = this.tokenizers.getValue(it).model,
           morphoDictionary = this.morphoDicts.getValue(it),
-          parser = this.parsers.getValue(it),
+          parserModel = this.parsers.getValue(it).model,
           lemmasBlacklist = this.comparisonBlacklists[it] ?: setOf()
         )
       }
