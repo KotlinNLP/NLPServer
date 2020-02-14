@@ -356,7 +356,8 @@ internal class NLPBuilder(parsedArgs: CommandLineArguments) {
           tokenizerModel = this.tokenizers.getValue(it).model,
           morphoDictionary = this.morphoDicts.getValue(it),
           parserModel = this.parsers.getValue(it).model,
-          lemmasBlacklist = this.comparisonBlacklists[it] ?: setOf()
+          lemmasBlacklist = this.comparisonBlacklists[it] ?: setOf(),
+          cacheEnabled = true
         )
       }
       .ifEmpty { null }
