@@ -17,6 +17,7 @@ import com.kotlinnlp.linguisticdescription.language.getLanguageByIso
 import com.kotlinnlp.nlpserver.LanguageNotSupported
 import com.kotlinnlp.nlpserver.routes.utils.LanguageDetectingCommand
 import com.kotlinnlp.nlpserver.routes.utils.Progress
+import com.kotlinnlp.utils.pmap
 import org.apache.log4j.Logger
 import spark.Spark
 import com.kotlinnlp.conllio.Sentence as CoNLLSentence
@@ -113,20 +114,22 @@ class Compare(
    */
   private fun compare(baseText: String, comparingTexts: Map<Int, String>, comparator: TextComparator): JsonArray<*> {
 
-    val progress = Progress(total = comparingTexts.size, logger = this.logger, description = "Comparing progress")
     val textTokens: List<TextComparator.ComparingToken> = comparator.parse(baseText)
+
+    val availableCores: Int = Runtime.getRuntime().availableProcessors()
+    val usingCores: Double = maxOf(1.0, Math.floor(0.7 * availableCores))
+    val chunkSize: Int = Math.ceil(comparingTexts.size / usingCores).toInt()
 
     return json {
 
       array(
         comparingTexts
+          .entries
+          .chunked(chunkSize)
+          .withIndex()
+          .pmap { compareChunk(chunk = it, textTokens = textTokens, comparator = comparator) }
           .asSequence()
-          .map { (id, text) ->
-
-            progress.tick()
-
-            id to comparator.compare(parsedTokensA = textTokens, parsedTokensB = comparator.parse(text)).score
-          }
+          .flatten()
           .sortedByDescending { it.second }
           .map {
             obj(
@@ -136,6 +139,32 @@ class Compare(
           }
           .toList()
       )
+    }
+  }
+
+  /**
+   * Compare a chunk of texts with the base text.
+   *
+   * @param chunk a chunk of comparing texts, with its index
+   * @param textTokens the base text tokens
+   * @param comparator a texts comparator
+   *
+   * @return the comparison results of the given texts
+   */
+  private fun compareChunk(chunk: IndexedValue<List<Map.Entry<Int, String>>>,
+                           textTokens: List<TextComparator.ComparingToken>,
+                           comparator: TextComparator): List<Pair<Int, Double>> {
+
+    val progress = Progress(
+      total = chunk.value.size,
+      logger = this.logger,
+      description = "Chunk #${chunk.index + 1} progress")
+
+    return chunk.value.map { (id, text) ->
+
+      progress.tick()
+
+      id to comparator.compare(parsedTokensA = textTokens, parsedTokensB = comparator.parse(text)).score
     }
   }
 }
