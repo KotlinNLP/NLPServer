@@ -20,10 +20,14 @@ import org.apache.log4j.spi.RootLogger
 fun main(args: Array<String>): Unit = mainBody {
 
   val parsedArgs = CommandLineArguments(args)
+  val logger = Logger.getLogger("Main")
 
   NLPServer(port = parsedArgs.port, enableCORS = parsedArgs.enableCORS, routes = buildRoutes(parsedArgs)).apply {
 
     setupLogging(debugMode = parsedArgs.debug)
+
+    if (parsedArgs.debug) logger.info("Debug mode enabled")
+    logger.info("Parallel threads: ${parsedArgs.threads}")
 
     start()
   }
