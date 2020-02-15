@@ -25,10 +25,10 @@ fun main(args: Array<String>): Unit = mainBody {
 
     setupLogging(debugMode = parsedArgs.debug)
 
+    start()
+
     if (parsedArgs.debug) logger.info("Debug mode enabled")
     logger.info("Parallel threads: ${parsedArgs.threads}")
-
-    start()
   }
 }
 

@@ -153,18 +153,17 @@ internal class NLPBuilder(parsedArgs: CommandLineArguments) {
    *
    * @return a map of tokenizers associated by language ISO 639-1 code
    */
-  private fun buildTokenizers(tokenizerModelsDir: String): Map<String, NeuralTokenizer> {
+  private fun buildTokenizers(tokenizerModelsDir: String): Map<String, NeuralTokenizer> =
+    File(tokenizerModelsDir)
+      .listFilesOrRaise()
+      .also { this.logger.info("Loading tokenizers models from '$tokenizerModelsDir':") }
+      .associate { modelFile ->
 
-    this.logger.info("Loading tokenizer models from '$tokenizerModelsDir'")
+        this.logger.info("\tloading '${modelFile.name}'...")
+        val model = NeuralTokenizerModel.load(FileInputStream(modelFile))
 
-    return File(tokenizerModelsDir).listFilesOrRaise().associate { modelFile ->
-
-      this.logger.info("Loading '${modelFile.name}'...")
-      val model = NeuralTokenizerModel.load(FileInputStream(modelFile))
-
-      model.language.isoCode to NeuralTokenizer(model = model, useDropout = false)
-    }
-  }
+        model.language.isoCode to NeuralTokenizer(model = model, useDropout = false)
+      }
 
   /**
    * Build a map of [LHRParser]s associated by language ISO 639-1 code.
@@ -173,21 +172,17 @@ internal class NLPBuilder(parsedArgs: CommandLineArguments) {
    *
    * @return a map of neural parsers associated by language ISO 639-1 code
    */
-  private fun buildLHRParsers(lhrModelsDir: String): Map<String, LHRParser> {
+  private fun buildLHRParsers(lhrModelsDir: String): Map<String, LHRParser> =
+    File(lhrModelsDir)
+      .listFilesOrRaise()
+      .also { this.logger.info("Loading parsers models from '$lhrModelsDir':") }
+      .associate { modelFile ->
 
-    this.logger.info("Loading LHR models from '$lhrModelsDir'")
-    val modelsDirectory = File(lhrModelsDir)
+        this.logger.info("\tloading '${modelFile.name}'...")
+        val model: LHRModel = LHRModel.load(FileInputStream(modelFile))
 
-    require(modelsDirectory.isDirectory) { "$lhrModelsDir is not a directory" }
-
-    return modelsDirectory.listFiles().associate { modelFile ->
-
-      this.logger.info("Loading '${modelFile.name}'...")
-      val model: LHRModel = LHRModel.load(FileInputStream(modelFile))
-
-      model.language.isoCode to LHRParser(model)
-    }
-  }
+        model.language.isoCode to LHRParser(model)
+      }
 
   /**
    * Build a map of [TextFramesExtractor]s associated by domain name.
@@ -201,28 +196,26 @@ internal class NLPBuilder(parsedArgs: CommandLineArguments) {
   private fun buildFrameExtractorsMap(frameExtractorModelsDir: String,
                                       embeddingsDir: String?): Map<String, TextFramesExtractor> {
 
-    this.logger.info("Loading frame extractor models from '$frameExtractorModelsDir'")
-    val frameExtractorsDir = File(frameExtractorModelsDir)
-
-    require(frameExtractorsDir.isDirectory) { "$frameExtractorModelsDir is not a directory" }
-
     val embeddings: Map<String, EmbeddingsMap<String>>? = embeddingsDir?.let {
-      this.logger.info("Loading frames extractor embeddings from '$embeddingsDir'")
+      this.logger.info("Loading frames extractors embeddings from '$embeddingsDir':")
       this.buildDomainEmbeddingsMap(it)
     }
 
-    return frameExtractorsDir.listFiles().associate { modelFile ->
+    return File(frameExtractorModelsDir)
+      .listFilesOrRaise()
+      .also { this.logger.info("Loading frame extractors models from '$frameExtractorModelsDir':") }
+      .associate { modelFile ->
 
-      this.logger.info("Loading '${modelFile.name}'...")
-      val extractor = TextFramesExtractor(model = TextFramesExtractorModel.load(FileInputStream(modelFile)))
-      val domainName: String = extractor.model.name
+        this.logger.info("\tloading '${modelFile.name}'...")
+        val extractor = TextFramesExtractor(model = TextFramesExtractorModel.load(FileInputStream(modelFile)))
+        val domainName: String = extractor.model.name
 
-      embeddings
-        ?.getOrElse(domainName) { throw RuntimeException("Missing frames extractor embeddings for '$domainName'") }
-        ?.let { extractor.setEmbeddings(it) }
+        embeddings
+          ?.getOrElse(domainName) { throw RuntimeException("Missing frames extractor embeddings for '$domainName'") }
+          ?.let { extractor.setEmbeddings(it) }
 
-      extractor.model.name to extractor
-    }
+        extractor.model.name to extractor
+      }
   }
 
   /**
@@ -237,28 +230,26 @@ internal class NLPBuilder(parsedArgs: CommandLineArguments) {
   private fun buildHANClassifiersMap(hanClassifierModelsDir: String,
                                      embeddingsDir: String?): Map<String, HANClassifier> {
 
-    this.logger.info("Loading classifiers models from '$hanClassifierModelsDir'")
-    val hanClassifiersDir = File(hanClassifierModelsDir).also {
-      require(it.isDirectory) { "$hanClassifierModelsDir is not a directory" }
-    }
-
     val embeddings: Map<String, EmbeddingsMap<String>>? = embeddingsDir?.let {
-      this.logger.info("Loading classifiers embeddings from '$embeddingsDir'")
+      this.logger.info("Loading classifiers embeddings from '$embeddingsDir':")
       this.buildDomainEmbeddingsMap(it)
     }
 
-    return hanClassifiersDir.listFilesOrRaise().associate { modelFile ->
+    return File(hanClassifierModelsDir)
+      .listFilesOrRaise()
+      .also { this.logger.info("Loading classifiers models from '$hanClassifierModelsDir':") }
+      .associate { modelFile ->
 
-      this.logger.info("Loading '${modelFile.name}'...")
-      val classifier = HANClassifier(model = HANClassifierModel.load(FileInputStream(modelFile)))
-      val domainName: String = classifier.model.name
+        this.logger.info("\tloading '${modelFile.name}'...")
+        val classifier = HANClassifier(model = HANClassifierModel.load(FileInputStream(modelFile)))
+        val domainName: String = classifier.model.name
 
-      embeddings
-        ?.getOrElse(domainName) { throw RuntimeException("Missing classifier embeddings for '$domainName'") }
-        ?.let { classifier.setEmbeddings(it) }
+        embeddings
+          ?.getOrElse(domainName) { throw RuntimeException("Missing classifier embeddings for '$domainName'") }
+          ?.let { classifier.setEmbeddings(it) }
 
-      domainName to classifier
-    }
+        domainName to classifier
+      }
   }
 
   /**
@@ -268,18 +259,17 @@ internal class NLPBuilder(parsedArgs: CommandLineArguments) {
    *
    * @return a map morphology dictionaries associated by language ISO 639-1 code
    */
-  private fun buildMorphoDictionaries(morphoDictionariesDir: String): Map<String, MorphologyDictionary> {
+  private fun buildMorphoDictionaries(morphoDictionariesDir: String): Map<String, MorphologyDictionary> =
+    File(morphoDictionariesDir)
+      .listFilesOrRaise()
+      .also { this.logger.info("Loading morphology dictionaries from '$morphoDictionariesDir':") }
+      .associate { dictionaryFile ->
 
-    this.logger.info("Loading morphology dictionaries from '$morphoDictionariesDir'")
+        this.logger.info("\tloading '${dictionaryFile.name}'...")
+        val dictionary: MorphologyDictionary = MorphologyDictionary.load(FileInputStream(dictionaryFile))
 
-    return File(morphoDictionariesDir).listFilesOrRaise().associate { dictionaryFile ->
-
-      this.logger.info("Loading '${dictionaryFile.name}'...")
-      val dictionary: MorphologyDictionary = MorphologyDictionary.load(FileInputStream(dictionaryFile))
-
-      dictionary.language.isoCode to dictionary
-    }
-  }
+        dictionary.language.isoCode to dictionary
+      }
 
   /**
    * Load a serialized [LocationsDictionary] from file.
@@ -303,13 +293,12 @@ internal class NLPBuilder(parsedArgs: CommandLineArguments) {
    * @return a map of generic word embeddings, associated by language ISO 639-1 code
    */
   private fun buildWordEmbeddings(dirname: String): Map<String, EmbeddingsMap<String>> =
-
     File(dirname)
-      .also { require(it.isDirectory) { "$dirname is not a directory" } }
       .listFilesOrRaise()
+      .also { this.logger.info("Loading word embeddings from '$dirname':") }
       .associate { embeddingsFile ->
 
-        this.logger.info("Loading word embeddings from '${embeddingsFile.name}'...")
+        this.logger.info("\tloading '${embeddingsFile.name}'...")
         val embeddingsMap: EmbeddingsMap<String> =
           EmbeddingsMap.load(embeddingsFile.absolutePath.toString(), verbose = false)
 
@@ -326,13 +315,12 @@ internal class NLPBuilder(parsedArgs: CommandLineArguments) {
    * @return a map of terms blacklists for the comparison, associated by language ISO 639-1 code
    */
   private fun buildComparisonBlacklists(dirname: String): Map<String, Set<String>> =
-
     File(dirname)
-      .also { require(it.isDirectory) { "$dirname is not a directory" } }
       .listFilesOrRaise()
+      .also { this.logger.info("Loading comparison blacklists from '$dirname':") }
       .associate { file ->
 
-        this.logger.info("Loading comparison blacklist from '${file.name}'...")
+        this.logger.info("\tloading '${file.name}'...")
 
         val language: String = file.nameWithoutExtension.substringAfterLast("__").toLowerCase()
 
@@ -370,19 +358,19 @@ internal class NLPBuilder(parsedArgs: CommandLineArguments) {
    *
    * @return a map of embeddings maps associated by domain name
    */
-  private fun buildDomainEmbeddingsMap(embeddingsDir: String): Map<String, EmbeddingsMap<String>> {
+  private fun buildDomainEmbeddingsMap(embeddingsDir: String): Map<String, EmbeddingsMap<String>> =
+    File(embeddingsDir)
+      .listFilesOrRaise()
+      .associate { embeddingsFile ->
 
-    return File(embeddingsDir).listFilesOrRaise().associate { embeddingsFile ->
+        this.logger.info("\tloading '${embeddingsFile.name}'...")
+        val embeddingsMap: EmbeddingsMap<String> =
+          EmbeddingsMap.load(embeddingsFile.absolutePath.toString(), verbose = false)
 
-      this.logger.info("Loading '${embeddingsFile.name}'...")
-      val embeddingsMap: EmbeddingsMap<String> =
-        EmbeddingsMap.load(embeddingsFile.absolutePath.toString(), verbose = false)
+        val domainName: String = embeddingsFile.nameWithoutExtension.substringAfterLast("__")
 
-      val domainName: String = embeddingsFile.nameWithoutExtension.substringAfterLast("__")
-
-      domainName to embeddingsMap
-    }
-  }
+        domainName to embeddingsMap
+      }
 
   /**
    * Set a given embeddings map into this HAN classifier.
