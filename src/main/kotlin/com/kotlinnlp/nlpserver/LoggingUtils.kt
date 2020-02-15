@@ -18,13 +18,10 @@ import org.apache.log4j.spi.RootLogger
  */
 internal fun setupLogging(debugMode: Boolean) {
 
-  RootLogger.getRootLogger().apply {
+  RootLogger.getRootLogger().level = if (debugMode) Level.DEBUG else Level.INFO
 
-    level = if (debugMode) Level.DEBUG else Level.INFO
-
-    setAppender(
-      maxNameLength = LogManager.getCurrentLoggers().asSequence().map { (it as Logger).name.length }.max() ?: 5)
-  }
+  val maxNameLength: Int = LogManager.getCurrentLoggers().asSequence().map { (it as Logger).name.length }.max() ?: 5
+  LogManager.getCurrentLoggers().asSequence().forEach { (it as Logger).setAppender(maxNameLength) }
 }
 
 /**
