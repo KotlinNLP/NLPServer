@@ -27,10 +27,12 @@ import com.kotlinnlp.conllio.Sentence as CoNLLSentence
  *
  * @param languageDetector a language detector (can be null)
  * @param comparators a map of text comparators associated by language ISO 639-1 code
+ * @param parallelization the number of threads used to parallelize operations
  */
 class Compare(
   override val languageDetector: LanguageDetector?,
-  private val comparators: Map<String, TextComparator>
+  private val comparators: Map<String, TextComparator>,
+  private val parallelization: Int
 ) : Route, LanguageDetectingCommand {
 
   /**
@@ -42,6 +44,13 @@ class Compare(
    * The logger of the command.
    */
   private val logger = Logger.getLogger(this::class.simpleName)
+
+  /**
+   * Check requirements.
+   */
+  init {
+    require(this.parallelization >= 1)
+  }
 
   /**
    * Initialize the route.
@@ -115,10 +124,7 @@ class Compare(
   private fun compare(baseText: String, comparingTexts: Map<Int, String>, comparator: TextComparator): JsonArray<*> {
 
     val textTokens: List<TextComparator.ComparingToken> = comparator.parse(baseText)
-
-    val availableCores: Int = Runtime.getRuntime().availableProcessors()
-    val usingCores: Double = maxOf(1.0, Math.floor(0.7 * availableCores))
-    val chunkSize: Int = Math.ceil(comparingTexts.size / usingCores).toInt()
+    val chunkSize: Int = Math.ceil(comparingTexts.size.toDouble() / this.parallelization).toInt()
 
     return json {
 

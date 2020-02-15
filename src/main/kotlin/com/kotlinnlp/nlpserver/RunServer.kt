@@ -71,7 +71,11 @@ private fun buildRoutes(parsedArgs: CommandLineArguments): List<Route> {
         hanClassifiers = builder.hanClassifiers))
 
   if (builder.comparators != null)
-    routes.add(Compare(languageDetector = builder.languageDetector, comparators = builder.comparators))
+    routes.add(
+      Compare(
+        languageDetector = builder.languageDetector,
+        comparators = builder.comparators,
+        parallelization = parsedArgs.threads))
 
   return routes
 }

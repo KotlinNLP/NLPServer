@@ -8,6 +8,7 @@
 package com.kotlinnlp.nlpserver
 
 import com.xenomachina.argparser.ArgParser
+import com.xenomachina.argparser.SystemExitException
 import com.xenomachina.argparser.default
 
 /**
@@ -39,6 +40,17 @@ class CommandLineArguments(args: Array<String>) {
     "--debug",
     help="whether to print debugging messages"
   )
+
+  /**
+   * The number of threads used to parallelize operations when possible (default 1).
+   */
+  val threads: Int by parser.storing(
+    "-t",
+    "--threads",
+    help="the number of threads used to parallelize operations when possible (default 1)"
+  ) { toInt() }
+    .default(1)
+    .addValidator { if (value < 1) throw SystemExitException("The number of threads must be >= 1", 1) }
 
   /**
    * Whether to enable CORS requests.
