@@ -35,5 +35,6 @@ internal fun setupLogging(debugMode: Boolean) {
  * @return this logger
  */
 internal fun Logger.setAppender(maxNameLength: Int = this.name.length): Logger = this.apply {
+  removeAllAppenders()
   addAppender(ConsoleAppender(PatternLayout("(Thread %t) [%d] %-5p %-${maxNameLength}c - %m%n")))
 }
