@@ -20,18 +20,15 @@ internal fun setupLogging(debugMode: Boolean) {
 
   RootLogger.getRootLogger().level = if (debugMode) Level.DEBUG else Level.INFO
 
-  val maxNameLength: Int = LogManager.getCurrentLoggers().asSequence().map { (it as Logger).name.length }.max() ?: 5
-  LogManager.getCurrentLoggers().asSequence().forEach { (it as Logger).setAppender(maxNameLength) }
+  LogManager.getCurrentLoggers().asSequence().forEach { (it as Logger).setAppender() }
 }
 
 /**
  * Add a custom console appender to this logger.
  *
- * @param maxNameLength the max length of the 'name' section in the pattern
- *
  * @return this logger
  */
-internal fun Logger.setAppender(maxNameLength: Int = this.name.length): Logger = this.apply {
+internal fun Logger.setAppender(): Logger = this.apply {
   removeAllAppenders()
-  addAppender(ConsoleAppender(PatternLayout("(Thread %t) [%d] %-5p %-${maxNameLength}c - %m%n")))
+  addAppender(ConsoleAppender(PatternLayout("(Thread %t) [%d] %p %c - %m%n")))
 }

@@ -17,6 +17,7 @@ import com.kotlinnlp.linguisticdescription.language.getLanguageByIso
 import com.kotlinnlp.nlpserver.LanguageNotSupported
 import com.kotlinnlp.nlpserver.routes.utils.LanguageDetectingCommand
 import com.kotlinnlp.nlpserver.routes.utils.Progress
+import com.kotlinnlp.nlpserver.setAppender
 import com.kotlinnlp.utils.pmap
 import org.apache.log4j.Logger
 import spark.Spark
@@ -43,7 +44,7 @@ class Compare(
   /**
    * The logger of the command.
    */
-  private val logger = Logger.getLogger(this::class.simpleName)
+  private val logger = Logger.getLogger(this::class.simpleName).setAppender()
 
   /**
    * Check requirements.

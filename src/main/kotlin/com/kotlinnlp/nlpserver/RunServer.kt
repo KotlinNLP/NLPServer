@@ -19,17 +19,14 @@ import org.apache.log4j.*
 fun main(args: Array<String>): Unit = mainBody {
 
   val parsedArgs = CommandLineArguments(args)
-  val logger = Logger.getLogger("Main")
+  val logger = Logger.getLogger("Main").setAppender()
 
-  NLPServer(port = parsedArgs.port, enableCORS = parsedArgs.enableCORS, routes = buildRoutes(parsedArgs)).apply {
+  setupLogging(debugMode = parsedArgs.debug)
 
-    setupLogging(debugMode = parsedArgs.debug)
+  NLPServer(port = parsedArgs.port, enableCORS = parsedArgs.enableCORS, routes = buildRoutes(parsedArgs)).start()
 
-    start()
-
-    if (parsedArgs.debug) logger.info("Debug mode enabled")
-    logger.info("Parallel threads: ${parsedArgs.threads}")
-  }
+  if (parsedArgs.debug) logger.info("Debug mode enabled")
+  logger.info("Parallel threads: ${parsedArgs.threads}")
 }
 
 /**
