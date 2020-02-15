@@ -24,7 +24,7 @@ class NLPServer(port: Int, enableCORS: Boolean, private val routes: List<Route>)
   /**
    * The logger of the server.
    */
-  private val logger = Logger.getLogger("NLP Server")
+  private val logger = Logger.getLogger("NLP Server").setAppender()
 
   /**
    * Initialize Spark: set port and exceptions handling.

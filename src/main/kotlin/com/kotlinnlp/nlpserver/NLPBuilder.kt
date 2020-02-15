@@ -44,9 +44,7 @@ internal class NLPBuilder(parsedArgs: CommandLineArguments) {
   /**
    * The logger of the [NLPBuilder].
    */
-  private val logger = Logger.getLogger("NLP Builder").apply {
-    addAppender(ConsoleAppender(PatternLayout("(Thread %t) [%d] %-5p %-${name.length}c - %m%n")))
-  }
+  private val logger = Logger.getLogger("NLP Builder").setAppender()
 
   /**
    * A language detector or null if the required arguments are not present.
