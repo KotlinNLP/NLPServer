@@ -10,7 +10,6 @@ package com.kotlinnlp.nlpserver
 import com.kotlinnlp.nlpserver.routes.*
 import com.xenomachina.argparser.mainBody
 import org.apache.log4j.*
-import org.apache.log4j.spi.RootLogger
 
 /**
  * Run the NLP Server.
@@ -82,19 +81,4 @@ private fun buildRoutes(parsedArgs: CommandLineArguments): List<Route> {
         parallelization = parsedArgs.threads))
 
   return routes
-}
-
-/**
- * Setup the logging.
- * This function should be called after the creation of all the loggers.
- *
- * @param debugMode whether to log in debug mode
- */
-private fun setupLogging(debugMode: Boolean) {
-
-  val rootLogger = RootLogger.getRootLogger()
-  val maxLoggerNameLen: Int = LogManager.getCurrentLoggers().asSequence().map { (it as Logger).name.length }.max() ?: 5
-
-  rootLogger.level = if (debugMode) Level.DEBUG else Level.INFO
-  rootLogger.addAppender(ConsoleAppender(PatternLayout("(Thread %t) [%d] %-5p %-${maxLoggerNameLen}c - %m%n")))
 }
