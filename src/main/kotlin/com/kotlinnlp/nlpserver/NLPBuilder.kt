@@ -159,7 +159,7 @@ internal class NLPBuilder(parsedArgs: CommandLineArguments) {
       .also { this.logger.info("Loading tokenizers models from '$tokenizerModelsDir':") }
       .associate { modelFile ->
 
-        this.logger.info("\tloading '${modelFile.name}'...")
+        this.logger.info("  loading '${modelFile.name}'...")
         val model = NeuralTokenizerModel.load(FileInputStream(modelFile))
 
         model.language.isoCode to NeuralTokenizer(model = model, useDropout = false)
@@ -178,7 +178,7 @@ internal class NLPBuilder(parsedArgs: CommandLineArguments) {
       .also { this.logger.info("Loading parsers models from '$lhrModelsDir':") }
       .associate { modelFile ->
 
-        this.logger.info("\tloading '${modelFile.name}'...")
+        this.logger.info("  loading '${modelFile.name}'...")
         val model: LHRModel = LHRModel.load(FileInputStream(modelFile))
 
         model.language.isoCode to LHRParser(model)
@@ -206,7 +206,7 @@ internal class NLPBuilder(parsedArgs: CommandLineArguments) {
       .also { this.logger.info("Loading frame extractors models from '$frameExtractorModelsDir':") }
       .associate { modelFile ->
 
-        this.logger.info("\tloading '${modelFile.name}'...")
+        this.logger.info("  loading '${modelFile.name}'...")
         val extractor = TextFramesExtractor(model = TextFramesExtractorModel.load(FileInputStream(modelFile)))
         val domainName: String = extractor.model.name
 
@@ -240,7 +240,7 @@ internal class NLPBuilder(parsedArgs: CommandLineArguments) {
       .also { this.logger.info("Loading classifiers models from '$hanClassifierModelsDir':") }
       .associate { modelFile ->
 
-        this.logger.info("\tloading '${modelFile.name}'...")
+        this.logger.info("  loading '${modelFile.name}'...")
         val classifier = HANClassifier(model = HANClassifierModel.load(FileInputStream(modelFile)))
         val domainName: String = classifier.model.name
 
@@ -265,7 +265,7 @@ internal class NLPBuilder(parsedArgs: CommandLineArguments) {
       .also { this.logger.info("Loading morphology dictionaries from '$morphoDictionariesDir':") }
       .associate { dictionaryFile ->
 
-        this.logger.info("\tloading '${dictionaryFile.name}'...")
+        this.logger.info("  loading '${dictionaryFile.name}'...")
         val dictionary: MorphologyDictionary = MorphologyDictionary.load(FileInputStream(dictionaryFile))
 
         dictionary.language.isoCode to dictionary
@@ -298,7 +298,7 @@ internal class NLPBuilder(parsedArgs: CommandLineArguments) {
       .also { this.logger.info("Loading word embeddings from '$dirname':") }
       .associate { embeddingsFile ->
 
-        this.logger.info("\tloading '${embeddingsFile.name}'...")
+        this.logger.info("  loading '${embeddingsFile.name}'...")
         val embeddingsMap: EmbeddingsMap<String> =
           EmbeddingsMap.load(embeddingsFile.absolutePath.toString(), verbose = false)
 
@@ -320,7 +320,7 @@ internal class NLPBuilder(parsedArgs: CommandLineArguments) {
       .also { this.logger.info("Loading comparison blacklists from '$dirname':") }
       .associate { file ->
 
-        this.logger.info("\tloading '${file.name}'...")
+        this.logger.info("  loading '${file.name}'...")
 
         val language: String = file.nameWithoutExtension.substringAfterLast("__").toLowerCase()
 
@@ -363,7 +363,7 @@ internal class NLPBuilder(parsedArgs: CommandLineArguments) {
       .listFilesOrRaise()
       .associate { embeddingsFile ->
 
-        this.logger.info("\tloading '${embeddingsFile.name}'...")
+        this.logger.info("  loading '${embeddingsFile.name}'...")
         val embeddingsMap: EmbeddingsMap<String> =
           EmbeddingsMap.load(embeddingsFile.absolutePath.toString(), verbose = false)
 
