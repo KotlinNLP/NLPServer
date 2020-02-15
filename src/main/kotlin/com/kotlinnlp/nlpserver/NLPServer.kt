@@ -8,9 +8,9 @@
 package com.kotlinnlp.nlpserver
 
 import com.kotlinnlp.nlpserver.routes.*
+import org.apache.log4j.Logger
 import spark.Filter
 import spark.Spark
-import java.util.logging.Logger
 
 /**
  * The NLP Server class.
@@ -110,7 +110,7 @@ class NLPServer(port: Int, enableCORS: Boolean, private val routes: List<Route>)
     Spark.exception(RuntimeException::class.java) { exception, _, response ->
       response.status(500)
       response.body("500 Server error\n")
-      this.logger.warning(exception.toString() + ". Stacktrace: \n  " + exception.stackTrace.joinToString("\n  "))
+      this.logger.warn(exception.toString() + ". Stacktrace: \n  " + exception.stackTrace.joinToString("\n  "))
     }
   }
 }

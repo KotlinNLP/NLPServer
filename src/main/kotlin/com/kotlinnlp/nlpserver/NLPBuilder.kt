@@ -29,10 +29,10 @@ import com.kotlinnlp.tokensencoder.ensemble.EnsembleTokensEncoderModel
 import com.kotlinnlp.tokensencoder.reduction.ReductionEncoderModel
 import com.kotlinnlp.tokensencoder.wrapper.TokensEncoderWrapperModel
 import com.kotlinnlp.utils.notEmptyOr
+import org.apache.log4j.*
 import java.io.File
 import java.io.FileInputStream
 import java.lang.RuntimeException
-import java.util.logging.Logger
 
 /**
  * Helper that builds the NLP components logging the loading steps.
@@ -44,7 +44,9 @@ internal class NLPBuilder(parsedArgs: CommandLineArguments) {
   /**
    * The logger of the [NLPBuilder].
    */
-  private val logger = Logger.getLogger("NLP Builder")
+  private val logger = Logger.getLogger("NLP Builder").apply {
+    addAppender(ConsoleAppender(PatternLayout("(Thread %t) [%d] %-5p %-${name.length}c - %m%n")))
+  }
 
   /**
    * A language detector or null if the required arguments are not present.
