@@ -66,7 +66,7 @@
         <log4j.version>1.2.17</log4j.version>
         <argparser.version>2.0.3</argparser.version>
         <xenocom.version>0.0.5</xenocom.version>
-        <klaxon.version>3.0.5</klaxon.version>
+        <klaxon.version>5.2</klaxon.version>
         <neuralparser.version>0.6.5</neuralparser.version>
         <languagedetector.version>0.4.10</languagedetector.version>
         <geolocation.version>0.2.4</geolocation.version>

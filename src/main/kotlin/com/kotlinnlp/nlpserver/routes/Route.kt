@@ -40,7 +40,7 @@ interface Route {
 
     this.assertJsonApplication()
 
-    return Parser().parse(StringBuilder(this.body())) as? JsonObject ?: throw InvalidJSONBody()
+    return Parser.default().parse(StringBuilder(this.body())) as? JsonObject ?: throw InvalidJSONBody()
   }
 
   /**
