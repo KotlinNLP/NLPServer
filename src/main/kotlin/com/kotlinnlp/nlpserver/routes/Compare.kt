@@ -87,8 +87,8 @@ class Compare(
    *
    * @param baseText the base text
    * @param comparingTexts the comparing texts
-   * @param lang the language of the texts (default = unknown)
-   * @param prettyPrint pretty print, used for JSON format (default = false)
+   * @param lang the language of the text or null if it is unknown
+   * @param prettyPrint pretty print, used for JSON format
    *
    * @return the results of the comparison, as objects with the text ID and the comparison score
    */
