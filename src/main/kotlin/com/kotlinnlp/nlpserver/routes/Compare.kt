@@ -21,7 +21,6 @@ import com.kotlinnlp.nlpserver.setAppender
 import com.kotlinnlp.utils.pmap
 import org.apache.log4j.Logger
 import spark.Spark
-import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 
 /**
  * The command executed on the route '/compare'.

@@ -10,8 +10,6 @@ package com.kotlinnlp.nlpserver.routes
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.json
 import com.kotlinnlp.hanclassifier.HANClassifier
-import com.kotlinnlp.conllio.Sentence as CoNLLSentence
-import com.kotlinnlp.conllio.Token as CoNLLToken
 import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.linguisticdescription.InvalidLanguageCode
 import com.kotlinnlp.linguisticdescription.language.Language
