@@ -77,5 +77,12 @@ private fun buildRoutes(parsedArgs: CommandLineArguments): List<Route> {
         comparators = builder.comparators,
         parallelization = parsedArgs.threads))
 
+  if (builder.tokenizers != null && builder.morphoAnalyzers.isNotEmpty())
+    routes.add(
+      Morpho(
+        languageDetector = builder.languageDetector,
+        tokenizers = builder.tokenizers,
+        analyzers = builder.morphoAnalyzers))
+
   return routes
 }

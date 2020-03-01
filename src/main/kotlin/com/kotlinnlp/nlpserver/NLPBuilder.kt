@@ -17,6 +17,7 @@ import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.languagedetector.LanguageDetectorModel
 import com.kotlinnlp.languagedetector.utils.FrequencyDictionary
 import com.kotlinnlp.languagedetector.utils.TextTokenizer
+import com.kotlinnlp.morphologicalanalyzer.MorphologicalAnalyzer
 import com.kotlinnlp.morphologicalanalyzer.dictionary.MorphologyDictionary
 import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
@@ -79,6 +80,13 @@ internal class NLPBuilder(parsedArgs: CommandLineArguments) {
    * present).
    */
   val morphoPreprocessors: Map<String, MorphoPreprocessor> = this.morphoDicts.mapValues { MorphoPreprocessor(it.value) }
+
+  /**
+   * Morphological analyzers associated by language ISO 639-1 code (empty if the required arguments are not
+   * present).
+   */
+  val morphoAnalyzers: Map<String, MorphologicalAnalyzer> =
+    this.morphoDicts.mapValues { MorphologicalAnalyzer(it.value) }
 
   /**
    * A locations dictionary or null if the required arguments are not present.
