@@ -29,7 +29,7 @@ class CommandLineArguments(args: Array<String>) {
   val port: Int by parser.storing(
     "-p",
     "--port",
-    help="the port listened from the server"
+    help="the port listened by the server"
   ) { toInt() }.default(3000)
 
   /**

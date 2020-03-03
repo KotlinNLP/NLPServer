@@ -15,7 +15,7 @@ import spark.Spark
 /**
  * The NLP Server class.
  *
- * @param port the port listened from the server
+ * @param port the port listened by the server
  * @param enableCORS whether to enable CORS requests
  * @param routes the list of routes that the server makes available
  */
