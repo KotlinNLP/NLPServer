@@ -17,7 +17,6 @@ import com.kotlinnlp.linguisticdescription.sentence.RealSentence
 import com.kotlinnlp.linguisticdescription.sentence.properties.TokensRange
 import com.kotlinnlp.linguisticdescription.sentence.token.RealToken
 import com.kotlinnlp.morphologicalanalyzer.MorphologicalAnalyzer
-import com.kotlinnlp.morphologicalanalyzer.numbers.Number as MorphoNumber
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.nlpserver.routes.utils.TokenizingCommand
 import com.kotlinnlp.nlpserver.setAppender
@@ -54,30 +53,30 @@ class Morpho(
    */
   override fun initialize() {
 
-    Spark.get("/numbers") { request, _ ->
+    Spark.post("/numbers") { request, _ ->
       this.findNumbers(
-        text = request.body(),
+        text = request.getJsonObject().string("text")!!,
         lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
         prettyPrint = request.booleanParam("pretty"))
     }
 
-    Spark.get("/numbers/:lang") { request, _ ->
+    Spark.post("/numbers/:lang") { request, _ ->
       this.findNumbers(
-        text = request.body(),
+        text = request.getJsonObject().string("text")!!,
         lang = getLanguageByIso(request.params("lang")),
         prettyPrint = request.booleanParam("pretty"))
     }
 
-    Spark.get("/datetimes") { request, _ ->
+    Spark.post("/datetimes") { request, _ ->
       this.findDateTimes(
-        text = request.body(),
+        text = request.getJsonObject().string("text")!!,
         lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
         prettyPrint = request.booleanParam("pretty"))
     }
 
-    Spark.get("/datetimes/:lang") { request, _ ->
+    Spark.post("/datetimes/:lang") { request, _ ->
       this.findDateTimes(
-        text = request.body(),
+        text = request.getJsonObject().string("text")!!,
         lang = getLanguageByIso(request.params("lang")),
         prettyPrint = request.booleanParam("pretty"))
     }
