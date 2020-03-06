@@ -77,6 +77,18 @@ optional arguments:
 </dependency>
 ```
 
+## APIs
+
+The KotlinNLP RESTful APIs are designed with the OpenAPI Specification.
+
+### Client
+
+Install the API client running `install_client.sh`. 
+
+### Examples
+
+Try some examples of usage of the KotlinNLP APIs running the files in the `examples` folder.
+
 
 ## License
 
