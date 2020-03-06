@@ -737,7 +737,7 @@ components:
           format: int32
           description: the index of the last char of this expression in the original text
     NumExpr:
-        allOf:
+      allOf:
         - $ref: '#/components/schemas/MultiwordExpr'
         - type: object
           description: a numerical expression
@@ -771,7 +771,17 @@ components:
               DATE: '#/components/schemas/Date'
               HOLIDAY: '#/components/schemas/Holiday'
               TIME: '#/components/schemas/Time'
-    DateTimeSingle:
+              DATE_TIME: '#/components/schemas/DateTimeSimple'
+              ORDINAL: '#/components/schemas/DateOrdinal'
+              ORDINAL_DATE: '#/components/schemas/DateOrdinalDate'
+              OFFSET: '#/components/schemas/Offset'
+              OFFSET_DATE: '#/components/schemas/OffsetDate'
+              OFFSET_TIME: '#/components/schemas/OffsetTime'
+              DATE_OFFSET: '#/components/schemas/DateOffset'
+              INTERVAL_OPEN_TO: '#/components/schemas/Interval'
+              INTERVAL_OPEN_FROM: '#/components/schemas/Interval'
+              INTERVAL_CLOSE: '#/components/schemas/Interval'
+    SingleDateTime:
       allOf:
         - $ref: '#/components/schemas/DateTimeExpr'
         - type: object
@@ -786,7 +796,7 @@ components:
               example: '2018-01-13T09:15:00Z'
     Date:
       allOf:
-        - $ref: '#/components/schemas/DateTimeSingle'
+        - $ref: '#/components/schemas/SingleDateTime'
         - type: object
           description: an expression of a date
           properties:
@@ -836,7 +846,7 @@ components:
         - EASTER
     Holiday:
       allOf:
-        - $ref: '#/components/schemas/DateTimeSingle'
+        - $ref: '#/components/schemas/SingleDateTime'
         - type: object
           description: an expression of a holiday
           required:
@@ -857,7 +867,7 @@ components:
         - NIGHT
     Time:
       allOf:
-        - $ref: '#/components/schemas/DateTimeSingle'
+        - $ref: '#/components/schemas/SingleDateTime'
         - type: object
           description: an expression of a time
           properties:
@@ -895,6 +905,137 @@ components:
               type: string
               description: the timezone ID
               example: Europe/Rome
+    DateTimeSimple:
+      allOf:
+        - $ref: '#/components/schemas/SingleDateTime'
+        - type: object
+          description: an expression of a date and a time
+          required:
+            - date
+            - time
+          properties:
+            date:
+              $ref: '#/components/schemas/Date'
+            time:
+              $ref: '#/components/schemas/Time'
+    DateOrdinalUnit:
+      type: string
+      description: the date unit
+      example: DAY
+      enum:
+        - DATE
+        - DAY
+        - WEEK
+        - WEEKEND
+        - MONTH
+    DateOrdinal:
+      allOf:
+        - $ref: '#/components/schemas/SingleDateTime'
+        - type: object
+          description: an ordinal date
+          required:
+            - unit
+            - position
+            - dateTime
+            - hasYearReference
+          properties:
+            unit:
+              $ref: '#/components/schemas/DateOrdinalUnit'
+            position:
+              type: integer
+              format: int32
+              description: the ordinal position (-1 means 'last')
+            dateTime:
+              $ref: '#/components/schemas/SingleDateTime'
+            hasYearReference:
+              type: boolean
+              description: >
+                whether the reference date-time indicates a whole year (e.g. "the first Monday of the next year")
+    DateOrdinalDate:
+      allOf:
+        - $ref: '#/components/schemas/DateOrdinal'
+        - type: object
+          description: an ordinal date of date units
+          required:
+            - value
+          properties:
+            value:
+              $ref: '#/components/schemas/Date'
+    OffsetUnitsType:
+      type: string
+      description: the type of the offset units
+      example: QUARTER_HOUR
+      enum:
+        - DATE
+        - TIME
+        - HOUR
+        - QUARTER_HOUR
+        - HALF_HOUR
+        - MINUTE
+        - SECOND
+        - DAY
+        - WEEK
+        - WEEKEND
+        - MONTH
+        - YEAR
+    Offset:
+      allOf:
+        - $ref: '#/components/schemas/SingleDateTime'
+        - type: object
+          description: an offset respect to a reference date or time
+          required:
+            - units
+            - unitsType
+          properties:
+            units:
+              type: integer
+              format: int64
+              description: the count of the offset units
+            unitsType:
+              $ref: '#/components/schemas/OffsetUnitsType'
+    OffsetDate:
+      allOf:
+        - $ref: '#/components/schemas/Offset'
+        - type: object
+          description: an offset of date
+          required:
+            - value
+          properties:
+            value:
+              $ref: '#/components/schemas/Date'
+    OffsetTime:
+      allOf:
+        - $ref: '#/components/schemas/Offset'
+        - type: object
+          description: an offset of time
+          required:
+            - value
+          properties:
+            value:
+              $ref: '#/components/schemas/Time'
+    DateOffset:
+      allOf:
+        - $ref: '#/components/schemas/SingleDateTime'
+        - type: object
+          description: a date expressed respect to an offset
+          required:
+            - dateTime
+            - offset
+          properties:
+            dateTime:
+              $ref: '#/components/schemas/SingleDateTime'
+            offset:
+              $ref: '#/components/schemas/Offset'
+    Interval:
+      allOf:
+        - $ref: '#/components/schemas/DateTimeExpr'
+        - type: object
+          description: an interval of date-times (can be open)
+          properties:
+            from:
+              $ref: '#/components/schemas/SingleDateTime'
+            to:
+              $ref: '#/components/schemas/SingleDateTime'
     Entity:
       type: object
       description: an entity recognized in the text
