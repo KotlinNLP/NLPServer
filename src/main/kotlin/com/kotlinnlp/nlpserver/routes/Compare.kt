@@ -65,7 +65,9 @@ class Compare(
 
       this.compare(
         baseText = jsonBody.string("text")!!,
-        comparingTexts = jsonBody.array<JsonObject>("comparing")!!.associate { it.int("id")!! to it.string("text")!! },
+        comparingTexts = jsonBody.array<JsonObject>("comparing")!!.withIndex().associate { (i, obj) ->
+          (obj.int("id") ?: i) to obj.string("text")!!
+        },
         lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
         prettyPrint = request.booleanParam("pretty"))
     }
@@ -76,7 +78,9 @@ class Compare(
 
       this.compare(
         baseText = jsonBody.string("text")!!,
-        comparingTexts = jsonBody.array<JsonObject>("comparing")!!.associate { it.int("id")!! to it.string("text")!! },
+        comparingTexts = jsonBody.array<JsonObject>("comparing")!!.withIndex().associate { (i, obj) ->
+          (obj.int("id") ?: i) to obj.string("text")!!
+        },
         lang = getLanguageByIso(request.params("lang")),
         prettyPrint = request.booleanParam("pretty"))
     }
