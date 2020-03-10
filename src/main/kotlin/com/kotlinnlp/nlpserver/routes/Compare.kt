@@ -21,6 +21,7 @@ import com.kotlinnlp.nlpserver.setAppender
 import com.kotlinnlp.utils.pmap
 import org.apache.log4j.Logger
 import spark.Spark
+import kotlin.math.ceil
 
 /**
  * The command executed on the route '/compare'.
@@ -124,10 +125,9 @@ class Compare(
   private fun compare(baseText: String, comparingTexts: Map<Int, String>, comparator: TextComparator): JsonArray<*> {
 
     val textTokens: List<TextComparator.ComparingToken> = comparator.parse(baseText)
-    val chunkSize: Int = Math.ceil(comparingTexts.size.toDouble() / this.parallelization).toInt()
+    val chunkSize: Int = ceil(comparingTexts.size.toDouble() / this.parallelization).toInt()
 
     return json {
-
       array(
         comparingTexts
           .entries
