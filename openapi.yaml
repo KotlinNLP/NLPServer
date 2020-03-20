@@ -712,15 +712,27 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Sentence'
-    MultiwordExpr:
+    NumExpr:
       type: object
-      description: a multiword expression
+      description: a numerical expression
       required:
+        - value
+        - asWord
+        - original
         - startToken
         - endToken
         - startChar
         - endChar
       properties:
+        value:
+          type: number
+          description: the numeric value
+        asWord:
+          type: string
+          description: the standard representation of the number in letters
+        original:
+          type: string
+          description: the original string representing the number
         startToken:
           type: integer
           format: int32
@@ -737,51 +749,50 @@ components:
           type: integer
           format: int32
           description: the index of the last char of this expression in the original text
-    NumExpr:
-      allOf:
-        - $ref: '#/components/schemas/MultiwordExpr'
-        - type: object
-          description: a numerical expression
-          required:
-            - value
-            - asWord
-            - original
-          properties:
-            value:
-              type: number
-              description: the numeric value
-            asWord:
-              type: string
-              description: the standard representation of the number in letters
-            original:
-              type: string
-              description: the original string representing the number
     DateTimeExpr:
-      allOf:
-        - $ref: '#/components/schemas/MultiwordExpr'
-        - type: object
-          description: a date-time expression
-          required:
-            - type
-          properties:
-            type:
-              type: string
-          discriminator:
-            propertyName: type
-            mapping:
-              DATE: '#/components/schemas/Date'
-              HOLIDAY: '#/components/schemas/Holiday'
-              TIME: '#/components/schemas/Time'
-              DATE_TIME: '#/components/schemas/DateTimeSimple'
-              ORDINAL: '#/components/schemas/DateOrdinal'
-              ORDINAL_DATE: '#/components/schemas/DateOrdinalDate'
-              OFFSET: '#/components/schemas/Offset'
-              OFFSET_DATE: '#/components/schemas/OffsetDate'
-              OFFSET_TIME: '#/components/schemas/OffsetTime'
-              DATE_OFFSET: '#/components/schemas/DateOffset'
-              INTERVAL_OPEN_TO: '#/components/schemas/Interval'
-              INTERVAL_OPEN_FROM: '#/components/schemas/Interval'
-              INTERVAL_CLOSE: '#/components/schemas/Interval'
+      type: object
+      description: a date-time expression
+      required:
+        - type
+        - startToken
+        - endToken
+        - startChar
+        - endChar
+      properties:
+        type:
+          type: string
+        startToken:
+          type: integer
+          format: int32
+          description: the index of the first token of this expression, within the tokens list
+        endToken:
+          type: integer
+          format: int32
+          description: the index of the last token of this expression, within the tokens list
+        startChar:
+          type: integer
+          format: int32
+          description: the index of the first char of this expression in the original text
+        endChar:
+          type: integer
+          format: int32
+          description: the index of the last char of this expression in the original text
+      discriminator:
+        propertyName: type
+        mapping:
+          DATE: '#/components/schemas/DateSimple'
+          HOLIDAY: '#/components/schemas/Holiday'
+          TIME: '#/components/schemas/Time'
+          DATE_TIME: '#/components/schemas/DateTimeSimple'
+          ORDINAL: '#/components/schemas/DateOrdinal'
+          ORDINAL_DATE: '#/components/schemas/DateOrdinalDate'
+          OFFSET: '#/components/schemas/Offset'
+          OFFSET_DATE: '#/components/schemas/OffsetDate'
+          OFFSET_TIME: '#/components/schemas/OffsetTime'
+          DATE_OFFSET: '#/components/schemas/DateOffset'
+          INTERVAL_OPEN_TO: '#/components/schemas/Interval'
+          INTERVAL_OPEN_FROM: '#/components/schemas/Interval'
+          INTERVAL_CLOSE: '#/components/schemas/Interval'
     SingleDateTime:
       allOf:
         - $ref: '#/components/schemas/DateTimeExpr'
@@ -795,7 +806,7 @@ components:
               description: the date-time formatted in 'TZ' ISO format
               format: date-time
               example: '2018-01-13T09:15:00Z'
-    Date:
+    DateSimple:
       allOf:
         - $ref: '#/components/schemas/SingleDateTime'
         - type: object
@@ -916,7 +927,7 @@ components:
             - time
           properties:
             date:
-              $ref: '#/components/schemas/Date'
+              $ref: '#/components/schemas/DateSimple'
             time:
               $ref: '#/components/schemas/Time'
     DateOrdinalUnit:
@@ -961,7 +972,7 @@ components:
             - value
           properties:
             value:
-              $ref: '#/components/schemas/Date'
+              $ref: '#/components/schemas/DateSimple'
     OffsetUnitsType:
       type: string
       description: the type of the offset units
@@ -1003,7 +1014,7 @@ components:
             - value
           properties:
             value:
-              $ref: '#/components/schemas/Date'
+              $ref: '#/components/schemas/DateSimple'
     OffsetTime:
       allOf:
         - $ref: '#/components/schemas/Offset'
@@ -1034,9 +1045,9 @@ components:
           description: an interval of date-times (can be open)
           properties:
             from:
-              $ref: '#/components/schemas/SingleDateTime'
+              $ref: '#/components/schemas/DateTimeExpr'
             to:
-              $ref: '#/components/schemas/SingleDateTime'
+              $ref: '#/components/schemas/DateTimeExpr'
     Entity:
       type: object
       description: an entity recognized in the text
