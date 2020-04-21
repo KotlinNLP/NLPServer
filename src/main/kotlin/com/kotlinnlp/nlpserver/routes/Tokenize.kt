@@ -8,7 +8,7 @@
 package com.kotlinnlp.nlpserver.routes
 
 import com.beust.klaxon.JsonArray
-import com.beust.klaxon.JsonObject
+import com.beust.klaxon.json
 import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.linguisticdescription.language.Language
 import com.kotlinnlp.linguisticdescription.language.getLanguageByIso
@@ -92,34 +92,30 @@ class Tokenize(
   /**
    * @return this list of sentences converted to a nested JsonArray of token forms
    */
-  private fun List<Sentence>.toJsonSentences(): JsonArray<JsonObject> {
-
-    return JsonArray(*Array(
-      size = this.size,
-      init = { i ->
-        JsonObject(mapOf(
-          Pair("startAt", this[i].position.start),
-          Pair("endAt", this[i].position.end),
-          Pair("tokens", this[i].tokens.toJsonTokens())
-        ))
+  private fun List<Sentence>.toJsonSentences(): JsonArray<*> = json {
+    array(
+      this@toJsonSentences.map {
+        obj(
+          "start" to it.position.start,
+          "end" to it.position.end,
+          "tokens" to it.tokens.toJsonTokens()
+        )
       }
-    ))
+    )
   }
 
   /**
    * @return this list of sentences converted to a nested JsonArray of token forms
    */
-  private fun List<Token>.toJsonTokens(): JsonArray<JsonObject> {
-
-    return JsonArray(*Array(
-      size = this.size,
-      init = { i ->
-        JsonObject(mapOf(
-          Pair("form", this[i].form),
-          Pair("startAt", this[i].position.start),
-          Pair("endAt", this[i].position.end)
-        ))
+  private fun List<Token>.toJsonTokens(): JsonArray<*> = json {
+    array(
+      this@toJsonTokens.map {
+        obj(
+          "form" to it.form,
+          "start" to it.position.start,
+          "end" to it.position.end
+        )
       }
-    ))
+    )
   }
 }
