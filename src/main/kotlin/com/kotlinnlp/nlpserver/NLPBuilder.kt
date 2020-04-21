@@ -346,15 +346,14 @@ internal class NLPBuilder(parsedArgs: CommandLineArguments) {
     val languages: Set<String> = this.parsers.keys.intersect(this.morphoDicts.keys).intersect(this.wordEmbeddings.keys)
 
     return languages
-      .associate {
-        it to TextComparator(
+      .associateWith {
+        TextComparator(
           embeddings = this.wordEmbeddings.getValue(it),
           tokenizerModel = this.tokenizers.getValue(it).model,
           morphoDictionary = this.morphoDicts.getValue(it),
           parserModel = this.parsers.getValue(it).model,
           lemmasBlacklist = this.comparisonBlacklists[it] ?: setOf(),
-          cacheEnabled = true
-        )
+          cacheEnabled = true)
       }
       .ifEmpty { null }
   }
@@ -420,6 +419,6 @@ internal class NLPBuilder(parsedArgs: CommandLineArguments) {
 
     require(this.isDirectory) { "${this.name} is not a directory" }
 
-    return this.listFiles().toList().notEmptyOr { throw RuntimeException("Empty directory.") }
+    return this.listFiles()!!.toList().notEmptyOr { throw RuntimeException("Empty directory.") }
   }
 }
