@@ -53,12 +53,12 @@ class Tokenize(
     }
 
     Spark.post("") { request, _ ->
-      this.tokenize(text = request.body(), prettyPrint = request.booleanParam("pretty"))
+      this.tokenize(text = request.getJsonObject().string("text")!!, prettyPrint = request.booleanParam("pretty"))
     }
 
     Spark.post("/:lang") { request, _ ->
       this.tokenize(
-        text = request.body(),
+        text = request.getJsonObject().string("text")!!,
         language = request.params("lang")?.let { getLanguageByIso(it) },
         prettyPrint = request.booleanParam("pretty"))
     }
