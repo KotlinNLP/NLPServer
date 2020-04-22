@@ -76,7 +76,7 @@ class Categorize(
 
     Spark.post("") { request, _ ->
       this.categorize(
-        text = request.body(),
+        text = request.getJsonObject().string("text")!!,
         lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
         distribution = request.booleanParam("distribution"),
         prettyPrint = request.booleanParam("pretty"))
@@ -84,7 +84,7 @@ class Categorize(
 
     Spark.post("/:domain") { request, _ ->
       this.categorize(
-        text = request.body(),
+        text = request.getJsonObject().string("text")!!,
         lang = request.queryParams("lang")?.let { getLanguageByIso(it) },
         domain = request.params("domain"),
         distribution = request.booleanParam("distribution"),
@@ -93,7 +93,7 @@ class Categorize(
 
     Spark.post("/:lang/:domain") { request, _ ->
       this.categorize(
-        text = request.body(),
+        text = request.getJsonObject().string("text")!!,
         lang = getLanguageByIso(request.params("lang")),
         domain = request.params("domain"),
         distribution = request.booleanParam("distribution"),
