@@ -22,27 +22,11 @@ fun main(args: Array<String>) {
   val parsedArgs = CommandLineArguments(args)
   val client = NlpServiceApi(ApiClient().setBasePath("http://${parsedArgs.host}:${parsedArgs.port}"))
 
-  while (true) {
+  inputLoop {
 
-    readInput()?.let {
+    val dateTimes: List<DateTimeExpr> = client.getDateTimes(InputText().text(it), false)
 
-      val dateTimes: List<DateTimeExpr> = client.getDateTimes(InputText().text(it), false)
-
-      println("\nDate-time expressions found:")
-      println(dateTimes)
-
-    } ?: break
+    println("\nDate-time expressions found:")
+    println(dateTimes)
   }
-}
-
-/**
- * Read a text from the standard input.
- *
- * @return the string read or null if it was empty
- */
-private fun readInput(): String? {
-
-  print("\nInput text (empty to exit): ")
-
-  return readLine()!!.trim().ifEmpty { null }
 }

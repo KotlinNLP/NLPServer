@@ -22,29 +22,13 @@ fun main(args: Array<String>) {
   val parsedArgs = CommandLineArguments(args)
   val client = NlpServiceApi(ApiClient().setBasePath("http://${parsedArgs.host}:${parsedArgs.port}"))
 
-  while (true) {
+  inputLoop {
 
-    readInput()?.let {
+    val sentences: List<TokenizedSentence> = client.tokenize(InputText().text(it), false)
 
-      val sentences: List<TokenizedSentence> = client.tokenize(InputText().text(it), false)
-
-      println("\nSentences:")
-      sentences.forEach { s ->
-        println("[${s.start}-${s.end}] |${s.tokens.joinToString("|") { t -> t.form }}|")
-      }
-
-    } ?: break
+    println("\nSentences:")
+    sentences.forEach { s ->
+      println("[${s.start}-${s.end}] |${s.tokens.joinToString("|") { t -> t.form }}|")
+    }
   }
-}
-
-/**
- * Read a text from the standard input.
- *
- * @return the string read or null if it was empty
- */
-private fun readInput(): String? {
-
-  print("\nInput text (empty to exit): ")
-
-  return readLine()!!.trim().ifEmpty { null }
 }
