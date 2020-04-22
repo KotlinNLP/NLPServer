@@ -58,6 +58,182 @@ paths:
                 $ref: '#/components/schemas/NLPAnalysis'
         400:
           description: Invalid input
+  /compare:
+    post:
+      tags:
+        - NLPService
+      summary: Compare a reference text with others
+      operationId: compare
+      parameters:
+        - name: pretty
+          in: query
+          description: whether to indent the returned JSON string, for a major readability
+          required: false
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        $ref: '#/components/requestBodies/ComparingTexts'
+      responses:
+        200:
+          $ref: '#/components/responses/Comparison'
+        400:
+          description: Invalid input
+  /extract-frames:
+    post:
+      tags:
+        - NLPService
+      summary: Extract frames from a text, respect to all the available domains
+      operationId: extractFrames
+      parameters:
+        - name: lang
+          in: query
+          description: force the language analysis
+          required: false
+          schema:
+            $ref: '#/components/schemas/LanguageISO'
+        - name: distribution
+          in: query
+          description: whether to return the score distributions of various analysis elements
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: pretty
+          in: query
+          description: whether to indent the returned JSON string, for a major readability
+          required: false
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        $ref: '#/components/requestBodies/InputText'
+      responses:
+        200:
+          $ref: '#/components/responses/FramesExtraction'
+        400:
+          description: Invalid input
+  /extract-frames/{domainId}:
+    post:
+      tags:
+        - NLPService
+      summary: Extract frames from a text, respect to a given domain
+      operationId: extractDomainFrames
+      parameters:
+        - $ref: '#/components/parameters/DomainId'
+        - name: lang
+          in: query
+          description: force the language analysis
+          required: false
+          schema:
+            $ref: '#/components/schemas/LanguageISO'
+        - name: distribution
+          in: query
+          description: whether to return the score distributions of various analysis elements
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: pretty
+          in: query
+          description: whether to indent the returned JSON string, for a major readability
+          required: false
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        $ref: '#/components/requestBodies/InputText'
+      responses:
+        200:
+          $ref: '#/components/responses/FramesExtraction'
+        400:
+          description: Invalid input
+  /morpho/datetimes:
+    post:
+      tags:
+        - NLPService
+      summary: Search for date-time expressions in a text
+      operationId: getDateTimes
+      parameters:
+        - name: pretty
+          in: query
+          description: whether to indent the returned JSON string, for a major readability
+          required: false
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        $ref: '#/components/requestBodies/InputText'
+      responses:
+        200:
+          $ref: '#/components/responses/DateTimes'
+        400:
+          description: Invalid input
+  /morpho/datetimes/{language}:
+    post:
+      tags:
+        - NLPService
+      summary: Search for date-time expressions in a text, written in a given language
+      operationId: getLangDateTimes
+      parameters:
+        - $ref: '#/components/parameters/LanguageISO'
+        - name: pretty
+          in: query
+          description: whether to indent the returned JSON string, for a major readability
+          required: false
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        $ref: '#/components/requestBodies/InputText'
+      responses:
+        200:
+          $ref: '#/components/responses/DateTimes'
+        400:
+          description: Invalid input
+  /morpho/numbers:
+    post:
+      tags:
+        - NLPService
+      summary: Search for numerical expressions in a text
+      operationId: getNumbers
+      parameters:
+        - name: pretty
+          in: query
+          description: whether to indent the returned JSON string, for a major readability
+          required: false
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        $ref: '#/components/requestBodies/InputText'
+      responses:
+        200:
+          $ref: '#/components/responses/Numbers'
+        400:
+          description: Invalid input
+  /morpho/numbers/{language}:
+    post:
+      tags:
+        - NLPService
+      summary: Search for numerical expressions in a text written in a given language
+      operationId: getLangNumbers
+      parameters:
+        - $ref: '#/components/parameters/LanguageISO'
+        - name: pretty
+          in: query
+          description: whether to indent the returned JSON string, for a major readability
+          required: false
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        $ref: '#/components/requestBodies/InputText'
+      responses:
+        200:
+          $ref: '#/components/responses/Numbers'
+        400:
+          description: Invalid input
   /parse:
     post:
       tags:
@@ -131,182 +307,6 @@ paths:
       responses:
         200:
           $ref: '#/components/responses/Tokenization'
-        400:
-          description: Invalid input
-  /extract-frames:
-    post:
-      tags:
-        - NLPService
-      summary: Extract frames from a text, respect to all the available domains
-      operationId: extractFrames
-      parameters:
-        - name: lang
-          in: query
-          description: force the language analysis
-          required: false
-          schema:
-            $ref: '#/components/schemas/LanguageISO'
-        - name: distribution
-          in: query
-          description: whether to return the score distributions of various analysis elements
-          required: false
-          schema:
-            type: boolean
-            default: false
-        - name: pretty
-          in: query
-          description: whether to indent the returned JSON string, for a major readability
-          required: false
-          schema:
-            type: boolean
-            default: false
-      requestBody:
-        $ref: '#/components/requestBodies/InputText'
-      responses:
-        200:
-          $ref: '#/components/responses/FramesExtraction'
-        400:
-          description: Invalid input
-  /extract-frames/{domainId}:
-    post:
-      tags:
-        - NLPService
-      summary: Extract frames from a text, respect to a given domain
-      operationId: extractDomainFrames
-      parameters:
-        - $ref: '#/components/parameters/DomainId'
-        - name: lang
-          in: query
-          description: force the language analysis
-          required: false
-          schema:
-            $ref: '#/components/schemas/LanguageISO'
-        - name: distribution
-          in: query
-          description: whether to return the score distributions of various analysis elements
-          required: false
-          schema:
-            type: boolean
-            default: false
-        - name: pretty
-          in: query
-          description: whether to indent the returned JSON string, for a major readability
-          required: false
-          schema:
-            type: boolean
-            default: false
-      requestBody:
-        $ref: '#/components/requestBodies/InputText'
-      responses:
-        200:
-          $ref: '#/components/responses/FramesExtraction'
-        400:
-          description: Invalid input
-  /compare:
-    post:
-      tags:
-        - NLPService
-      summary: Compare a reference text with others
-      operationId: compare
-      parameters:
-        - name: pretty
-          in: query
-          description: whether to indent the returned JSON string, for a major readability
-          required: false
-          schema:
-            type: boolean
-            default: false
-      requestBody:
-        $ref: '#/components/requestBodies/ComparingTexts'
-      responses:
-        200:
-          $ref: '#/components/responses/Comparison'
-        400:
-          description: Invalid input
-  /morpho/numbers:
-    post:
-      tags:
-        - NLPService
-      summary: Search for numerical expressions in a text
-      operationId: getNumbers
-      parameters:
-        - name: pretty
-          in: query
-          description: whether to indent the returned JSON string, for a major readability
-          required: false
-          schema:
-            type: boolean
-            default: false
-      requestBody:
-        $ref: '#/components/requestBodies/InputText'
-      responses:
-        200:
-          $ref: '#/components/responses/Numbers'
-        400:
-          description: Invalid input
-  /morpho/numbers/{language}:
-    post:
-      tags:
-        - NLPService
-      summary: Search for numerical expressions in a text written in a given language
-      operationId: getLangNumbers
-      parameters:
-        - $ref: '#/components/parameters/LanguageISO'
-        - name: pretty
-          in: query
-          description: whether to indent the returned JSON string, for a major readability
-          required: false
-          schema:
-            type: boolean
-            default: false
-      requestBody:
-        $ref: '#/components/requestBodies/InputText'
-      responses:
-        200:
-          $ref: '#/components/responses/Numbers'
-        400:
-          description: Invalid input
-  /morpho/datetimes:
-    post:
-      tags:
-        - NLPService
-      summary: Search for date-time expressions in a text
-      operationId: getDateTimes
-      parameters:
-        - name: pretty
-          in: query
-          description: whether to indent the returned JSON string, for a major readability
-          required: false
-          schema:
-            type: boolean
-            default: false
-      requestBody:
-        $ref: '#/components/requestBodies/InputText'
-      responses:
-        200:
-          $ref: '#/components/responses/DateTimes'
-        400:
-          description: Invalid input
-  /morpho/datetimes/{language}:
-    post:
-      tags:
-        - NLPService
-      summary: Search for date-time expressions in a text, written in a given language
-      operationId: getLangDateTimes
-      parameters:
-        - $ref: '#/components/parameters/LanguageISO'
-        - name: pretty
-          in: query
-          description: whether to indent the returned JSON string, for a major readability
-          required: false
-          schema:
-            type: boolean
-            default: false
-      requestBody:
-        $ref: '#/components/requestBodies/InputText'
-      responses:
-        200:
-          $ref: '#/components/responses/DateTimes'
         400:
           description: Invalid input
 components:
