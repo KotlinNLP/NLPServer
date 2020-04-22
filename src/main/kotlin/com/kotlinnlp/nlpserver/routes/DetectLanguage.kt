@@ -44,7 +44,7 @@ class DetectLanguage(override val languageDetector: LanguageDetector) : Route, L
 
     Spark.post("") { request, _ ->
       this.detectLanguage(
-        text = request.body(),
+        text = request.getJsonObject().string("text")!!,
         distribution = request.booleanParam("distribution"),
         prettyPrint = request.booleanParam("pretty"))
     }
@@ -58,7 +58,7 @@ class DetectLanguage(override val languageDetector: LanguageDetector) : Route, L
 
     Spark.post("/per-token") { request, _ ->
       this.detectLanguagePerToken(
-        text = request.body(),
+        text = request.getJsonObject().string("text")!!,
         distribution = request.booleanParam("distribution"),
         prettyPrint = request.booleanParam("pretty"))
     }
