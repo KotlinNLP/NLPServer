@@ -13,6 +13,7 @@ import com.beust.klaxon.json
 import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.linguisticdescription.language.Language
 import com.kotlinnlp.nlpserver.routes.utils.LanguageDetectingCommand
+import com.kotlinnlp.nlpserver.routes.utils.LanguageDistribution
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import spark.Spark
 
@@ -69,10 +70,12 @@ class DetectLanguage(override val languageDetector: LanguageDetector) : Route, L
    *
    * The template of the JSON object:
    *  {
-   *    "language": <STRING>, // iso-a2 code
-   *    "classification": [
+   *    "id": <STRING>, // iso-a2 code
+   *    "name": <STRING>, // english name
+   *    "distribution": [ // optional
    *      {
-   *        "language": <STRING>, // iso-a2 code,
+   *        "id": <STRING>, // iso-a2 code
+   *        "name": <STRING>, // english name
    *        "score": <DOUBLE>
    *      }
    *      ...
@@ -89,18 +92,13 @@ class DetectLanguage(override val languageDetector: LanguageDetector) : Route, L
 
     this.checkText(text)
 
-    val prediction: DenseNDArray = this.languageDetector.predict(text)
-    val language: Language = this.languageDetector.getLanguage(prediction)
+    val langDistribution: LanguageDistribution = this.getTextLanguageDistribution(text = text, forcedLang = null)
+    val jsonRes: JsonObject = langDistribution.toJSON()
 
-    return json {
+    if (!distribution)
+      jsonRes.remove("distribution")
 
-      val jsonObj: JsonObject = obj("language" to language.isoCode)
-
-      if (distribution) jsonObj["distribution"] = prediction.toJSONScoredLanguages()
-
-      jsonObj
-
-    }.toJsonString(prettyPrint) + if (prettyPrint) "\n" else ""
+    return jsonRes.toJsonString(prettyPrint) + if (prettyPrint) "\n" else ""
   }
 
   /**
