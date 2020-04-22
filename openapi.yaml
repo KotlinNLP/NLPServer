@@ -58,6 +58,63 @@ paths:
                 $ref: '#/components/schemas/NLPAnalysis'
         400:
           description: Invalid input
+  /categorize:
+    post:
+      tags:
+        - NLPService
+      summary: Categorize a text respect to all the available domains
+      operationId: categorize
+      parameters:
+        - name: pretty
+          in: query
+          description: whether to indent the returned JSON string, for a major readability
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: distribution
+          in: query
+          description: whether to return the score distributions of the possible categories
+          required: false
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        $ref: '#/components/requestBodies/InputText'
+      responses:
+        200:
+          $ref: '#/components/responses/AllCategorizations'
+        400:
+          description: Invalid input
+  /categorize/{domainId}:
+    post:
+      tags:
+        - NLPService
+      summary: Categorize a text respect to a given domain
+      operationId: categorizeDomain
+      parameters:
+        - $ref: '#/components/parameters/DomainId'
+        - name: pretty
+          in: query
+          description: whether to indent the returned JSON string, for a major readability
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: distribution
+          in: query
+          description: whether to return the score distributions of the possible categories
+          required: false
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        $ref: '#/components/requestBodies/InputText'
+      responses:
+        200:
+          $ref: '#/components/responses/SingleCategorization'
+        400:
+          description: Invalid input
   /compare:
     post:
       tags:
@@ -436,6 +493,21 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/TokenizedText'
+    AllCategorizations:
+      description: texts classified successfully
+      content:
+        application/json:
+          schema:
+            type: array
+            description: the categorizations respect to all the available domains
+            items:
+              $ref: '#/components/schemas/Categorization'
+    SingleCategorization:
+      description: texts classified successfully
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Categorization'
     FramesExtraction:
       description: frames extracted successfully
       content:
@@ -561,6 +633,21 @@ components:
                 description: The name of the intent
               score:
                 $ref: '#/components/schemas/Score'
+    Categorization:
+      type: object
+      description: the text categorization respect to a specific domain
+      required:
+        - domain
+        - categories
+      properties:
+        domain:
+          type: string
+          description: the categorization domain
+        categories:
+          type: array
+          description: the categories assigned, one per hierarchical level
+          items:
+            $ref: '#/components/schemas/Category'
     ComparingTexts:
       type: object
       required:
@@ -798,52 +885,19 @@ components:
       required:
         - id
         - score
-        - sentences
-        - sublevel
       properties:
         id:
-          type: string
-          example: '01000000'
+          type: integer
+          format: int32
+          description: the index of the best category within the categories list
+          example: 0
         score:
           $ref: '#/components/schemas/Score'
-        sentences:
+        distribution:
           type: array
+          description: the distribution of the score among the possibile categories
           items:
-            type: object
-            required:
-              - id
-              - score
-              - tokens
-            properties:
-              id:
-                type: integer
-                format: int32
-                example: 0
-              score:
-                $ref: '#/components/schemas/Score'
-              tokens:
-                type: array
-                items:
-                  type: object
-                  required:
-                    - id
-                    - score
-                  properties:
-                    id:
-                      type: integer
-                      format: int32
-                      example: 2
-                    score:
-                      $ref: '#/components/schemas/Score'
-        sublevel:
-          $ref: '#/components/schemas/SubCategory'
-    SubCategory:
-      allOf:
-        - $ref: '#/components/schemas/Category'
-        - type: object
-          description: a nested category that can be null
-          nullable: true
-          example: null
+            $ref: '#/components/schemas/Score'
     Location:
       type: object
       description: a location recognized in the text
