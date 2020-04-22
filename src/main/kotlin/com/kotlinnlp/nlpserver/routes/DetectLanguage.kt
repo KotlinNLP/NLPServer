@@ -26,7 +26,7 @@ class DetectLanguage(override val languageDetector: LanguageDetector) : Route, L
   /**
    * The name of the command.
    */
-  override val name: String = "detect-language"
+  override val name: String = "language"
 
   /**
    * Initialize the route.
