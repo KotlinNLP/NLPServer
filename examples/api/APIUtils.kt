@@ -15,6 +15,9 @@ package api
 internal fun inputLoop(action: (String) -> Unit) {
 
   while (true) {
+
+    print("\nInput text (empty to exit): ")
+
     readInput()?.let { action(it) } ?: break
   }
 }
@@ -24,9 +27,6 @@ internal fun inputLoop(action: (String) -> Unit) {
  *
  * @return the string read or null if it was empty
  */
-private fun readInput(): String? {
-
-  print("\nInput text (empty to exit): ")
-
+internal fun readInput(): String? {
   return readLine()!!.trim().ifEmpty { null }
 }
