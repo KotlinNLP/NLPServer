@@ -90,6 +90,49 @@ paths:
                 $ref: '#/components/schemas/LinguisticAnalysis'
         400:
           description: Invalid input
+  /tokenize:
+    post:
+      tags:
+        - NLPService
+      summary: Split a text in sentences and tokens, automatically detecting the language
+      operationId: tokenize
+      parameters:
+        - name: pretty
+          in: query
+          description: whether to indent the returned JSON string, for a major readability
+          required: false
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        $ref: '#/components/requestBodies/InputText'
+      responses:
+        200:
+          $ref: '#/components/responses/Tokenization'
+        400:
+          description: Invalid input
+  /tokenize/{language}:
+    post:
+      tags:
+        - NLPService
+      summary: Split a text in sentences and tokens, using the tokenizer for a specific language
+      operationId: tokenizeLang
+      parameters:
+        - $ref: '#/components/parameters/LanguageISO'
+        - name: pretty
+          in: query
+          description: whether to indent the returned JSON string, for a major readability
+          required: false
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        $ref: '#/components/requestBodies/InputText'
+      responses:
+        200:
+          $ref: '#/components/responses/Tokenization'
+        400:
+          description: Invalid input
   /extract-frames:
     post:
       tags:
@@ -298,6 +341,12 @@ components:
           schema:
             $ref: '#/components/schemas/ComparingTexts'
   responses:
+    Tokenization:
+      description: text tokenized successfully
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TokenizedText'
     FramesExtraction:
       description: frames extracted successfully
       content:
@@ -347,6 +396,50 @@ components:
           format: int32
           nullable: true
           default: null
+    TokenizedText:
+      type: array
+      description: a text split in sentences and tokens
+      items:
+        $ref: '#/components/schemas/TokenizedSentence'
+    TokenizedSentence:
+      type: object
+      description: a sentence split in tokens
+      required:
+        - start
+        - end
+        - tokens
+      properties:
+        start:
+          type: integer
+          format: int32
+          description: the starting char index
+        end:
+          type: integer
+          format: int32
+          description: the ending char index
+        tokens:
+          type: array
+          items:
+            $ref: '#/components/schemas/TokenizedToken'
+    TokenizedToken:
+      type: object
+      description: a sentence split in tokens
+      required:
+        - start
+        - end
+        - form
+      properties:
+        start:
+          type: integer
+          format: int32
+          description: the starting char index
+        end:
+          type: integer
+          format: int32
+          description: the ending char index
+        form:
+          type: string
+          description: the token form
     ExtractFramesResponse:
       type: object
       required:
