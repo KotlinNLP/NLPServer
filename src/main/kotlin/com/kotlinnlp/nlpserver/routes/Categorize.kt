@@ -7,6 +7,8 @@
 
 package com.kotlinnlp.nlpserver.routes
 
+import com.beust.klaxon.JsonArray
+import com.beust.klaxon.JsonBase
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.json
 import com.kotlinnlp.hanclassifier.HANClassifier
@@ -130,24 +132,30 @@ class Categorize(
       domain?.let { listOf(this.hanClassifiers[domain] ?: throw InvalidDomain(domain)) }
         ?: this.hanClassifiers.values.toList()
 
-    val outputPerDomain = JsonObject(classifiers.associate { classifier ->
-
-      classifier.model.name to json {
+    val outputPerDomain: JsonArray<*> = json {
+      array(classifiers.map { classifier ->
 
         @Suppress("UNCHECKED_CAST")
         val predictions: List<DenseNDArray> = classifier.classify(sentences.map { it as Sentence<FormToken> })
 
-        array(predictions.map {
-
-          val jsonCat: JsonObject = obj("category" to it.argMaxIndex())
-
-          if (distribution) jsonCat["distribution"] = array(it.toDoubleArray().toList())
-
-          jsonCat
-        })
+        obj(
+          "domain" to classifier.model.name,
+          "categories" to array(predictions.map { prediction ->
+            obj(
+              "id" to prediction.argMaxIndex(),
+              "score" to prediction.max()
+            ).also {
+              if (distribution)
+                it["distribution"] = array(prediction.toDoubleArray().toList())
+            }
+          })
+        )
       }
-    })
+      )
+    }
 
-    return outputPerDomain.toJsonString(prettyPrint) + if (prettyPrint) "\n" else ""
+    val jsonRes: JsonBase = domain?.let { outputPerDomain.single() as JsonObject } ?: outputPerDomain
+
+    return jsonRes.toJsonString(prettyPrint) + if (prettyPrint) "\n" else ""
   }
 }
