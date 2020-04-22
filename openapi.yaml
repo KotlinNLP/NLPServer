@@ -79,6 +79,28 @@ paths:
           $ref: '#/components/responses/Comparison'
         400:
           description: Invalid input
+  /compare/{language}:
+    post:
+      tags:
+        - NLPService
+      summary: Compare a reference text with others, forcing the analysis language
+      operationId: compareLang
+      parameters:
+        - $ref: '#/components/parameters/LanguageISO'
+        - name: pretty
+          in: query
+          description: whether to indent the returned JSON string, for a major readability
+          required: false
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        $ref: '#/components/requestBodies/ComparingTexts'
+      responses:
+        200:
+          $ref: '#/components/responses/Comparison'
+        400:
+          description: Invalid input
   /extract-frames:
     post:
       tags:
@@ -241,6 +263,39 @@ paths:
       summary: Parse syntactically and morphologically a text
       operationId: parseText
       parameters:
+        - name: distribution
+          in: query
+          description: whether to return the score distributions of various analysis elements
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: pretty
+          in: query
+          description: whether to indent the returned JSON string, for a major readability
+          required: false
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        $ref: '#/components/requestBodies/InputText'
+      responses:
+        200:
+          description: text successfully parsed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LinguisticAnalysis'
+        400:
+          description: Invalid input
+  /parse/{language}:
+    post:
+      tags:
+        - NLPService
+      summary: Parse syntactically and morphologically a text, forcing the language analysis
+      operationId: parseTextLang
+      parameters:
+        - $ref: '#/components/parameters/LanguageISO'
         - name: distribution
           in: query
           description: whether to return the score distributions of various analysis elements
