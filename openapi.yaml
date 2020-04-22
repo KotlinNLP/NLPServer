@@ -170,6 +170,34 @@ paths:
           $ref: '#/components/responses/FramesExtraction'
         400:
           description: Invalid input
+  /language:
+    post:
+      tags:
+        - NLPService
+      summary: Detect the language of a text
+      operationId: getLanguage
+      parameters:
+        - name: pretty
+          in: query
+          description: whether to indent the returned JSON string, for a major readability
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: distribution
+          in: query
+          description: whether to return the score distributions of the possible languages
+          required: false
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        $ref: '#/components/requestBodies/InputText'
+      responses:
+        200:
+          $ref: '#/components/responses/LangDetection'
+        400:
+          description: Invalid input
   /morpho/datetimes:
     post:
       tags:
@@ -396,6 +424,12 @@ components:
           schema:
             $ref: '#/components/schemas/ComparingTexts'
   responses:
+    LangDetection:
+      description: language detected successfully
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Language'
     Tokenization:
       description: text tokenized successfully
       content:
