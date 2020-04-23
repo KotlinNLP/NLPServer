@@ -7,6 +7,7 @@
 
 package com.kotlinnlp.nlpserver.routes.utils
 
+import com.kotlinnlp.linguisticdescription.language.Language
 import com.kotlinnlp.linguisticdescription.sentence.MorphoSynSentence
 import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
@@ -45,30 +46,30 @@ internal interface ParsingCommand : TokenizingCommand {
    * Parse a text morpho-syntactically.
    *
    * @param text the input text
-   * @param langCode the language iso code
+   * @param language the text language
    *
    * @return the parsed sentences
    */
-  fun parse(text: String, langCode: String): List<MorphoSynSentence> = this.parse(
+  fun parse(text: String, language: Language): List<MorphoSynSentence> = this.parse(
     text = text,
-    sentences = this.tokenizers.getValue(langCode).tokenize(text).filter { it.tokens.isNotEmpty() },
-    langCode = langCode)
+    sentences = this.tokenize(text = text, language = language).filter { it.tokens.isNotEmpty() },
+    language = language)
 
   /**
    * Parse a text morpho-syntactically.
    *
    * @param text the input text
    * @param sentences the tokenized sentences of the given text
-   * @param langCode the language iso code
+   * @param language the text language
    *
    * @return the parsed sentences
    */
-  fun parse(text: String, sentences: List<Sentence>, langCode: String): List<MorphoSynSentence> {
+  fun parse(text: String, sentences: List<Sentence>, language: Language): List<MorphoSynSentence> {
 
     this.logger.debug("Parsing text with ${sentences.size} sentences: '${text.cutText(50)}'...")
 
-    val preprocessor: SentencePreprocessor = this.morphoPreprocessors[langCode] ?: basePreprocessor
-    val parser: NeuralParser<*> = this.parsers[langCode] ?: throw LanguageNotSupported(langCode)
+    val preprocessor: SentencePreprocessor = this.morphoPreprocessors[language.isoCode] ?: basePreprocessor
+    val parser: NeuralParser<*> = this.parsers[language.isoCode] ?: throw LanguageNotSupported(language.isoCode)
 
     return sentences.map { parser.parse(preprocessor.convert(it.toBaseSentence())) }
   }

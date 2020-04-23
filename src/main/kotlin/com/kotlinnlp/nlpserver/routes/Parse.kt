@@ -147,8 +147,7 @@ class Parse(
     this.checkText(text)
 
     val langDistribution: LanguageDistribution = this.getTextLanguageDistribution(text = text, forcedLang = lang)
-    val textLang: Language = langDistribution.language
-    val parsedSentences: List<MorphoSynSentence> = this.parse(text = text, langCode = textLang.isoCode)
+    val parsedSentences: List<MorphoSynSentence> = this.parse(text = text, language = langDistribution.language)
 
     if (format == ResponseFormat.CoNLL) response.header("Content-Type", "text/plain")
 

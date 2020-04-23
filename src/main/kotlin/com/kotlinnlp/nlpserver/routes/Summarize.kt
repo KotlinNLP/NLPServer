@@ -87,7 +87,7 @@ class Summarize(
     this.checkText(text)
 
     val textLang: Language = this.getTextLanguage(text = text, forcedLang = lang)
-    val parsedSentences: List<MorphoSynSentence> = this.parse(text = text, langCode = textLang.isoCode)
+    val parsedSentences: List<MorphoSynSentence> = this.parse(text = text, language = textLang)
 
     this.logger.debug("Summarizing text '${text.cutText(50)}'...")
 
