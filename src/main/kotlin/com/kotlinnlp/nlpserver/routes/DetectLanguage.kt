@@ -14,7 +14,9 @@ import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.linguisticdescription.language.Language
 import com.kotlinnlp.nlpserver.routes.utils.LanguageDetectingCommand
 import com.kotlinnlp.nlpserver.routes.utils.LanguageDistribution
+import com.kotlinnlp.nlpserver.setAppender
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
+import org.apache.log4j.Logger
 import spark.Spark
 
 /**
@@ -28,6 +30,11 @@ class DetectLanguage(override val languageDetector: LanguageDetector) : Route, L
    * The name of the command.
    */
   override val name: String = "language"
+
+  /**
+   * The logger of the command.
+   */
+  override val logger = Logger.getLogger(this::class.simpleName).setAppender()
 
   /**
    * Initialize the route.
@@ -92,8 +99,12 @@ class DetectLanguage(override val languageDetector: LanguageDetector) : Route, L
 
     this.checkText(text)
 
+    this.logger.debug("Detecting language of text '${text.cutText(50)}'...")
+
     val langDistribution: LanguageDistribution = this.getTextLanguageDistribution(text = text, forcedLang = null)
     val jsonRes: JsonObject = langDistribution.toJSON()
+
+    this.logger.debug("Language detected for text ${text.cutText(50)}': ${langDistribution.language}")
 
     if (!distribution)
       jsonRes.remove("distribution")
@@ -132,6 +143,10 @@ class DetectLanguage(override val languageDetector: LanguageDetector) : Route, L
    * @return a [String] with a JSON list containing the language classification of each token
    */
   private fun detectLanguagePerToken(text: String, distribution: Boolean = true, prettyPrint: Boolean = false): String {
+
+    this.checkText(text)
+
+    this.logger.debug("Detecting language by tokens of text '${text.cutText(50)}'...")
 
     val languages: List<Language> = this.languageDetector.model.supportedLanguages
     val tokensClassifications: List<Pair<String, LanguageDetector.TokenClassification>> =

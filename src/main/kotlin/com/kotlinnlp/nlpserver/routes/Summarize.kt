@@ -17,8 +17,10 @@ import com.kotlinnlp.neuralparser.NeuralParser
 import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.nlpserver.routes.utils.ParsingCommand
+import com.kotlinnlp.nlpserver.setAppender
 import com.kotlinnlp.summarizer.Summarizer
 import com.kotlinnlp.summarizer.Summary
+import org.apache.log4j.Logger
 import spark.Spark
 
 /**
@@ -42,6 +44,11 @@ class Summarize(
    * The name of the command.
    */
   override val name: String = "summarize"
+
+  /**
+   * The logger of the command.
+   */
+  override val logger = Logger.getLogger(this::class.simpleName).setAppender()
 
   /**
    * Initialize the route.
@@ -81,6 +88,8 @@ class Summarize(
 
     val textLang: Language = this.getTextLanguage(text = text, forcedLang = lang)
     val parsedSentences: List<MorphoSynSentence> = this.parse(text = text, langCode = textLang.isoCode)
+
+    this.logger.debug("Summarizing text '${text.cutText(50)}'...")
 
     val summary: Summary = Summarizer(
       sentences = parsedSentences,

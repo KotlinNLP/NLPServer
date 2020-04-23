@@ -22,7 +22,9 @@ import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.Sentence as TokenizerSentence
 import com.kotlinnlp.nlpserver.InvalidDomain
 import com.kotlinnlp.nlpserver.routes.utils.TokenizingCommand
+import com.kotlinnlp.nlpserver.setAppender
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
+import org.apache.log4j.Logger
 import spark.Spark
 
 /**
@@ -42,6 +44,11 @@ class Categorize(
    * The name of the command.
    */
   override val name: String = "categorize"
+
+  /**
+   * The logger of the command.
+   */
+  override val logger = Logger.getLogger(this::class.simpleName).setAppender()
 
   /**
    * Initialize the route.
@@ -135,8 +142,13 @@ class Categorize(
     val outputPerDomain: JsonArray<*> = json {
       array(classifiers.map { classifier ->
 
+        logger.debug("Classifying domain '$domain' of text '${text.cutText(50)}'...")
+
         @Suppress("UNCHECKED_CAST")
         val predictions: List<DenseNDArray> = classifier.classify(sentences.map { it as Sentence<FormToken> })
+
+        logger.debug("$domain categories: " +
+          predictions.joinToString(" | ") { "%d (%.2f %%)".format(it.argMaxIndex(), 100.0 * it.max()) })
 
         obj(
           "domain" to classifier.model.name,

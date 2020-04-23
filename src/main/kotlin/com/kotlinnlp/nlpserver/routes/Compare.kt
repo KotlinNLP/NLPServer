@@ -44,7 +44,7 @@ class Compare(
   /**
    * The logger of the command.
    */
-  private val logger = Logger.getLogger(this::class.simpleName).setAppender()
+  override val logger = Logger.getLogger(this::class.simpleName).setAppender()
 
   /**
    * Check requirements.

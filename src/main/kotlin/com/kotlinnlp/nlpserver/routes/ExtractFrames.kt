@@ -22,6 +22,8 @@ import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.Sentence as TokenizerSentence
 import com.kotlinnlp.nlpserver.InvalidDomain
 import com.kotlinnlp.nlpserver.routes.utils.TokenizingCommand
+import com.kotlinnlp.nlpserver.setAppender
+import org.apache.log4j.Logger
 import spark.Spark
 
 /**
@@ -41,6 +43,11 @@ class ExtractFrames(
    * The name of the command.
    */
   override val name: String = "extract-frames"
+
+  /**
+   * The logger of the command.
+   */
+  override val logger = Logger.getLogger(this::class.simpleName).setAppender()
 
   /**
    * Initialize the route.
@@ -120,6 +127,9 @@ class ExtractFrames(
 
     val jsonFrames: JsonArray<*> = json {
       array(extractors.map { extractor ->
+
+        logger.debug("Extracting frames for domain '${extractor.model.name}' from text '${text.cutText(50)}'...")
+
         obj(
           "domain" to extractor.model.name,
           "sentences" to array(sentences.map { sentence ->

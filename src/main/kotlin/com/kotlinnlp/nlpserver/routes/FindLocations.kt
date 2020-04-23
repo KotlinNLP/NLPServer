@@ -19,6 +19,8 @@ import com.kotlinnlp.linguisticdescription.language.getLanguageByIso
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.nlpserver.LanguageNotSupported
 import com.kotlinnlp.nlpserver.routes.utils.Command
+import com.kotlinnlp.nlpserver.setAppender
+import org.apache.log4j.Logger
 import spark.Spark
 
 /**
@@ -36,6 +38,11 @@ class FindLocations(
    * The name of the command.
    */
   override val name: String = "find-locations"
+
+  /**
+   * The logger of the command.
+   */
+  override val logger = Logger.getLogger(this::class.simpleName).setAppender()
 
   /**
    * Initialize the route.
@@ -84,6 +91,8 @@ class FindLocations(
     this.checkText(text)
 
     val tokenizer: NeuralTokenizer = this.tokenizers[language.isoCode] ?: throw LanguageNotSupported(language.isoCode)
+
+    logger.debug("Searching for locations mentioned in the text '${text.cutText(50)}'...")
 
     val finder = LocationsFinder(
       dictionary = this.dictionary,

@@ -17,6 +17,8 @@ import com.kotlinnlp.neuraltokenizer.Sentence
 import com.kotlinnlp.neuraltokenizer.Token
 import com.kotlinnlp.nlpserver.LanguageNotSupported
 import com.kotlinnlp.nlpserver.routes.utils.TokenizingCommand
+import com.kotlinnlp.nlpserver.setAppender
+import org.apache.log4j.Logger
 import spark.Spark
 
 /**
@@ -34,6 +36,11 @@ class Tokenize(
    * The name of the command.
    */
   override val name: String = "tokenize"
+
+  /**
+   * The logger of the command.
+   */
+  override val logger = Logger.getLogger(this::class.simpleName).setAppender()
 
   /**
    * Initialize the route.
@@ -84,6 +91,8 @@ class Tokenize(
     if (tokenizerLang.isoCode !in this.tokenizers) {
       throw LanguageNotSupported(tokenizerLang.isoCode)
     }
+
+    this.logger.debug("Tokenizing text '${text.cutText(50)}'...")
 
     return this.tokenizers.getValue(tokenizerLang.isoCode).tokenize(text)
       .toJsonSentences().toJsonString(prettyPrint) + if (prettyPrint) "\n" else ""

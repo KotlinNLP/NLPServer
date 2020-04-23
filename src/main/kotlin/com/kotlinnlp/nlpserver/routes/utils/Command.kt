@@ -8,6 +8,7 @@
 package com.kotlinnlp.nlpserver.routes.utils
 
 import com.kotlinnlp.nlpserver.EmptyText
+import org.apache.log4j.Logger
 
 /**
  * Defines a generic command that works on a text.
@@ -21,6 +22,11 @@ internal interface Command {
      */
     const val CUT_TEXT_SUFFIX = "[...]"
   }
+
+  /**
+   * The logger of the command.
+   */
+  val logger: Logger
 
   /**
    * Check that the text is not empty.

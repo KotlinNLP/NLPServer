@@ -50,18 +50,22 @@ internal interface ParsingCommand : TokenizingCommand {
    * @return the parsed sentences
    */
   fun parse(text: String, langCode: String): List<MorphoSynSentence> = this.parse(
+    text = text,
     sentences = this.tokenizers.getValue(langCode).tokenize(text).filter { it.tokens.isNotEmpty() },
     langCode = langCode)
 
   /**
    * Parse a text morpho-syntactically.
    *
-   * @param sentences the tokenized sentences of a text
+   * @param text the input text
+   * @param sentences the tokenized sentences of the given text
    * @param langCode the language iso code
    *
    * @return the parsed sentences
    */
-  fun parse(sentences: List<Sentence>, langCode: String): List<MorphoSynSentence> {
+  fun parse(text: String, sentences: List<Sentence>, langCode: String): List<MorphoSynSentence> {
+
+    this.logger.debug("Parsing text with ${sentences.size} sentences: '${text.cutText(50)}'...")
 
     val preprocessor: SentencePreprocessor = this.morphoPreprocessors[langCode] ?: basePreprocessor
     val parser: NeuralParser<*> = this.parsers[langCode] ?: throw LanguageNotSupported(langCode)

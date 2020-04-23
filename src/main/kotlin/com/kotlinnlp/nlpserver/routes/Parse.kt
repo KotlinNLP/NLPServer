@@ -23,6 +23,8 @@ import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.nlpserver.routes.utils.LanguageDistribution
 import com.kotlinnlp.nlpserver.routes.utils.ParsingCommand
+import com.kotlinnlp.nlpserver.setAppender
+import org.apache.log4j.Logger
 import spark.Response
 import spark.Spark
 
@@ -70,6 +72,11 @@ class Parse(
    * The name of the command.
    */
   override val name: String = "parse"
+
+  /**
+   * The logger of the command.
+   */
+  override val logger = Logger.getLogger(this::class.simpleName).setAppender()
 
   /**
    * Initialize the route.

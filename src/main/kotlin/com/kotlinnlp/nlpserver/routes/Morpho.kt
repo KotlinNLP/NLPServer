@@ -45,7 +45,7 @@ class Morpho(
   /**
    * The logger of the command.
    */
-  private val logger = Logger.getLogger(this::class.simpleName).setAppender()
+  override val logger = Logger.getLogger(this::class.simpleName).setAppender()
 
   /**
    * Initialize the route.
