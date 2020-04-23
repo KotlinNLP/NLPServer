@@ -93,7 +93,7 @@ class Morpho(
    */
   private fun findNumbers(text: String, lang: Language?, prettyPrint: Boolean): String {
 
-    this.logger.debug("Searching for numerical expressions in the text `${text.cutText(200)}`")
+    this.logger.debug("Searching for numerical expressions in the text `${text.cutText(50)}`")
 
     val langCode: String = this.getTextLanguage(text = text, forcedLang = lang).isoCode
     val analyzer: MorphologicalAnalyzer = this.analyzers[langCode] ?: throw InvalidLanguageCode(langCode)
@@ -122,7 +122,7 @@ class Morpho(
    */
   private fun findDateTimes(text: String, lang: Language?, prettyPrint: Boolean): String {
 
-    this.logger.debug("Searching for numerical expressions in the text `${text.cutText(200)}`")
+    this.logger.debug("Searching for numerical expressions in the text `${text.cutText(50)}`")
 
     val langCode: String = this.getTextLanguage(text = text, forcedLang = lang).isoCode
     val analyzer: MorphologicalAnalyzer = this.analyzers[langCode] ?: throw InvalidLanguageCode(langCode)
