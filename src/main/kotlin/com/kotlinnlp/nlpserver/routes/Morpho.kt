@@ -95,12 +95,13 @@ class Morpho(
 
     this.logger.debug("Searching for numerical expressions in the text `${text.cutText(50)}`")
 
-    val langCode: String = this.getTextLanguage(text = text, forcedLang = lang).isoCode
-    val analyzer: MorphologicalAnalyzer = this.analyzers[langCode] ?: throw InvalidLanguageCode(langCode)
-    val tokenizer: NeuralTokenizer = this.tokenizers.getValue(langCode)
+    val textLang: Language = this.getTextLanguage(text = text, forcedLang = lang)
+    val analyzer: MorphologicalAnalyzer =
+      this.analyzers[textLang.isoCode] ?: throw InvalidLanguageCode(textLang.isoCode)
 
     @Suppress("UNCHECKED_CAST")
-    val sentences: List<RealSentence<RealToken>> = tokenizer.tokenize(text).map { it as RealSentence<RealToken> }
+    val sentences: List<RealSentence<RealToken>> =
+      this.tokenize(text = text, language = textLang).map { it as RealSentence<RealToken> }
 
     return json {
       array(
@@ -124,12 +125,13 @@ class Morpho(
 
     this.logger.debug("Searching for numerical expressions in the text `${text.cutText(50)}`")
 
-    val langCode: String = this.getTextLanguage(text = text, forcedLang = lang).isoCode
-    val analyzer: MorphologicalAnalyzer = this.analyzers[langCode] ?: throw InvalidLanguageCode(langCode)
-    val tokenizer: NeuralTokenizer = this.tokenizers.getValue(langCode)
+    val textLang: Language = this.getTextLanguage(text = text, forcedLang = lang)
+    val analyzer: MorphologicalAnalyzer =
+      this.analyzers[textLang.isoCode] ?: throw InvalidLanguageCode(textLang.isoCode)
 
     @Suppress("UNCHECKED_CAST")
-    val sentences: List<RealSentence<RealToken>> = tokenizer.tokenize(text).map { it as RealSentence<RealToken> }
+    val sentences: List<RealSentence<RealToken>> =
+      this.tokenize(text = text, language = textLang).map { it as RealSentence<RealToken> }
 
     return json {
       array(

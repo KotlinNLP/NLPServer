@@ -119,8 +119,9 @@ class ExtractFrames(
 
     this.checkText(text)
 
-    val textLanguage: Language = this.getTextLanguage(text = text, forcedLang = lang)
-    val sentences: List<TokenizerSentence> = this.tokenizers.getValue(textLanguage.isoCode).tokenize(text)
+    val sentences: List<TokenizerSentence> =
+      this.tokenize(text = text, language = lang).filter { it.tokens.isNotEmpty() }
+
     val extractors: List<TextFramesExtractor> = domain?.let {
       listOf(this.frameExtractors[it] ?: throw InvalidDomain(domain))
     } ?: this.frameExtractors.values.toList()

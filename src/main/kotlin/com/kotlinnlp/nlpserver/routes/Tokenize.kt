@@ -15,7 +15,6 @@ import com.kotlinnlp.linguisticdescription.language.getLanguageByIso
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.Sentence
 import com.kotlinnlp.neuraltokenizer.Token
-import com.kotlinnlp.nlpserver.LanguageNotSupported
 import com.kotlinnlp.nlpserver.routes.utils.TokenizingCommand
 import com.kotlinnlp.nlpserver.setAppender
 import org.apache.log4j.Logger
@@ -86,16 +85,9 @@ class Tokenize(
 
     this.checkText(text)
 
-    val tokenizerLang: Language = this.getTextLanguage(text = text, forcedLang = language)
+    val sentences: List<Sentence> = this.tokenize(text = text, language = language)
 
-    if (tokenizerLang.isoCode !in this.tokenizers) {
-      throw LanguageNotSupported(tokenizerLang.isoCode)
-    }
-
-    this.logger.debug("Tokenizing text '${text.cutText(50)}'...")
-
-    return this.tokenizers.getValue(tokenizerLang.isoCode).tokenize(text)
-      .toJsonSentences().toJsonString(prettyPrint) + if (prettyPrint) "\n" else ""
+    return sentences.toJsonSentences().toJsonString(prettyPrint) + if (prettyPrint) "\n" else ""
   }
 
   /**

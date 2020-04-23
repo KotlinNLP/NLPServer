@@ -132,9 +132,9 @@ class Categorize(
 
     this.checkText(text)
 
-    val textLanguage: Language = this.getTextLanguage(text = text, forcedLang = lang)
     val sentences: List<TokenizerSentence> =
-      this.tokenizers.getValue(textLanguage.isoCode).tokenize(text).filter { it.tokens.isNotEmpty() }
+      this.tokenize(text = text, language = lang).filter { it.tokens.isNotEmpty() }
+
     val classifiers: List<HANClassifier> =
       domain?.let { listOf(this.hanClassifiers[domain] ?: throw InvalidDomain(domain)) }
         ?: this.hanClassifiers.values.toList()
@@ -162,8 +162,7 @@ class Categorize(
             }
           })
         )
-      }
-      )
+      })
     }
 
     val jsonRes: JsonBase = domain?.let { outputPerDomain.single() as JsonObject } ?: outputPerDomain
