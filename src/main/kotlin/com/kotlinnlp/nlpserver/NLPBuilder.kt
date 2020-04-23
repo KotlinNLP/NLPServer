@@ -125,6 +125,12 @@ internal class NLPBuilder(parsedArgs: CommandLineArguments) {
   val comparators: Map<String, TextComparator>? = buildComparators()
 
   /**
+   * Terms blacklists for the summary, associated by language ISO 639-1 code (empty if no blacklist is present).
+   */
+  val summaryBlacklists: Map<String, Set<String>> =
+    parsedArgs.summaryBlacklistsDir?.let { buildSummaryBlacklists(it) } ?: mapOf()
+
+  /**
    * Build a [LanguageDetector].
    *
    * @param languageDetectorModelFilename the filename of the language detector model
@@ -326,6 +332,26 @@ internal class NLPBuilder(parsedArgs: CommandLineArguments) {
     File(dirname)
       .listFilesOrRaise()
       .also { this.logger.info("Loading comparison blacklists from '$dirname':") }
+      .associate { file ->
+
+        this.logger.info("  loading '${file.name}'...")
+
+        val language: String = file.nameWithoutExtension.substringAfterLast("__").toLowerCase()
+
+        language to file.readLines().toSet()
+      }
+
+  /**
+   * Build a map of terms blacklists for the summary, associated by language ISO 639-1 code.
+   *
+   * @param dirname the name of the directory containing the summary blacklists
+   *
+   * @return a map of terms blacklists for the summary, associated by language ISO 639-1 code
+   */
+  private fun buildSummaryBlacklists(dirname: String): Map<String, Set<String>> =
+    File(dirname)
+      .listFilesOrRaise()
+      .also { this.logger.info("Loading summary blacklists from '$dirname':") }
       .associate { file ->
 
         this.logger.info("  loading '${file.name}'...")

@@ -73,6 +73,7 @@
         <frameextractor.version>0.4.7</frameextractor.version>
         <hanclassifier.version>0.6.5</hanclassifier.version>
         <correlator.version>0.1.0</correlator.version>
+        <summarizer.version>0.1.0</summarizer.version>
     </properties>
 
     <repositories>
@@ -308,6 +309,12 @@
             <groupId>com.kotlinnlp</groupId>
             <artifactId>correlator</artifactId>
             <version>${correlator.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.kotlinnlp</groupId>
+            <artifactId>summarizer</artifactId>
+            <version>${summarizer.version}</version>
         </dependency>
     </dependencies>
 </project>

@@ -84,5 +84,14 @@ private fun buildRoutes(parsedArgs: CommandLineArguments): List<Route> {
         tokenizers = builder.tokenizers,
         analyzers = builder.morphoAnalyzers))
 
+  if (builder.parsers != null && builder.tokenizers != null)
+    routes.add(
+      Summarize(
+        languageDetector = builder.languageDetector,
+        tokenizers = builder.tokenizers,
+        parsers = builder.parsers,
+        morphoPreprocessors = builder.morphoPreprocessors,
+        lemmasBlacklist = builder.summaryBlacklists))
+
   return routes
 }
