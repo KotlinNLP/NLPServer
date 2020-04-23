@@ -19,17 +19,10 @@ import com.kotlinnlp.linguisticdescription.sentence.MorphoSynSentence
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 import com.kotlinnlp.linguisticdescription.sentence.token.RealToken
 import com.kotlinnlp.neuralparser.NeuralParser
-import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
 import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
-import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
-import com.kotlinnlp.neuralparser.language.BaseSentence
-import com.kotlinnlp.neuralparser.language.BaseToken
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
-import com.kotlinnlp.neuraltokenizer.Sentence
-import com.kotlinnlp.neuraltokenizer.Token
-import com.kotlinnlp.nlpserver.LanguageNotSupported
 import com.kotlinnlp.nlpserver.routes.utils.LanguageDistribution
-import com.kotlinnlp.nlpserver.routes.utils.TokenizingCommand
+import com.kotlinnlp.nlpserver.routes.utils.ParsingCommand
 import spark.Response
 import spark.Spark
 
@@ -37,16 +30,16 @@ import spark.Spark
  * The command executed on the route '/parse'.
  *
  * @param languageDetector a language detector (can be null)
- * @param tokenizers a map of languages ISO 639-1 codes to neural tokenizers
- * @param parsers a map of languages ISO 639-1 codes to the related [NeuralParser]s
- * @param morphoPreprocessors a map of languages ISO 639-1 codes to morpho-preprocessors
+ * @param tokenizers a map of tokenizers associated by language ISO 639-1 code
+ * @param parsers a map of morpho-syntactic parsers associated by language ISO 639-1 code
+ * @param morphoPreprocessors a map of morpho-preprocessors associated by language ISO 639-1 code
  */
 class Parse(
   override val languageDetector: LanguageDetector?,
   override val tokenizers: Map<String, NeuralTokenizer>,
-  private val parsers: Map<String, NeuralParser<*>>,
-  private val morphoPreprocessors: Map<String, MorphoPreprocessor>
-) : Route, TokenizingCommand {
+  override val parsers: Map<String, NeuralParser<*>>,
+  override val morphoPreprocessors: Map<String, MorphoPreprocessor>
+) : Route, ParsingCommand {
 
   /**
    * The format of the parsing response.
@@ -128,11 +121,6 @@ class Parse(
   }
 
   /**
-   * A base sentence preprocessor.
-   */
-  private val basePreprocessor = BasePreprocessor()
-
-  /**
    * Parse the given [text], eventually forcing on the language [lang].
    *
    * @param text the text to parse
@@ -153,84 +141,44 @@ class Parse(
 
     val langDistribution: LanguageDistribution = this.getTextLanguageDistribution(text = text, forcedLang = lang)
     val textLang: Language = langDistribution.language
-    val sentences: List<Sentence> = this.tokenizers.getValue(textLang.isoCode).tokenize(text)
-    val parser: NeuralParser<*> = this.parsers[textLang.isoCode] ?: throw LanguageNotSupported(textLang.isoCode)
-    val preprocessor: SentencePreprocessor = this.morphoPreprocessors[textLang.isoCode] ?: basePreprocessor
+    val parsedSentences: List<MorphoSynSentence> = this.parse(text = text, langCode = textLang.isoCode)
 
     if (format == ResponseFormat.CoNLL) response.header("Content-Type", "text/plain")
 
     return when (format) {
-      ResponseFormat.CoNLL -> this.parseToCoNLLFormat(
-        parser = parser,
-        sentences = sentences,
-        preprocessor = preprocessor)
+      ResponseFormat.CoNLL -> this.parseToCoNLLFormat(parsedSentences)
       ResponseFormat.JSON -> this.parseToJSONFormat(
-        parser = parser,
-        sentences = sentences,
-        preprocessor = preprocessor,
+        sentences = parsedSentences,
         langDistribution = langDistribution,
         prettyPrint = prettyPrint)
     }
   }
 
   /**
-   * Parse the given [sentences] and return the response in CoNLL format.
-   *
-   * @param parser the parser to use
-   * @param sentences the list of sentences to parse
-   * @param preprocessor a sentence preprocessor
+   * @param sentences the parsed sentences
    *
    * @return the parsed sentences in CoNLL string format
    */
-  private fun parseToCoNLLFormat(parser: NeuralParser<*>,
-                                 preprocessor: SentencePreprocessor,
-                                 sentences: List<Sentence>): String =
+  private fun parseToCoNLLFormat(sentences: List<MorphoSynSentence>): String =
     sentences.joinToString(separator = "\n\n", postfix = "\n") {
-      parser
-        .parse(preprocessor.convert(it.toBaseSentence()))
-        .toCoNLL()
-        .toCoNLLString(writeComments = false)
+      it.toCoNLL().toCoNLLString(writeComments = false)
     }
 
   /**
-   * Parse the given [sentences] and return the response in JSON format.
-   *
-   * @param parser the parser to use
-   * @param sentences the list of sentences to parse
-   * @param preprocessor a sentence preprocessor
+   * @param sentences the parsed sentences
    * @param langDistribution the language of the text with the distribution of the languages scores
    * @param prettyPrint pretty print (default = false)
    *
    * @return the parsed sentences in JSON string format
    */
-  private fun parseToJSONFormat(parser: NeuralParser<*>,
-                                sentences: List<Sentence>,
-                                preprocessor: SentencePreprocessor,
+  private fun parseToJSONFormat(sentences: List<MorphoSynSentence>,
                                 langDistribution: LanguageDistribution,
                                 prettyPrint: Boolean = false): String = json {
     obj(
       "language" to langDistribution.toJSON(),
-      "sentences" to array(sentences.map {
-        parser.parse(preprocessor.convert(it.toBaseSentence())).toJSON()
-      })
+      "sentences" to array(sentences.map { it.toJSON() })
     )
   }.toJsonString(prettyPrint = prettyPrint) + if (prettyPrint) "\n" else ""
-
-  /**
-   * @return a new base sentence built from this tokenizer sentence
-   */
-  private fun Sentence.toBaseSentence() = BaseSentence(
-    id = this.position.index, // the index is unique within the list of tokenized sentences
-    tokens = this.tokens.mapIndexed { i, it -> it.toBaseToken(id = i) },
-    position = this.position
-  )
-
-  /**
-   * @param id the token ID
-   *
-   * @return a new base token built from this tokenizer token
-   */
-  private fun Token.toBaseToken(id: Int) = BaseToken(id = id, position = this.position, form = this.form)
 
   /**
    * Convert this [MorphoSynSentence] to a CoNLL Sentence.
