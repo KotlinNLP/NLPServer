@@ -14,6 +14,14 @@ import com.kotlinnlp.nlpserver.EmptyText
  */
 internal interface Command {
 
+  companion object {
+
+    /**
+     * The suffix added when cutting of a text.
+     */
+    const val CUT_TEXT_SUFFIX = "[...]"
+  }
+
   /**
    * Check that the text is not empty.
    */
@@ -21,4 +29,16 @@ internal interface Command {
 
     if (text.isEmpty()) throw EmptyText()
   }
+
+  /**
+   * Cutoff this text in case its length is greater then [maxChars], adding [CUT_TEXT_SUFFIX] at the end.
+   *
+   * @param maxChars the max number of chars of the returned string
+   *
+   * @return the cut text
+   */
+  fun String.cutText(maxChars: Int): String = if (this.length > maxChars)
+    this.take(maxChars - CUT_TEXT_SUFFIX.length) + CUT_TEXT_SUFFIX
+  else
+    this
 }

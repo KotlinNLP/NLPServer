@@ -155,23 +155,4 @@ class Morpho(
       set("endChar", end)
     }
   }
-
-  /**
-   * Cut the text contained in this string to a given max length.
-   * If the length (including the suffix) is greater then the [maxLength] the text is cut and the suffix ` [...]` is
-   * added.
-   *
-   * @param maxLength the max length of the cut text
-   *
-   * @return the text cut to the given max length
-   */
-  private fun String.cutText(maxLength: Int): String {
-
-    val suffix = " [...]"
-
-    return if (this.length <= maxLength)
-      this
-    else
-      this.substring(0, (maxLength - suffix.length)) + suffix
-  }
 }
