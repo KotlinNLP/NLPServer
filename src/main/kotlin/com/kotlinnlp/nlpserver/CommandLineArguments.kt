@@ -127,20 +127,20 @@ class CommandLineArguments(args: Array<String>) {
   ).default(null)
 
   /**
-   * The directory containing the serialized models of the HAN classifier, one per domain.
+   * The directory containing the serialized models of the classifiers, one per domain.
    */
-  val hanClassifierModelsDir: String? by parser.storing(
-    "--han-classifiers",
-    help="the directory containing the serialized models of the HAN classifier, one per domain"
+  val classifierModelsDir: String? by parser.storing(
+    "--classifiers",
+    help="the directory containing the serialized models of the classifiers, one per domain"
   ).default(null)
 
   /**
-   * The directory containing the pre-trained word embeddings files for the HAN classifiers, one per domain (the file
-   * name must end with '__' followed by the domain name).
+   * The directory containing the pre-trained word embeddings files for the classifiers, one per domain (the file name
+   * must end with '__' followed by the domain name).
    */
-  val hanClassifierEmbeddingsDir: String? by parser.storing(
-    "--han-classifiers-emb",
-    help="the directory containing the pre-trained word embeddings files for the HAN classifiers, one per domain " +
+  val classifierEmbeddingsDir: String? by parser.storing(
+    "--classifiers-emb",
+    help="the directory containing the pre-trained word embeddings files for the classifiers, one per domain " +
       "(the file name must end with '__' followed by the domain name)"
   ).default(null)
 
@@ -218,12 +218,12 @@ class CommandLineArguments(args: Array<String>) {
       dep = this.tokenizerModelsDir, depName = "tokenizer models directory")
 
     this.checkDependency(
-      arg = this.hanClassifierModelsDir, argName = "HAN classifier models directory",
+      arg = this.classifierModelsDir, argName = "classifier models directory",
       dep = this.tokenizerModelsDir, depName = "tokenizer models directory")
 
     this.checkDependency(
-      arg = this.hanClassifierEmbeddingsDir, argName = "HAN classifier embeddings directory",
-      dep = this.hanClassifierModelsDir, depName = "HAN classifier models directory")
+      arg = this.classifierEmbeddingsDir, argName = "classifier embeddings directory",
+      dep = this.classifierModelsDir, depName = "classifier models directory")
   }
 
   /**

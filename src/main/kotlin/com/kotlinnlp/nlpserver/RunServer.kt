@@ -63,12 +63,12 @@ private fun buildRoutes(parsedArgs: CommandLineArguments): List<Route> {
         tokenizers = builder.tokenizers,
         frameExtractors = builder.frameExtractors))
 
-  if (builder.tokenizers != null && builder.hanClassifiers != null)
+  if (builder.tokenizers != null && builder.classifiers != null)
     routes.add(
       Categorize(
         languageDetector = builder.languageDetector,
         tokenizers = builder.tokenizers,
-        hanClassifiers = builder.hanClassifiers))
+        hanClassifiers = builder.classifiers))
 
   if (builder.comparators != null)
     routes.add(

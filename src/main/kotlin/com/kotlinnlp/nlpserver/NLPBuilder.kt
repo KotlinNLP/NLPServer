@@ -103,8 +103,8 @@ internal class NLPBuilder(parsedArgs: CommandLineArguments) {
   /**
    * HAN classifiers associated by domain name or null if the required arguments are not present.
    */
-  val hanClassifiers: Map<String, HANClassifier>? = parsedArgs.hanClassifierModelsDir?.let {
-    buildHANClassifiersMap(hanClassifierModelsDir = it, embeddingsDir = parsedArgs.hanClassifierEmbeddingsDir)
+  val classifiers: Map<String, HANClassifier>? = parsedArgs.classifierModelsDir?.let {
+    buildHANClassifiersMap(hanClassifierModelsDir = it, embeddingsDir = parsedArgs.classifierEmbeddingsDir)
   }
 
   /**
