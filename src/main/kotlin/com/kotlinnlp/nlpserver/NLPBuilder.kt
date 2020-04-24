@@ -101,10 +101,10 @@ internal class NLPBuilder(parsedArgs: CommandLineArguments) {
   }
 
   /**
-   * HAN classifiers associated by domain name or null if the required arguments are not present.
+   * Classifiers associated by domain name or null if the required arguments are not present.
    */
   val classifiers: Map<String, HANClassifier>? = parsedArgs.classifierModelsDir?.let {
-    buildClassifiersMap(hanClassifierModelsDir = it, embeddingsDir = parsedArgs.classifierEmbeddingsDir)
+    buildClassifiersMap(classifiersModelsDir = it, embeddingsDir = parsedArgs.classifierEmbeddingsDir)
   }
 
   /**
@@ -233,25 +233,24 @@ internal class NLPBuilder(parsedArgs: CommandLineArguments) {
   }
 
   /**
-   * Build a map [HANClassifier]s associated by domain name.
+   * Build a map of [HANClassifier]s associated by domain name.
    *
-   * @param hanClassifierModelsDir the directory containing the HAN classifier models
+   * @param classifiersModelsDir the directory containing the classifiers models
    * @param embeddingsDir the directory containing the embeddings for the HAN classifiers (null if they are already
    *                      included in the classifiers models)
    *
    * @return a map of classifiers associated by domain name
    */
-  private fun buildClassifiersMap(hanClassifierModelsDir: String,
-                                  embeddingsDir: String?): Map<String, HANClassifier> {
+  private fun buildClassifiersMap(classifiersModelsDir: String, embeddingsDir: String?): Map<String, HANClassifier> {
 
     val embeddings: Map<String, EmbeddingsMap<String>>? = embeddingsDir?.let {
       this.logger.info("Loading classifiers embeddings from '$embeddingsDir':")
       this.buildDomainEmbeddingsMap(it)
     }
 
-    return File(hanClassifierModelsDir)
+    return File(classifiersModelsDir)
       .listFilesOrRaise()
-      .also { this.logger.info("Loading classifiers models from '$hanClassifierModelsDir':") }
+      .also { this.logger.info("Loading classifiers models from '$classifiersModelsDir':") }
       .associate { modelFile ->
 
         this.logger.info("  loading '${modelFile.name}'...")
