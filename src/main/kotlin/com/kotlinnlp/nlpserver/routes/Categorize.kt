@@ -142,12 +142,12 @@ class Categorize(
     val outputPerDomain: JsonArray<*> = json {
       array(classifiers.map { classifier ->
 
-        logger.debug("Classifying domain '$domain' of text '${text.cutText(50)}'...")
+        logger.debug("Classifying domain '${classifier.model.name}' of text '${text.cutText(50)}'...")
 
         @Suppress("UNCHECKED_CAST")
         val predictions: List<DenseNDArray> = classifier.classify(sentences.map { it as Sentence<FormToken> })
 
-        logger.debug("$domain categories: " +
+        logger.debug("${classifier.model.name} categories: " +
           predictions.joinToString(" | ") { "%d (%.2f %%)".format(it.argMaxIndex(), 100.0 * it.max()) })
 
         obj(
