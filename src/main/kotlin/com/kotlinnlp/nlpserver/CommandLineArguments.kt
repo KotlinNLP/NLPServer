@@ -201,29 +201,37 @@ class CommandLineArguments(args: Array<String>) {
   private fun checkDependencies() {
 
     this.checkDependency(
-      arg = this.langDetectorModel, argName = "language detector model",
-      dep = this.cjkTokenizerModel, depName = "cjk tokenizer model",
+      arg = this.langDetectorModel, argName = "language detector",
+      dep = this.cjkTokenizerModel, depName = "cjk tokenizer",
       checkReverse = true)
 
     this.checkDependency(
-      arg = this.lhrParserModelsDir, argName = "neural parser models directory",
-      dep = this.tokenizerModelsDir, depName = "tokenizer models directory")
+      arg = this.lhrParserModelsDir, argName = "parsers",
+      dep = this.tokenizerModelsDir, depName = "tokenizers")
 
     this.checkDependency(
       arg = this.locationsDictionary, argName = "locations dictionary",
-      dep = this.tokenizerModelsDir, depName = "tokenizer models directory")
+      dep = this.tokenizerModelsDir, depName = "tokenizers")
 
     this.checkDependency(
-      arg = this.frameExtractorModelsDir, argName = "frame extractor models directory",
-      dep = this.tokenizerModelsDir, depName = "tokenizer models directory")
+      arg = this.frameExtractorModelsDir, argName = "frame extractors",
+      dep = this.tokenizerModelsDir, depName = "tokenizers")
 
     this.checkDependency(
-      arg = this.classifierModelsDir, argName = "classifier models directory",
-      dep = this.tokenizerModelsDir, depName = "tokenizer models directory")
+      arg = this.classifierModelsDir, argName = "classifiers",
+      dep = this.tokenizerModelsDir, depName = "tokenizers")
 
     this.checkDependency(
-      arg = this.classifierEmbeddingsDir, argName = "classifier embeddings directory",
-      dep = this.classifierModelsDir, depName = "classifier models directory")
+      arg = this.classifierEmbeddingsDir, argName = "classifiers embeddings",
+      dep = this.classifierModelsDir, depName = "classifiers")
+
+    this.checkDependency(
+      arg = this.comparisonBlacklistsDir, argName = "comparison blacklists",
+      dep = this.wordEmbeddingsDir, depName = "pre-trained word embeddings")
+
+    this.checkDependency(
+      arg = this.comparisonBlacklistsDir, argName = "comparison blacklists",
+      dep = this.lhrParserModelsDir, depName = "parsers")
   }
 
   /**
