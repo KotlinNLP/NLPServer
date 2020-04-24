@@ -104,7 +104,7 @@ class DetectLanguage(override val languageDetector: LanguageDetector) : Route, L
     val langDistribution: LanguageDistribution = this.getTextLanguageDistribution(text = text, forcedLang = null)
     val jsonRes: JsonObject = langDistribution.toJSON()
 
-    this.logger.debug("Language detected for text ${text.cutText(50)}': ${langDistribution.language}")
+    this.logger.debug("Language detected for text '${text.cutText(50)}': ${langDistribution.language}")
 
     if (!distribution)
       jsonRes.remove("distribution")
