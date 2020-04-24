@@ -70,6 +70,13 @@ private fun buildRoutes(parsedArgs: CommandLineArguments): List<Route> {
         tokenizers = builder.tokenizers,
         classifiers = builder.classifiers))
 
+  if (builder.tokenizers != null && builder.labelers != null)
+    routes.add(
+      Label(
+        languageDetector = builder.languageDetector,
+        tokenizers = builder.tokenizers,
+        labelers = builder.labelers))
+
   if (builder.comparators != null)
     routes.add(
       Compare(

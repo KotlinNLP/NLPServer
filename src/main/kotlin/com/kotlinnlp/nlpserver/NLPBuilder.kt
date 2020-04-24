@@ -29,6 +29,8 @@ import com.kotlinnlp.tokensencoder.embeddings.EmbeddingsEncoderModel
 import com.kotlinnlp.tokensencoder.ensemble.EnsembleTokensEncoderModel
 import com.kotlinnlp.tokensencoder.reduction.ReductionEncoderModel
 import com.kotlinnlp.tokensencoder.wrapper.TokensEncoderWrapperModel
+import com.kotlinnlp.tokenslabeler.TokensLabeler
+import com.kotlinnlp.tokenslabeler.TokensLabelerModel
 import com.kotlinnlp.utils.notEmptyOr
 import org.apache.log4j.*
 import java.io.File
@@ -106,6 +108,11 @@ internal class NLPBuilder(parsedArgs: CommandLineArguments) {
   val classifiers: Map<String, HANClassifier>? = parsedArgs.classifierModelsDir?.let {
     buildClassifiersMap(classifiersModelsDir = it, embeddingsDir = parsedArgs.classifierEmbeddingsDir)
   }
+
+  /**
+   * Tokens labelers associated by domain name or null if the required arguments are not present.
+   */
+  val labelers: Map<String, TokensLabeler>? = parsedArgs.labelerModelsDir?.let { buildLabelersMap(it) }
 
   /**
    * Generic word embeddings associated by language ISO 639-1 code or null if the required arguments are not present.
@@ -264,6 +271,26 @@ internal class NLPBuilder(parsedArgs: CommandLineArguments) {
         domainName to classifier
       }
   }
+
+  /**
+   * Build a map [TokensLabeler]s associated by domain name.
+   *
+   * @param labelersModelsDir the directory containing the labelers models
+   *
+   * @return a map of tokens labelers associated by domain name
+   */
+  private fun buildLabelersMap(labelersModelsDir: String): Map<String, TokensLabeler> =
+    File(labelersModelsDir)
+      .listFilesOrRaise()
+      .also { this.logger.info("Loading labelers models from '$labelersModelsDir':") }
+      .associate { file ->
+
+        this.logger.info("  loading '${file.name}'...")
+        val labeler = TokensLabeler(model = TokensLabelerModel.load(FileInputStream(file)))
+        val domainName: String = labeler.model.name
+
+        domainName to labeler
+      }
 
   /**
    * Build a map of [MorphologyDictionary]s associated by language ISO 639-1 code.

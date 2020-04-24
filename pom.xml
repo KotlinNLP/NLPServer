@@ -72,6 +72,7 @@
         <geolocation.version>0.2.4</geolocation.version>
         <frameextractor.version>0.4.7</frameextractor.version>
         <hanclassifier.version>0.6.5</hanclassifier.version>
+        <tokenslabeler.version>0.2.3</tokenslabeler.version>
         <correlator.version>0.1.0</correlator.version>
         <summarizer.version>0.1.0</summarizer.version>
     </properties>
@@ -303,6 +304,12 @@
             <groupId>com.kotlinnlp</groupId>
             <artifactId>hanclassifier</artifactId>
             <version>${hanclassifier.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.kotlinnlp</groupId>
+            <artifactId>tokenslabeler</artifactId>
+            <version>${tokenslabeler.version}</version>
         </dependency>
 
         <dependency>

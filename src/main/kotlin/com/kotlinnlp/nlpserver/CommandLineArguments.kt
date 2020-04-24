@@ -145,6 +145,14 @@ class CommandLineArguments(args: Array<String>) {
   ).default(null)
 
   /**
+   * The directory containing the serialized models of the tokens labelers, one per domain.
+   */
+  val labelerModelsDir: String? by parser.storing(
+    "--labelers",
+    help="the directory containing the serialized models of the tokens labelers, one per domain"
+  ).default(null)
+
+  /**
    * The filename of the LocationsDictionary.
    */
   val locationsDictionary: String? by parser.storing(
@@ -219,6 +227,10 @@ class CommandLineArguments(args: Array<String>) {
 
     this.checkDependency(
       arg = this.classifierModelsDir, argName = "classifiers",
+      dep = this.tokenizerModelsDir, depName = "tokenizers")
+
+    this.checkDependency(
+      arg = this.labelerModelsDir, argName = "labelers",
       dep = this.tokenizerModelsDir, depName = "tokenizers")
 
     this.checkDependency(
