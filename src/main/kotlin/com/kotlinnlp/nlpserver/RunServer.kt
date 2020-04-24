@@ -68,7 +68,7 @@ private fun buildRoutes(parsedArgs: CommandLineArguments): List<Route> {
       Categorize(
         languageDetector = builder.languageDetector,
         tokenizers = builder.tokenizers,
-        hanClassifiers = builder.classifiers))
+        classifiers = builder.classifiers))
 
   if (builder.comparators != null)
     routes.add(

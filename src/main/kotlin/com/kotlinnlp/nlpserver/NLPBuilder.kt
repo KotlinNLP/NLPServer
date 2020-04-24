@@ -104,7 +104,7 @@ internal class NLPBuilder(parsedArgs: CommandLineArguments) {
    * HAN classifiers associated by domain name or null if the required arguments are not present.
    */
   val classifiers: Map<String, HANClassifier>? = parsedArgs.classifierModelsDir?.let {
-    buildHANClassifiersMap(hanClassifierModelsDir = it, embeddingsDir = parsedArgs.classifierEmbeddingsDir)
+    buildClassifiersMap(hanClassifierModelsDir = it, embeddingsDir = parsedArgs.classifierEmbeddingsDir)
   }
 
   /**
@@ -239,10 +239,10 @@ internal class NLPBuilder(parsedArgs: CommandLineArguments) {
    * @param embeddingsDir the directory containing the embeddings for the HAN classifiers (null if they are already
    *                      included in the classifiers models)
    *
-   * @return a map of HAN classifiers associated by domain name
+   * @return a map of classifiers associated by domain name
    */
-  private fun buildHANClassifiersMap(hanClassifierModelsDir: String,
-                                     embeddingsDir: String?): Map<String, HANClassifier> {
+  private fun buildClassifiersMap(hanClassifierModelsDir: String,
+                                  embeddingsDir: String?): Map<String, HANClassifier> {
 
     val embeddings: Map<String, EmbeddingsMap<String>>? = embeddingsDir?.let {
       this.logger.info("Loading classifiers embeddings from '$embeddingsDir':")

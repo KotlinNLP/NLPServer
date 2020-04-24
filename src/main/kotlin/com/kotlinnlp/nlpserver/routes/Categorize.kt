@@ -7,7 +7,6 @@
 
 package com.kotlinnlp.nlpserver.routes
 
-import com.beust.klaxon.JsonArray
 import com.beust.klaxon.JsonBase
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.json
@@ -32,12 +31,12 @@ import spark.Spark
 
  * @param languageDetector a language detector (can be null)
  * @param tokenizers a map of neural tokenizers associated by language ISO 639-1 code
- * @param hanClassifiers a map of HAN classifier associated by domain name
+ * @param classifiers a map of classifiers associated by domain name
  */
 class Categorize(
   override val languageDetector: LanguageDetector?,
   override val tokenizers: Map<String, NeuralTokenizer>,
-  private val hanClassifiers: Map<String, HANClassifier>
+  private val classifiers: Map<String, HANClassifier>
 ) : Route, TokenizingCommand {
 
   /**
@@ -135,38 +134,55 @@ class Categorize(
     val sentences: List<TokenizerSentence> =
       this.tokenize(text = text, language = lang).filter { it.tokens.isNotEmpty() }
 
-    val classifiers: List<HANClassifier> =
-      domain?.let { listOf(this.hanClassifiers[domain] ?: throw InvalidDomain(domain)) }
-        ?: this.hanClassifiers.values.toList()
-
-    val outputPerDomain: JsonArray<*> = json {
-      array(classifiers.map { classifier ->
-
-        logger.debug("Classifying domain '${classifier.model.name}' of text '${text.cutText(50)}'...")
-
-        @Suppress("UNCHECKED_CAST")
-        val predictions: List<DenseNDArray> = classifier.classify(sentences.map { it as Sentence<FormToken> })
-
-        logger.debug("${classifier.model.name} categories: " +
-          predictions.joinToString(" | ") { "%d (%.2f %%)".format(it.argMaxIndex(), 100.0 * it.max()) })
-
-        obj(
-          "domain" to classifier.model.name,
-          "categories" to array(predictions.map { prediction ->
-            obj(
-              "id" to prediction.argMaxIndex(),
-              "score" to prediction.max()
-            ).also {
-              if (distribution)
-                it["distribution"] = array(prediction.toDoubleArray().toList())
-            }
-          })
-        )
+    val jsonRes: JsonBase = domain?.let {
+      classifyByDomain(domain = it, sentences = sentences, text = text, distribution = distribution)
+    } ?: json {
+      array(classifiers.keys.map {
+        classifyByDomain(domain = it, sentences = sentences, text = text, distribution = distribution)
       })
     }
 
-    val jsonRes: JsonBase = domain?.let { outputPerDomain.single() as JsonObject } ?: outputPerDomain
-
     return jsonRes.toJsonString(prettyPrint) + if (prettyPrint) "\n" else ""
+  }
+
+  /**
+   * Classify a text respect to a given domain.
+   *
+   * @param domain the classification domain
+   * @param sentences the tokenized sentences
+   * @param text the input text
+   * @param distribution whether to include the distribution in the response
+   *
+   * @return the text categorization as JSON object
+   */
+  private fun classifyByDomain(domain: String,
+                               sentences: List<TokenizerSentence>,
+                               text: String,
+                               distribution: Boolean): JsonObject {
+
+    val classifier: HANClassifier = this.classifiers.getValue(domain)
+
+    logger.debug("Classifying domain '${classifier.model.name}' of text '${text.cutText(50)}'...")
+
+    @Suppress("UNCHECKED_CAST")
+    val predictions: List<DenseNDArray> = classifier.classify(sentences.map { it as Sentence<FormToken> })
+
+    logger.debug("${classifier.model.name} categories: " +
+      predictions.joinToString(" | ") { "%d (%.2f %%)".format(it.argMaxIndex(), 100.0 * it.max()) })
+
+    return json {
+      obj(
+        "domain" to classifier.model.name,
+        "categories" to array(predictions.map { prediction ->
+          obj(
+            "id" to prediction.argMaxIndex(),
+            "score" to prediction.max()
+          ).also {
+            if (distribution)
+              it["distribution"] = array(prediction.toDoubleArray().toList())
+          }
+        })
+      )
+    }
   }
 }
