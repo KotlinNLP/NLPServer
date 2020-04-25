@@ -255,6 +255,49 @@ paths:
           $ref: '#/components/responses/LangDetection'
         400:
           description: Invalid input
+  /label:
+    post:
+      tags:
+        - NLPService
+      summary: Label a text respect to all the available domains
+      operationId: label
+      parameters:
+        - name: pretty
+          in: query
+          description: whether to indent the returned JSON string, for a major readability
+          required: false
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        $ref: '#/components/requestBodies/InputText'
+      responses:
+        200:
+          $ref: '#/components/responses/AllLabelings'
+        400:
+          description: Invalid input
+  /label/{domainId}:
+    post:
+      tags:
+        - NLPService
+      summary: Label a text respect to a given domain
+      operationId: labelDomain
+      parameters:
+        - $ref: '#/components/parameters/DomainId'
+        - name: pretty
+          in: query
+          description: whether to indent the returned JSON string, for a major readability
+          required: false
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        $ref: '#/components/requestBodies/InputText'
+      responses:
+        200:
+          $ref: '#/components/responses/SingleLabeling'
+        400:
+          description: Invalid input
   /morpho/datetimes:
     post:
       tags:
@@ -508,6 +551,21 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Categorization'
+    AllLabelings:
+      description: texts labeled successfully
+      content:
+        application/json:
+          schema:
+            type: array
+            description: the labelings respect to all the available domains
+            items:
+              $ref: '#/components/schemas/Labeling'
+    SingleLabeling:
+      description: texts labeled successfully
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Labeling'
     FramesExtraction:
       description: frames extracted successfully
       content:
@@ -648,6 +706,29 @@ components:
           description: the categories assigned, one per hierarchical level
           items:
             $ref: '#/components/schemas/Category'
+    Labeling:
+      type: object
+      description: the text labeling respect to a specific domain
+      required:
+        - domain
+        - sentences
+      properties:
+        domain:
+          type: string
+          description: the labeling domain
+        sentences:
+          type: array
+          description: the labeled sentences
+          items:
+            type: object
+            required:
+              - tokens
+            properties:
+              tokens:
+                type: array
+                description: the labeled tokens
+                items:
+                  $ref: '#/components/schemas/LabeledToken'
     ComparingTexts:
       type: object
       required:
@@ -879,6 +960,28 @@ components:
               description: the distribution of the score among the languages
               items:
                 $ref: '#/components/schemas/ScoredLanguage'
+    LabeledToken:
+      type: object
+      description: a labeled token
+      required:
+        - form
+        - iob
+        - label
+        - score
+      properties:
+        form:
+          type: string
+          description: the token form
+        iob:
+          type: string
+          description: the IOB tag of the label
+        label:
+          type: string
+          description: the token label
+        score:
+          type: number
+          format: double
+          description: the label score
     Category:
       type: object
       description: a category that indicates the content of the text
