@@ -27,7 +27,7 @@ fun main(args: Array<String>) {
   inputLoop {
 
     val sentences: List<TokenizedSentence> = client.tokenize(InputText().text(it), false)
-    val framesPerDomain: List<ExtractFramesResponse> = client.extractFrames(InputText().text(it), "it", false, false)
+    val framesPerDomain: List<ExtractFramesResponse> = client.extractFrames(InputText().text(it), null, false, false)
 
     framesPerDomain.forEach { res ->
 
