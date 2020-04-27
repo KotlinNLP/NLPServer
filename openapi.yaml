@@ -449,6 +449,57 @@ paths:
                 $ref: '#/components/schemas/LinguisticAnalysis'
         400:
           description: Invalid input
+  /summarize:
+    post:
+      tags:
+        - NLPService
+      summary: Get the summary of a text
+      operationId: summarize
+      parameters:
+        - name: pretty
+          in: query
+          description: whether to indent the returned JSON string, for a major readability
+          required: false
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        $ref: '#/components/requestBodies/InputText'
+      responses:
+        200:
+          description: text successfully summarized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Summary'
+        400:
+          description: Invalid input
+  /summarize/{language}:
+    post:
+      tags:
+        - NLPService
+      summary: Get the summary of a text, forcing the analysis language
+      operationId: summarizeLang
+      parameters:
+        - $ref: '#/components/parameters/LanguageISO'
+        - name: pretty
+          in: query
+          description: whether to indent the returned JSON string, for a major readability
+          required: false
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        $ref: '#/components/requestBodies/InputText'
+      responses:
+        200:
+          description: text successfully summarized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Summary'
+        400:
+          description: Invalid input
   /tokenize:
     post:
       tags:
@@ -729,6 +780,36 @@ components:
                 description: the labeled tokens
                 items:
                   $ref: '#/components/schemas/LabeledToken'
+    Summary:
+      type: object
+      description: the text summary
+      required:
+        - salience
+        - sentences
+        - itemsets
+        - keywords
+      properties:
+        salience:
+          type: array
+          description: the salience distribution in 10 buckets of a fixed interval of 0.1
+          items:
+            type: number
+            format: double
+        sentences:
+          type: array
+          description: the sentences relevance
+          items:
+            $ref: '#/components/schemas/ScoredText'
+        itemsets:
+          type: array
+          description: the most relevant itemsets with their relevance
+          items:
+            $ref: '#/components/schemas/ScoredText'
+        keywords:
+          type: array
+          description: the most relevant keywords with their relevance
+          items:
+            $ref: '#/components/schemas/ScoredKeyword'
     ComparingTexts:
       type: object
       required:
@@ -1476,6 +1557,26 @@ components:
       properties:
         score:
           $ref: '#/components/schemas/Score'
+    ScoredText:
+      allOf:
+        - $ref: '#/components/schemas/ScoredElement'
+        - type: object
+          description: a text with a score
+          required:
+            - text
+          properties:
+            text:
+              type: string
+    ScoredKeyword:
+      allOf:
+          - $ref: '#/components/schemas/ScoredElement'
+          - type: object
+            description: a keyword with a score
+            required:
+              - keyword
+            properties:
+              keyword:
+                type: string
     IndexedScore:
       allOf:
         - $ref: '#/components/schemas/ScoredElement'
