@@ -323,7 +323,7 @@ paths:
     post:
       tags:
         - NLPService
-      summary: Search for date-time expressions in a text, written in a given language
+      summary: Search for date-time expressions in a text, forcing the analysis language
       operationId: getLangDateTimes
       parameters:
         - $ref: '#/components/parameters/LanguageISO'
@@ -366,7 +366,7 @@ paths:
     post:
       tags:
         - NLPService
-      summary: Search for numerical expressions in a text written in a given language
+      summary: Search for numerical expressions in a text, forcing the analysis language
       operationId: getLangNumbers
       parameters:
         - $ref: '#/components/parameters/LanguageISO'
