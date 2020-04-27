@@ -389,7 +389,7 @@ paths:
       tags:
         - NLPService
       summary: Parse syntactically and morphologically a text
-      operationId: parseText
+      operationId: parse
       parameters:
         - name: distribution
           in: query
@@ -421,7 +421,7 @@ paths:
       tags:
         - NLPService
       summary: Parse syntactically and morphologically a text, forcing the language analysis
-      operationId: parseTextLang
+      operationId: parseLang
       parameters:
         - $ref: '#/components/parameters/LanguageISO'
         - name: distribution
