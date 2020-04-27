@@ -99,7 +99,7 @@ class Summarize(
 
     return json {
       obj(
-        "salience_distribution" to array(summary.getSalienceDistribution()),
+        "salience" to array(summary.getSalienceDistribution()),
         "sentences" to array(parsedSentences.zip(summary.salienceScores).map { (sentence, score) ->
           obj(
             "text" to sentence.buildText(),
