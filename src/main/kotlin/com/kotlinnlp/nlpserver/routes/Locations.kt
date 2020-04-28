@@ -14,11 +14,12 @@ import com.kotlinnlp.geolocation.LocationsFinder
 import com.kotlinnlp.geolocation.dictionary.LocationsDictionary
 import com.kotlinnlp.geolocation.structures.CandidateEntity
 import com.kotlinnlp.geolocation.structures.Location
+import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.linguisticdescription.language.Language
 import com.kotlinnlp.linguisticdescription.language.getLanguageByIso
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
-import com.kotlinnlp.nlpserver.LanguageNotSupported
-import com.kotlinnlp.nlpserver.routes.utils.Command
+import com.kotlinnlp.neuraltokenizer.Sentence
+import com.kotlinnlp.nlpserver.routes.utils.TokenizingCommand
 import com.kotlinnlp.nlpserver.setAppender
 import org.apache.log4j.Logger
 import spark.Spark
@@ -26,13 +27,15 @@ import spark.Spark
 /**
  * The command executed on the route '/locations'.
  *
+ * @param languageDetector a language detector (can be null)
+ * @param tokenizers a map of tokenizers associated by language ISO 639-1 code
  * @param dictionary a locations dictionary
- * @param tokenizers a map of languages ISO 3166-1 alpha-2 codes to neural tokenizers
  */
 class Locations(
-  private val dictionary: LocationsDictionary,
-  private val tokenizers: Map<String, NeuralTokenizer>
-) : Route, Command {
+  override val languageDetector: LanguageDetector?,
+  override val tokenizers: Map<String, NeuralTokenizer>,
+  private val dictionary: LocationsDictionary
+) : Route, TokenizingCommand {
 
   /**
    * The name of the command.
@@ -90,13 +93,13 @@ class Locations(
 
     this.checkText(text)
 
-    val tokenizer: NeuralTokenizer = this.tokenizers[language.isoCode] ?: throw LanguageNotSupported(language.isoCode)
+    val sentences: List<Sentence> = this.tokenize(text = text, language = language)
 
     logger.debug("Searching for locations mentioned in the text '${text.cutText(50)}'...")
 
     val finder = LocationsFinder(
       dictionary = this.dictionary,
-      textTokens = tokenizer.tokenize(text).flatMap { sentence -> sentence.tokens.map { it.form } },
+      textTokens = sentences.flatMap { sentence -> sentence.tokens.map { it.form } },
       candidateEntities = candidates.toSet(),
       coordinateEntitiesGroups = listOf(),
       ambiguityGroups = listOf()
