@@ -59,7 +59,7 @@ class Locations(
 
       this.findLocations(
         text = jsonBody.string("text")!!,
-        language = getLanguageByIso(jsonBody.string("lang")!!),
+        language = request.queryParams("lang")?.let { getLanguageByIso(it) },
         candidates = jsonBody.array<JsonObject>("candidates")!!.map { it.toCandidateEntity() },
         prettyPrint = request.booleanParam("pretty"))
     }
@@ -70,7 +70,7 @@ class Locations(
 
       this.findLocations(
         text = jsonBody.string("text")!!,
-        language = getLanguageByIso(jsonBody.string("lang")!!),
+        language = request.params("lang")?.let { getLanguageByIso(it) },
         candidates = jsonBody.array<JsonObject>("candidates")!!.map { it.toCandidateEntity() },
         prettyPrint = request.booleanParam("pretty"))
     }
@@ -80,14 +80,14 @@ class Locations(
    * Find locations in the given [text].
    *
    * @param text the input text
-   * @param language the language to use to tokenize the [text]
+   * @param language the text language or null to detect it automatically
    * @param candidates the list of candidate locations
    * @param prettyPrint pretty print (default = false)
    *
    * @return the parsed [text] in the given string [format]
    */
   private fun findLocations(text: String,
-                            language: Language,
+                            language: Language?,
                             candidates: List<CandidateEntity>,
                             prettyPrint: Boolean = false): String {
 
