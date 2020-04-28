@@ -27,13 +27,13 @@ import org.apache.log4j.Logger
 import spark.Spark
 
 /**
- * The command executed on the route '/extract-frames'.
+ * The command executed on the route '/frames'.
 
  * @param languageDetector a language detector (can be null)
  * @param tokenizers a map of neural tokenizers associated by language ISO 639-1 code
  * @param frameExtractors a map of text frames extractors associated by domain name
  */
-class ExtractFrames(
+class Frames(
   override val languageDetector: LanguageDetector?,
   override val tokenizers: Map<String, NeuralTokenizer>,
   private val frameExtractors: Map<String, TextFramesExtractor>
@@ -42,7 +42,7 @@ class ExtractFrames(
   /**
    * The name of the command.
    */
-  override val name: String = "extract-frames"
+  override val name: String = "frames"
 
   /**
    * The logger of the command.

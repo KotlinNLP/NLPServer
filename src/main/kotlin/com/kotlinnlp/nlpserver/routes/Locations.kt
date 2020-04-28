@@ -24,12 +24,12 @@ import org.apache.log4j.Logger
 import spark.Spark
 
 /**
- * The command executed on the route '/find-locations'.
+ * The command executed on the route '/locations'.
  *
  * @param dictionary a locations dictionary
  * @param tokenizers a map of languages ISO 3166-1 alpha-2 codes to neural tokenizers
  */
-class FindLocations(
+class Locations(
   private val dictionary: LocationsDictionary,
   private val tokenizers: Map<String, NeuralTokenizer>
 ) : Route, Command {
@@ -37,7 +37,7 @@ class FindLocations(
   /**
    * The name of the command.
    */
-  override val name: String = "find-locations"
+  override val name: String = "locations"
 
   /**
    * The logger of the command.
@@ -122,10 +122,10 @@ class FindLocations(
    * @return a map of parents info of this location (only actual parents are present)
    */
   private fun Location.getParentsInfo(): Map<String, String?> = mapOf(
-    "adminArea1" to this.adminArea1Id?.let { this@FindLocations.dictionary[it]!!.name },
-    "adminArea2" to this.adminArea2Id?.let { this@FindLocations.dictionary[it]!!.name },
-    "countryIso" to this.countryId?.let { this@FindLocations.dictionary[it]!!.isoA2 },
-    "country" to this.countryId?.let { this@FindLocations.dictionary[it]!!.name },
-    "continent" to this.continentId?.let { this@FindLocations.dictionary[it]!!.name }
+    "adminArea1" to this.adminArea1Id?.let { this@Locations.dictionary[it]!!.name },
+    "adminArea2" to this.adminArea2Id?.let { this@Locations.dictionary[it]!!.name },
+    "countryIso" to this.countryId?.let { this@Locations.dictionary[it]!!.isoA2 },
+    "country" to this.countryId?.let { this@Locations.dictionary[it]!!.name },
+    "continent" to this.continentId?.let { this@Locations.dictionary[it]!!.name }
   )
 }

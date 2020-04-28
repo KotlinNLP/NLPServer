@@ -54,11 +54,11 @@ private fun buildRoutes(parsedArgs: CommandLineArguments): List<Route> {
         morphoPreprocessors = builder.morphoPreprocessors))
 
   if (builder.locationsDictionary != null && builder.tokenizers != null)
-    routes.add(FindLocations(dictionary = builder.locationsDictionary, tokenizers = builder.tokenizers))
+    routes.add(Locations(dictionary = builder.locationsDictionary, tokenizers = builder.tokenizers))
 
   if (builder.tokenizers != null && builder.frameExtractors != null)
     routes.add(
-      ExtractFrames(
+      Frames(
         languageDetector = builder.languageDetector,
         tokenizers = builder.tokenizers,
         frameExtractors = builder.frameExtractors))
