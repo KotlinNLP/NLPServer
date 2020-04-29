@@ -127,8 +127,8 @@ class Locations(
       coordinateEntitiesGroups = listOf(),
       ambiguityGroups = listOf())
 
-    this.logger.debug("Locations found (${finder.bestLocations.size}: " +
-      finder.bestLocations.joinToString(", ") { "${it.location.name} (%.1f %%)".format(100.0 * it.confidence) })
+    this.logger.debug("Locations found (${finder.bestLocations.size}): " +
+      finder.bestLocations.joinToString(", ") { "${it.location.name} [%.1f %%]".format(100.0 * it.confidence) })
 
     return json {
       array(finder.bestLocations.map {
