@@ -115,6 +115,18 @@ internal class NLPBuilder(parsedArgs: CommandLineArguments) {
   val labelers: Map<String, TokensLabeler>? = parsedArgs.labelerModelsDir?.let { buildLabelersMap(it) }
 
   /**
+   * Tokens labelers for named entity recognition associated by language ISO 639-1 code or null if the required
+   * arguments are not present.
+   *
+   * A labeler is considered for named-entity recognition if its domain name follows the pattern `NER_XX`, where XX is
+   * the language ISO 639-1 code.
+   */
+  val nerLabelers: Map<String, TokensLabeler>? = this.labelers
+    ?.mapKeys { it.key.toLowerCase() }
+    ?.filter { it.key.length == 6 && it.key.startsWith("ner_") }
+    ?.mapKeys { it.key.takeLast(2) }
+
+  /**
    * Generic word embeddings associated by language ISO 639-1 code or null if the required arguments are not present.
    */
   private val wordEmbeddings: Map<String, EmbeddingsMap<String>>? =
