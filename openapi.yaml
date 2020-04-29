@@ -170,7 +170,7 @@ paths:
           description: force the language analysis
           required: false
           schema:
-            $ref: '#/components/schemas/LanguageISO'
+            $ref: '#/components/schemas/IsoA2'
         - name: distribution
           in: query
           description: whether to return the score distributions of various analysis elements
@@ -205,7 +205,7 @@ paths:
           description: force the language analysis
           required: false
           schema:
-            $ref: '#/components/schemas/LanguageISO'
+            $ref: '#/components/schemas/IsoA2'
         - name: distribution
           in: query
           description: whether to return the score distributions of various analysis elements
@@ -558,7 +558,7 @@ components:
       description: the ISO 639-1 code of a language
       required: true
       schema:
-        $ref: '#/components/schemas/LanguageISO'
+        $ref: '#/components/schemas/IsoA2'
   requestBodies:
     InputText:
       description: the input text
@@ -1016,12 +1016,12 @@ components:
         - name
       properties:
         id:
-          $ref: '#/components/schemas/LanguageISO'
+          $ref: '#/components/schemas/IsoA2'
         name:
           type: string
           description: the standard English name
           example: English
-    LanguageISO:
+    IsoA2:
       type: string
       example: en
       pattern: '^[a-z][a-z]$'
