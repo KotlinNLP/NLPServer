@@ -58,7 +58,8 @@ private fun buildRoutes(parsedArgs: CommandLineArguments): List<Route> {
       Locations(
         languageDetector = builder.languageDetector,
         tokenizers = builder.tokenizers,
-        dictionary = builder.locationsDictionary))
+        dictionary = builder.locationsDictionary,
+        nerLabelers = builder.nerLabelers))
 
   if (builder.tokenizers != null && builder.frameExtractors != null)
     routes.add(
