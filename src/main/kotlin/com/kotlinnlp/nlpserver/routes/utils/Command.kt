@@ -7,7 +7,7 @@
 
 package com.kotlinnlp.nlpserver.routes.utils
 
-import com.kotlinnlp.nlpserver.EmptyText
+import com.kotlinnlp.nlpserver.BlankText
 import org.apache.log4j.Logger
 
 /**
@@ -29,12 +29,15 @@ internal interface Command {
   val logger: Logger
 
   /**
-   * Check that the text is not empty.
+   * Check that the text is not blank.
+   *
+   * @param text a text
+   *
+   * @throws BlankText if the given text is blank
+   *
+   * @return the given text
    */
-  fun checkText(text: String) {
-
-    if (text.isEmpty()) throw EmptyText()
-  }
+  fun checkText(text: String): String = text.ifBlank { throw BlankText() }
 
   /**
    * Cutoff this text in case its length is greater then [maxChars], adding [CUT_TEXT_SUFFIX] at the end.

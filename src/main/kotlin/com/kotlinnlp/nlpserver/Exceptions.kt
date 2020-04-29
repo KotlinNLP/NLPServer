@@ -16,9 +16,9 @@ class ArgumentDependencyNotSatisfied(argName: String, dependency: String)
   : RuntimeException("'$argName' requires '$dependency'")
 
 /**
- * Raised when the input text is empty.
+ * Raised when the input text is blank.
  */
-class EmptyText : RuntimeException()
+class BlankText : RuntimeException()
 
 /**
  * Raised when the given language is not supported.

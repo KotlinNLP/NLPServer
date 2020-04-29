@@ -92,9 +92,9 @@ class NLPServer(port: Int, enableCORS: Boolean, private val routes: List<Route>)
       response.body("Missing required query parameters: %s\n".format((exception as MissingQueryParameters).message))
     }
 
-    Spark.exception(EmptyText::class.java) { _, _, response ->
+    Spark.exception(BlankText::class.java) { _, _, response ->
       response.status(400)
-      response.body("Text is empty\n")
+      response.body("Text is blank\n")
     }
 
     Spark.exception(LanguageNotSupported::class.java) { exception, _, response ->
