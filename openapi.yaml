@@ -298,6 +298,49 @@ paths:
           $ref: '#/components/responses/SingleLabeling'
         400:
           description: Invalid input
+  /locations:
+    post:
+      tags:
+        - NLPService
+      summary: Find locations mentioned in a text
+      operationId: findLocations
+      parameters:
+        - name: pretty
+          in: query
+          description: whether to indent the returned JSON string, for a major readability
+          required: false
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        $ref: '#/components/requestBodies/InputText'
+      responses:
+        200:
+          $ref: '#/components/responses/Locations'
+        400:
+          description: Invalid input
+  /locations/{language}:
+    post:
+      tags:
+        - NLPService
+      summary: Find locations mentioned in a text, forcing the analysis language
+      operationId: findLocationsLang
+      parameters:
+        - $ref: '#/components/parameters/LanguageISO'
+        - name: pretty
+          in: query
+          description: whether to indent the returned JSON string, for a major readability
+          required: false
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        $ref: '#/components/requestBodies/InputText'
+      responses:
+        200:
+          $ref: '#/components/responses/Locations'
+        400:
+          description: Invalid input
   /morpho/datetimes:
     post:
       tags:
@@ -652,6 +695,15 @@ components:
             description: the date-time expressions found in the input text
             items:
               $ref: '#/components/schemas/DateTimeExpr'
+    Locations:
+      description: locations searched successfully
+      content:
+        application/json:
+          schema:
+            type: array
+            description: the locations mentioned in the input text
+            items:
+              $ref: '#/components/schemas/Location'
   schemas:
     InputText:
       type: object
@@ -1082,56 +1134,210 @@ components:
           description: the distribution of the score among the possibile categories
           items:
             $ref: '#/components/schemas/Score'
-    Location:
+    SingleLocation:
       type: object
-      description: a location recognized in the text
+      description: a geo-location
       required:
         - id
+        - unlocode
+        - isoA2
         - type
+        - subType
         - name
-        - nameTranslations
-        - sentences
+        - labels
+        - translations
+        - isCapital
+        - demonym
+        - area
+        - population
+        - languages
+        - borders
+        - altDivisions
+        - coords
       properties:
         id:
           type: string
+          description: a unique identifier of the location
           example: '250A01D310045'
+        unlocode:
+          type: string
+          description: the UN/LOCODE (United Nations Code for Trade and Transport Locations)
+          nullable: true
+          example: GBHMP
+        isoA2:
+          allOf:
+            - $ref: '#/components/schemas/IsoA2'
+            - type: string
+              nullable: true
         type:
           type: string
+          description: the hierarchical type
           example: City
           enum:
             - City
-            - AdminArea
+            - AdminArea1
+            - AdminArea2
             - Country
-            - Continent
             - Region
+            - Continent
+        subType:
+          type: string
+          description: the sub-type
+          nullable: true
+          example: town
         name:
           type: string
+          description: the common name
           example: London
-        nameTranslations:
-          type: object
-          properties:
-            ar:
-              type: string
-              example: لندن
-            de:
-              type: string
-              example: London
-            en:
-              type: string
-              example: London
-            es:
-              type: string
-              example: Londres
-            fr:
-              type: string
-              example: Londres
-            it:
-              type: string
-              example: Londra
-        sentences:
+        labels:
           type: array
+          description: all the labels (lower case) with which the location can be named
           items:
-            $ref: '#/components/schemas/Sentence'
+            type: string
+            example:
+              london
+        translations:
+          type: object
+          description: translations of the name associated by lower case language ISO 639-1 code
+        isCapital:
+          type: boolean
+          description: whether this location is the capital city of a country
+        demonym:
+          type: string
+          nullable: true
+          description: the demonym
+        area:
+          type: string
+          description: the area in km^2
+          nullable: true
+        population:
+          type: string
+          description: the population
+          nullable: true
+        languages:
+          type: array
+          description: the spoken languages
+          items:
+            $ref: '#/components/schemas/IsoA2'
+        borders:
+          type: array
+          description: the border countries
+          example:
+            - "441A000000000"
+            - "4426000000000"
+          items:
+            type: string
+            description: the ID of a country
+        altDivisions:
+          type: array
+          description: alternative administrative divisions of hierarchical super-levels
+          items:
+            type: object
+            required:
+              - type
+              - name
+              - level
+            properties:
+              type:
+                type: string
+                description: the division type
+                example: County
+              name:
+                type: string
+                description: the division name
+                example: County of London
+              level:
+                type: integer
+                format: int32
+                description: the hierarchical level of the division
+                example: 1
+        coords:
+          type: object
+          description: the geographical coordinates
+          nullable: true
+          required:
+            - lat
+            - lon
+          properties:
+            lat:
+              type: number
+              format: double
+              description: the latitude
+              example: 51.5073219
+            lon:
+              type: number
+              format: double
+              description: the longitude
+              example: -0.1276474
+    Location:
+      allOf:
+        - $ref: '#/components/schemas/SingleLocation'
+        - type: object
+          required:
+            - parents
+            - stats
+          properties:
+            parents:
+              type: object
+              description: the hierarchical super-levels of the location
+              required:
+                - adminArea1
+                - adminArea2
+                - country
+                - continent
+              properties:
+                adminArea1:
+                  allOf:
+                    - $ref: '#/components/schemas/SingleLocation'
+                    - type: object
+                      description: the administrative area of level 1 inside which this location is included
+                      nullable: true
+                adminArea2:
+                  allOf:
+                    - $ref: '#/components/schemas/SingleLocation'
+                    - type: object
+                      description: the administrative area of level 2 inside which this location is included
+                      nullable: true
+                country:
+                  allOf:
+                    - $ref: '#/components/schemas/SingleLocation'
+                    - type: object
+                      description: the country inside which this location is included
+                      nullable: true
+                continent:
+                  allOf:
+                    - $ref: '#/components/schemas/SingleLocation'
+                    - type: object
+                      description: the continent inside which this location is included
+                      nullable: true
+            stats:
+              type: object
+              required:
+                - score
+                - confidence
+                - countryStrength
+              properties:
+                score:
+                  allOf:
+                    - $ref: '#/components/schemas/StatScore'
+                    - type: object
+                      description: >
+                        How much the location is relevant respect to the others in the text.
+                        It is a percentage distributed among all the locations found in the text.
+                confidence:
+                  allOf:
+                    - $ref: '#/components/schemas/StatScore'
+                    - type: object
+                      description: >
+                        the confidence that the location is the correct one within the possibile candidates
+                        with the same name
+                countryStrength:
+                  type: number
+                  format: double
+                  description: >
+                    The strength of the country of this location within the text (based on the other locations of the same
+                    country).
+                    It has a meaning for locations of type 'Country' or locations that are inside a country.
     NumExpr:
       type: object
       description: a numerical expression
@@ -1569,14 +1775,14 @@ components:
               type: string
     ScoredKeyword:
       allOf:
-          - $ref: '#/components/schemas/ScoredElement'
-          - type: object
-            description: a keyword with a score
-            required:
-              - keyword
-            properties:
-              keyword:
-                type: string
+        - $ref: '#/components/schemas/ScoredElement'
+        - type: object
+          description: a keyword with a score
+          required:
+            - keyword
+          properties:
+            keyword:
+              type: string
     IndexedScore:
       allOf:
         - $ref: '#/components/schemas/ScoredElement'
@@ -1588,6 +1794,19 @@ components:
               type: integer
               format: int32
               example: 0
+    StatScore:
+      type: object
+      description: a statistical score, with a value and a deviation
+      required:
+        - value
+        - deviation
+      properties:
+        value:
+          type: number
+          format: double
+        deviation:
+          type: number
+          format: double
     Position:
       type: object
       description: the position in the text
