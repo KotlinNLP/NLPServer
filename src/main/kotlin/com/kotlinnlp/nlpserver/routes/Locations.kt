@@ -13,7 +13,6 @@ import com.beust.klaxon.json
 import com.kotlinnlp.geolocation.LocationsFinder
 import com.kotlinnlp.geolocation.dictionary.LocationsDictionary
 import com.kotlinnlp.geolocation.structures.CandidateEntity
-import com.kotlinnlp.geolocation.structures.Location
 import com.kotlinnlp.languagedetector.LanguageDetector
 import com.kotlinnlp.linguisticdescription.language.Language
 import com.kotlinnlp.linguisticdescription.language.getLanguageByIso
@@ -107,7 +106,7 @@ class Locations(
 
     return json {
       array(finder.bestLocations.map {
-        JsonObject(it.toJSON() + it.location.getParentsInfo())
+        it.toJSON(dictionary)
       })
     }.toJsonString(prettyPrint) + if (prettyPrint) "\n" else ""
   }
@@ -119,16 +118,5 @@ class Locations(
     name = this.string("name")!!,
     score = this.double("score")!!,
     occurrences = this.array<JsonArray<Int>>("occurrences")?.map { range -> IntRange(range[0], range[1]) } ?: listOf()
-  )
-
-  /**
-   * @return a map of parents info of this location (only actual parents are present)
-   */
-  private fun Location.getParentsInfo(): Map<String, String?> = mapOf(
-    "adminArea1" to this.adminArea1Id?.let { this@Locations.dictionary[it]!!.name },
-    "adminArea2" to this.adminArea2Id?.let { this@Locations.dictionary[it]!!.name },
-    "countryIso" to this.countryId?.let { this@Locations.dictionary[it]!!.isoA2 },
-    "country" to this.countryId?.let { this@Locations.dictionary[it]!!.name },
-    "continent" to this.continentId?.let { this@Locations.dictionary[it]!!.name }
   )
 }
