@@ -313,7 +313,7 @@ paths:
             type: boolean
             default: false
       requestBody:
-        $ref: '#/components/requestBodies/InputText'
+        $ref: '#/components/requestBodies/Locations'
       responses:
         200:
           $ref: '#/components/responses/Locations'
@@ -335,7 +335,7 @@ paths:
             type: boolean
             default: false
       requestBody:
-        $ref: '#/components/requestBodies/InputText'
+        $ref: '#/components/requestBodies/Locations'
       responses:
         200:
           $ref: '#/components/responses/Locations'
@@ -610,6 +610,13 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/InputText'
+    Locations:
+      description: the input text
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LocationsInput'
     ComparingTexts:
       description: the texts for the comparison
       required: true
@@ -718,6 +725,33 @@ components:
           format: int32
           nullable: true
           default: null
+    LocationsInput:
+      allOf:
+        - $ref: '#/components/schemas/InputText'
+        - type: object
+          properties:
+            candidates:
+              type: array
+              description: >
+                Entities candidate as locations.
+                If present, they are validated and disambiguated respect to actual geo-locations, otherwise candidates
+                are searched automatically with a named-entity labeler.
+              items:
+                type: object
+                required:
+                  - name
+                  - score
+                properties:
+                  name:
+                    type: string
+                    description: the candidate name
+                  score:
+                    type: number
+                    format: double
+                    description: >
+                      An initial score associated to the candidate.
+                      It is used to give importance to the candidate respect to a specific aspect (e.g. linguistic or
+                      semantic).
     TokenizedText:
       type: array
       description: a text split in sentences and tokens

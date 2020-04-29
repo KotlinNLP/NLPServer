@@ -9,8 +9,8 @@ package api
 
 import com.kotlinnlp.ApiClient
 import com.kotlinnlp.api.NlpServiceApi
-import com.kotlinnlp.api.model.InputText
 import com.kotlinnlp.api.model.Location
+import com.kotlinnlp.api.model.LocationsInput
 import com.kotlinnlp.api.model.SingleLocation
 import kotlin.Double.Companion.NaN
 
@@ -26,7 +26,7 @@ fun main(args: Array<String>) {
 
   inputLoop {
 
-    val locations: List<Location> = client.findLocations(InputText().text(it), false)
+    val locations: List<Location> = client.findLocations(LocationsInput().text(it), false)
 
     println("\nLocations found:")
 
