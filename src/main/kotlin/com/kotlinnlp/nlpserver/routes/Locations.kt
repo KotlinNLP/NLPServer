@@ -116,7 +116,6 @@ class Locations(
    */
   private fun JsonObject.toCandidateEntity() = CandidateEntity(
     name = this.string("name")!!,
-    score = this.double("score")!!,
-    occurrences = this.array<JsonArray<Int>>("occurrences")?.map { range -> IntRange(range[0], range[1]) } ?: listOf()
+    score = this.double("score")!!
   )
 }
