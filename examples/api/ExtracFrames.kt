@@ -13,13 +13,14 @@ import com.kotlinnlp.api.model.ExtractFramesResponse
 import com.kotlinnlp.api.model.InputText
 import com.kotlinnlp.api.model.NLPSlot
 import com.kotlinnlp.api.model.TokenizedSentence
+import com.xenomachina.argparser.mainBody
 
 /**
  * Test the `extract-frames` method of the KotlinNLP APIs.
  *
  * Launch with the '-h' option for help about the command line arguments.
  */
-fun main(args: Array<String>) {
+fun main(args: Array<String>) = mainBody {
 
   val parsedArgs = CommandLineArguments(args)
   val client = NlpServiceApi(ApiClient().setBasePath("http://${parsedArgs.host}:${parsedArgs.port}"))

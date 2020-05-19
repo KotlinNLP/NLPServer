@@ -11,13 +11,14 @@ import com.kotlinnlp.ApiClient
 import com.kotlinnlp.api.NlpServiceApi
 import com.kotlinnlp.api.model.InputText
 import com.kotlinnlp.api.model.Language
+import com.xenomachina.argparser.mainBody
 
 /**
  * Test the `language` method of the KotlinNLP APIs.
  *
  * Launch with the '-h' option for help about the command line arguments.
  */
-fun main(args: Array<String>) {
+fun main(args: Array<String>) = mainBody {
 
   val parsedArgs = CommandLineArguments(args)
   val client = NlpServiceApi(ApiClient().setBasePath("http://${parsedArgs.host}:${parsedArgs.port}"))

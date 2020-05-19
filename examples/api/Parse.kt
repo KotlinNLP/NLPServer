@@ -13,6 +13,7 @@ import com.jakewharton.picnic.table
 import com.kotlinnlp.ApiClient
 import com.kotlinnlp.api.NlpServiceApi
 import com.kotlinnlp.api.model.*
+import com.xenomachina.argparser.mainBody
 import java.lang.RuntimeException
 
 /**
@@ -20,7 +21,7 @@ import java.lang.RuntimeException
  *
  * Launch with the '-h' option for help about the command line arguments.
  */
-fun main(args: Array<String>) {
+fun main(args: Array<String>) = mainBody {
 
   val parsedArgs = CommandLineArguments(args)
   val client = NlpServiceApi(ApiClient().setBasePath("http://${parsedArgs.host}:${parsedArgs.port}"))

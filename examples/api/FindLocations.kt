@@ -12,6 +12,7 @@ import com.kotlinnlp.api.NlpServiceApi
 import com.kotlinnlp.api.model.Location
 import com.kotlinnlp.api.model.LocationsInput
 import com.kotlinnlp.api.model.SingleLocation
+import com.xenomachina.argparser.mainBody
 import kotlin.Double.Companion.NaN
 
 /**
@@ -19,7 +20,7 @@ import kotlin.Double.Companion.NaN
  *
  * Launch with the '-h' option for help about the command line arguments.
  */
-fun main(args: Array<String>) {
+fun main(args: Array<String>) = mainBody {
 
   val parsedArgs = CommandLineArguments(args)
   val client = NlpServiceApi(ApiClient().setBasePath("http://${parsedArgs.host}:${parsedArgs.port}"))
