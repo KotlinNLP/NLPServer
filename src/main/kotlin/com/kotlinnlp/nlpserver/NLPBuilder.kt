@@ -195,7 +195,7 @@ internal class NLPBuilder(parsedArgs: CommandLineArguments) {
         this.logger.info("  loading '${modelFile.name}'...")
         val model = NeuralTokenizerModel.load(FileInputStream(modelFile))
 
-        model.language.isoCode to NeuralTokenizer(model = model, useDropout = false)
+        model.language.isoCode to NeuralTokenizer(model)
       }
 
   /**
