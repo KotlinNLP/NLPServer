@@ -25,6 +25,7 @@ import com.kotlinnlp.nlpserver.LanguageNotSupported
 import com.kotlinnlp.nlpserver.routes.utils.TokenizingCommand
 import com.kotlinnlp.nlpserver.setAppender
 import com.kotlinnlp.tokenslabeler.TokensLabeler
+import com.kotlinnlp.utils.toTitleCase
 import org.apache.log4j.Logger
 import spark.Spark
 import java.lang.RuntimeException
@@ -162,7 +163,7 @@ class Locations(
 
       val segmentsByForm: Map<String, List<AnnotatedSegment>> = segments
         .filter { it.annotation == Entity.Type.Location.annotation }
-        .groupBy { it.getRefTokens(sentence.tokens).joinToString(" ") { tk -> tk.form }.toTitleCase() }
+        .groupBy { it.getRefTokens(sentence.tokens).joinToString(" ") { tk -> tk.form }.trim().toTitleCase() }
 
       segmentsByForm.map { (form, segments) ->
         CandidateEntity(name = form, score = segments.asSequence().map { it.score }.average())
@@ -182,13 +183,4 @@ class Locations(
     name = this.string("name")!!,
     score = this.double("score")!!
   )
-
-  /**
-   * Tokenize this string by spaces and convert each word to title case (only the first char in upper case).
-   *
-   * @return a copy of this string with each word in title case
-   */
-  private fun String.toTitleCase(): String = this.trim().split(" ").joinToString(" ") {
-    it[0].toUpperCase() + it.substring(1, it.length).toLowerCase()
-  }
 }
