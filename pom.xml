@@ -67,14 +67,14 @@
         <argparser.version>2.0.3</argparser.version>
         <xenocom.version>0.0.5</xenocom.version>
         <klaxon.version>5.2</klaxon.version>
-        <neuralparser.version>0.6.5</neuralparser.version>
-        <languagedetector.version>0.4.10</languagedetector.version>
-        <geolocation.version>0.2.4</geolocation.version>
-        <frameextractor.version>0.4.7</frameextractor.version>
-        <hanclassifier.version>0.6.5</hanclassifier.version>
-        <tokenslabeler.version>0.2.3</tokenslabeler.version>
-        <correlator.version>0.1.0</correlator.version>
-        <summarizer.version>0.1.0</summarizer.version>
+        <neuralparser.version>0.6.6</neuralparser.version>
+        <languagedetector.version>0.4.11</languagedetector.version>
+        <geolocation.version>0.2.5</geolocation.version>
+        <frameextractor.version>0.4.8</frameextractor.version>
+        <hanclassifier.version>0.6.6</hanclassifier.version>
+        <tokenslabeler.version>0.2.4</tokenslabeler.version>
+        <correlator.version>0.1.1</correlator.version>
+        <summarizer.version>0.1.1</summarizer.version>
     </properties>
 
     <repositories>
